@@ -1,0 +1,8 @@
+{
+  "host": "salaryticker.leelab.com.cn",
+  "user": "ubuntu",
+  "port": 22,
+  "keyPath": "C:\\Users\\You\\.ssh\\id_rsa",
+  "remoteDir": "/var/www/salaryticker",
+  "publicUrl": "https://salaryticker.leelab.com.cn"
+}

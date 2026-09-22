@@ -1,0 +1,1169 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SalaryTicker 实时计算器 · 看着工资一秒一秒地涨</title>
+<meta name="description" content="工资实时计算器：输入税前/税后工资与班制，实时看到本月/今日/当前小时已赚。双击即用、无需安装、完全离线不上传数据。">
+<meta name="theme-color" content="#FAF7F2">
+<link rel="icon" href="assets/favicon.ico" sizes="any">
+<link rel="apple-touch-icon" href="assets/app-icon.png">
+
+<!-- 社交分享（微信/QQ/微博等） -->
+<meta property="og:type" content="website">
+<meta property="og:title" content="SalaryTicker 实时计算器 · 看着工资一秒一秒地涨">
+<meta property="og:description" content="工资实时计算器：双击即用、无需安装、完全离线。摸鱼还能看「白赚」了多少。">
+<meta property="og:image" content="assets/app-icon.png">
+<meta property="og:url" content="https://salaryticker.leelab.com.cn/">
+
+<style>
+/* ==========================================================================
+   设计 Token（与应用 Resources/Colors.xaml 保持一致）
+   ========================================================================== */
+:root{
+  --bg:#FAF7F2;
+  --bg-subtle:#F2EDE4;
+  --card:#FFFFFF;
+  --primary:#E07A5F;
+  --primary-bright:#EE8A6D;
+  --primary-soft:#FBE9E2;
+  --money:#059669;
+  --money-soft:#E7F6F0;
+  --warn:#F4A261;
+  --warn-soft:#FDF1E4;
+  --text:#2D2A26;
+  --text-2:#7D7469;
+  --line:#EDE6DC;
+  --shadow:0 6px 24px rgba(138,122,106,.10);
+  --shadow-lg:0 18px 48px rgba(138,122,106,.16);
+  --radius:24px;
+  --maxw:1080px;
+  --font:"PingFang SC","Microsoft YaHei UI","Microsoft YaHei","Hiragino Sans GB",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --mono:"SF Mono",ui-monospace,Consolas,"Liberation Mono",monospace;
+}
+
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0;background:var(--bg);color:var(--text);
+  font-family:var(--font);font-size:16px;line-height:1.75;
+  -webkit-font-smoothing:antialiased;
+  overflow-x:hidden;   /* 安全网：任何元素意外撑宽时不出现横向滚动 */
+}
+h1,h2,h3{line-height:1.3;margin:0}
+p{margin:0}
+a{color:var(--primary);text-decoration:none}
+a:hover{text-decoration:underline}
+.wrap{width:100%;max-width:var(--maxw);margin:0 auto;padding:0 24px}
+section{padding:84px 0}
+.alt{background:var(--bg-subtle)}
+
+/* ---------- 导航 ---------- */
+.nav{
+  position:sticky;top:0;z-index:50;
+  background:rgba(250,247,242,.86);backdrop-filter:blur(12px);
+  border-bottom:1px solid var(--line);
+}
+.nav-inner{
+  max-width:var(--maxw);margin:0 auto;padding:12px 24px;
+  display:flex;align-items:center;gap:16px;
+}
+.brand{display:flex;align-items:center;gap:10px;font-weight:700;font-size:17px;color:var(--text)}
+.brand img{width:32px;height:32px;border-radius:10px;display:block}
+.nav-links{display:flex;gap:4px;margin-left:auto}
+.nav-links a{
+  color:var(--text-2);font-size:14px;padding:8px 14px;border-radius:999px;
+  text-decoration:none;transition:background .15s,color .15s;white-space:nowrap;
+}
+.nav-links a:hover{background:var(--primary-soft);color:var(--primary);text-decoration:none}
+.nav .btn{padding:9px 20px;font-size:14px}
+
+/* ---------- 按钮 ---------- */
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:8px;
+  background:var(--primary);color:#fff;border:none;cursor:pointer;
+  padding:15px 34px;border-radius:999px;font-size:16px;font-weight:600;
+  font-family:inherit;text-decoration:none;
+  transition:background .15s,transform .1s,box-shadow .2s;
+  box-shadow:0 6px 18px rgba(224,122,95,.28);
+}
+.btn:hover{background:var(--primary-bright);text-decoration:none;transform:translateY(-1px)}
+.btn:active{transform:translateY(0) scale(.98)}
+.btn.ghost{
+  background:transparent;color:var(--text);border:1.5px solid var(--line);
+  box-shadow:none;font-weight:500;
+}
+.btn.ghost:hover{background:var(--primary-soft);border-color:var(--primary);color:var(--primary)}
+.btn small{font-weight:400;opacity:.85;font-size:13px}
+
+/* ---------- 首屏 ---------- */
+.hero{padding:72px 0 64px;text-align:center}
+.hero h1{
+  font-size:clamp(30px,4.6vw,50px);font-weight:800;letter-spacing:-.01em;
+  margin-bottom:18px;
+}
+.hero .lead{
+  font-size:clamp(16px,1.9vw,21px);color:var(--text);
+  font-weight:500;letter-spacing:.01em;
+  max-width:620px;margin:0 auto 28px;
+}
+.hero .lead-sub{
+  display:inline-block;margin-top:10px;
+  font-size:.74em;font-weight:400;color:var(--text-2);letter-spacing:0;
+}
+.badges{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin-bottom:32px}
+.badge{
+  display:inline-flex;align-items:center;gap:6px;
+  background:var(--card);border:1px solid var(--line);border-radius:999px;
+  padding:7px 16px;font-size:13.5px;color:var(--text-2);
+}
+.cta-row{display:flex;flex-wrap:wrap;gap:12px;justify-content:center;align-items:center}
+.cta-note{margin-top:14px;font-size:13px;color:var(--text-2)}
+
+/* ---------- 应用窗口模型 ---------- */
+.mockup{
+  max-width:820px;margin:56px auto 0;
+  background:var(--card);border:1px solid var(--line);border-radius:var(--radius);
+  box-shadow:var(--shadow-lg);overflow:hidden;text-align:left;
+}
+.mock-bar{
+  display:flex;align-items:center;gap:10px;flex-wrap:wrap;
+  padding:14px 20px;border-bottom:1px solid var(--line);
+}
+.mock-logo{
+  width:30px;height:30px;border-radius:10px;background:var(--primary-soft);
+  display:flex;align-items:center;justify-content:center;font-size:15px;
+}
+.mock-name{font-weight:700;font-size:15px}
+.mock-tag{
+  background:var(--money-soft);color:var(--money);
+  font-size:11px;padding:3px 10px;border-radius:999px;
+}
+.mock-actions{margin-left:auto;display:flex;gap:6px}
+.mock-pill{
+  border:1px solid var(--line);border-radius:999px;
+  padding:5px 12px;font-size:12px;color:var(--text-2);
+}
+.mock-body{padding:22px}
+
+.mock-card{
+  background:var(--card);border:1px solid var(--line);
+  border-radius:18px;padding:20px;text-align:center;
+}
+.mock-card + .mock-card{margin-top:12px}
+.mock-label{font-size:12.5px;color:var(--text-2)}
+.mock-money{
+  font-family:var(--mono);font-weight:800;color:var(--money);
+  font-size:clamp(30px,5.4vw,46px);letter-spacing:-.02em;margin:6px 0 12px;
+  font-variant-numeric:tabular-nums;
+}
+.mock-bar-track{height:10px;border-radius:999px;background:var(--bg-subtle);overflow:hidden}
+.mock-bar-fill{
+  height:100%;border-radius:999px;width:66.7%;
+  background:linear-gradient(90deg,#F4A261,#E9C46A,#10B981);
+}
+.mock-progress{display:flex;justify-content:space-between;font-size:12px;color:var(--text-2);margin-top:6px}
+.mock-chip{
+  display:inline-block;margin-top:14px;background:var(--bg-subtle);
+  border-radius:999px;padding:6px 16px;font-size:12px;color:var(--text-2);
+}
+.mock-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px}
+.mock-row .mock-card{text-align:center;padding:16px}
+.mock-num{font-family:var(--mono);font-weight:700;color:var(--money);font-size:clamp(18px,2.6vw,24px);font-variant-numeric:tabular-nums}
+.mock-status{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.mock-count{font-family:var(--mono);font-weight:800;color:var(--primary);font-size:clamp(20px,3vw,28px)}
+.mock-state{
+  background:var(--money-soft);color:var(--money);font-weight:600;font-size:13.5px;
+  border-radius:999px;padding:9px 18px;
+}
+.mock-muyu{display:flex;flex-wrap:wrap;gap:10px;margin-top:6px}
+.mock-muyu span{
+  background:var(--warn-soft);color:#8A5A2B;font-size:13.5px;
+  border-radius:999px;padding:9px 16px;
+}
+.mock-hint{font-size:12px;color:var(--text-2);margin-top:12px}
+
+/* 迷你窗点缀 */
+.mock-mini{
+  max-width:230px;margin:18px auto 0;
+  background:var(--card);border:1.5px solid var(--primary-soft);
+  border-radius:18px;padding:12px 16px;text-align:center;
+  box-shadow:var(--shadow);
+}
+.mock-mini .mock-money{font-size:24px;margin:2px 0 0}
+.mock-mini .mock-label{font-size:11px}
+
+/* ---------- 通用区块标题 ---------- */
+.sec-head{text-align:center;max-width:640px;margin:0 auto 46px}
+.sec-head .kicker{
+  display:inline-block;font-size:12.5px;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--primary);font-weight:700;margin-bottom:12px;
+}
+.sec-head h2{font-size:clamp(23px,3vw,32px);font-weight:800;margin-bottom:12px}
+.sec-head p{color:var(--text-2);font-size:15.5px}
+
+/* ---------- 特性卡片 ---------- */
+.grid{display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(280px,1fr))}
+.card{
+  background:var(--card);border:1px solid var(--line);border-radius:var(--radius);
+  padding:26px;box-shadow:var(--shadow);
+  transition:transform .18s,box-shadow .18s;
+}
+.card:hover{transform:translateY(-3px);box-shadow:var(--shadow-lg)}
+.card .ico{
+  width:44px;height:44px;border-radius:14px;background:var(--primary-soft);
+  display:flex;align-items:center;justify-content:center;font-size:21px;margin-bottom:14px;
+}
+.card h3{font-size:17px;font-weight:700;margin-bottom:8px}
+.card p{font-size:14.5px;color:var(--text-2)}
+.card ul{margin:10px 0 0;padding-left:18px;font-size:14px;color:var(--text-2)}
+.card li{margin-bottom:4px}
+
+/* ---------- 公式区 ---------- */
+.formula{
+  background:#2D2A26;color:#F5F0E8;border-radius:18px;padding:24px 26px;
+  font-family:var(--mono);font-size:14px;line-height:2;overflow-x:auto;
+  white-space:pre-wrap;   /* 保留公式的换行与缩进 */
+}
+.formula .c{color:#9C9488}
+.formula .k{color:#F4A261}
+.formula .v{color:#6EE7B7}
+.notes{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));margin-top:20px}
+.note{
+  background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px 20px;
+}
+.note b{display:block;font-size:14.5px;margin-bottom:4px}
+.note span{font-size:13.5px;color:var(--text-2)}
+
+/* ---------- 摸鱼区 ---------- */
+.muyu{background:var(--warn-soft);border-radius:var(--radius);padding:38px}
+.muyu h2{font-size:clamp(21px,2.6vw,28px);font-weight:800;margin-bottom:12px}
+.muyu p{color:#7A5330;font-size:15px;max-width:640px}
+.muyu .quotes{
+  margin-top:22px;background:rgba(255,255,255,.7);border-radius:16px;
+  padding:18px 22px;font-size:14.5px;color:#7A5330;
+}
+.muyu .quotes div + div{margin-top:8px}
+
+/* ---------- 隐私三点 ---------- */
+.privacy .card{text-align:left}
+.privacy .ico{background:var(--money-soft)}
+
+/* ---------- 安装步骤 ---------- */
+.steps{counter-reset:s;display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(260px,1fr))}
+.step{
+  background:var(--card);border:1px solid var(--line);border-radius:var(--radius);
+  padding:24px;position:relative;
+}
+.step::before{
+  counter-increment:s;content:counter(s);
+  display:flex;align-items:center;justify-content:center;
+  width:30px;height:30px;border-radius:50%;
+  background:var(--primary);color:#fff;font-weight:700;font-size:14px;margin-bottom:12px;
+}
+.step h3{font-size:16px;font-weight:700;margin-bottom:6px}
+.step p{font-size:14px;color:var(--text-2)}
+.step code{
+  background:var(--bg-subtle);border-radius:6px;padding:2px 7px;
+  font-family:var(--mono);font-size:13px;color:var(--text);
+}
+.alert{
+  margin-top:20px;background:var(--warn-soft);border-radius:18px;padding:22px 24px;
+  display:flex;gap:14px;align-items:flex-start;
+}
+.alert .ico{font-size:22px;line-height:1}
+.alert h3{font-size:15.5px;font-weight:700;color:#7A5330;margin-bottom:6px}
+.alert p{font-size:14px;color:#7A5330}
+.alert b{background:rgba(255,255,255,.6);border-radius:6px;padding:1px 6px}
+
+/* ---------- 首次运行引导（警示卡内的三步） ---------- */
+.alert-steps{display:flex;flex-wrap:wrap;gap:10px;margin-top:14px}
+.alert-step{
+  display:flex;align-items:center;gap:8px;
+  background:rgba(255,255,255,.72);border-radius:999px;padding:8px 16px;
+  font-size:13.5px;font-weight:600;color:#7A5330;
+}
+.alert-step .n{
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;
+  width:20px;height:20px;border-radius:50%;
+  background:var(--warn);color:#fff;font-size:12px;font-weight:700;
+}
+.alert-note{margin-top:14px;font-size:13px}
+
+/* ---------- FAQ ---------- */
+.faq{max-width:820px;margin:0 auto}
+details{
+  background:var(--card);border:1px solid var(--line);border-radius:16px;
+  padding:0;margin-bottom:10px;overflow:hidden;
+}
+details[open]{box-shadow:var(--shadow)}
+summary{
+  cursor:pointer;padding:18px 22px;font-weight:600;font-size:15.5px;
+  list-style:none;display:flex;justify-content:space-between;align-items:center;gap:12px;
+}
+summary::-webkit-details-marker{display:none}
+summary::after{content:"＋";color:var(--primary);font-size:18px;font-weight:400;flex-shrink:0}
+details[open] summary::after{content:"－"}
+details .body{padding:0 22px 20px;font-size:14.5px;color:var(--text-2)}
+details .body p + p{margin-top:8px}
+
+/* ---------- 更新日志 ---------- */
+.changelog{
+  background:var(--card);border:1px solid var(--line);border-radius:var(--radius);
+  padding:28px;max-width:820px;margin:0 auto;
+}
+.changelog .ver{
+  display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:14px;
+}
+.changelog .ver b{font-family:var(--mono);font-size:22px;color:var(--money)}
+.changelog .ver span{font-size:13px;color:var(--text-2)}
+.changelog .notes{
+  background:var(--primary-soft);border-radius:14px;padding:16px 20px;
+  font-size:14.5px;color:#8A4B38;white-space:pre-wrap;word-break:break-word;
+}
+.changelog .hash{
+  font-family:var(--mono);font-size:11.5px;color:var(--text-2);
+  word-break:break-all;margin-top:14px;
+}
+
+/* ---------- 支持与反馈 ---------- */
+/* br-wide：仅在宽屏生效的换行，手机上让文字自然折行，避免出现半行孤字 */
+.br-wide{display:none}
+@media (min-width:620px){ .br-wide{display:inline} }
+
+.support{display:grid;gap:16px;grid-template-columns:1fr 1fr}
+.support .card{display:flex;flex-direction:column}
+.support .card p{flex:1}
+.support .actions{margin-top:20px}
+.coffee{background:var(--warn-soft);border-color:#F3E0CB}
+.coffee .ico{background:#FCE4CB}
+.thanks{font-size:13.5px;color:var(--text-2);margin-top:14px;flex:0 !important}
+
+/* 赞赏码弹窗 */
+.modal{
+  position:fixed;inset:0;z-index:100;display:none;
+  align-items:center;justify-content:center;padding:20px;
+  background:rgba(45,42,38,.55);backdrop-filter:blur(4px);
+}
+.modal.open{display:flex}
+.modal-box{
+  position:relative;background:var(--card);border-radius:var(--radius);
+  padding:28px 26px;max-width:340px;width:100%;text-align:center;
+  box-shadow:var(--shadow-lg);
+}
+.modal-box h3{font-size:17px;font-weight:700;margin-bottom:6px}
+.modal-box p{font-size:13.5px;color:var(--text-2);line-height:1.7}
+.modal-box img{display:block;width:100%;max-width:250px;margin:16px auto 0;border-radius:14px}
+.modal-close{
+  position:absolute;top:10px;right:10px;width:32px;height:32px;
+  border:none;border-radius:50%;background:transparent;cursor:pointer;
+  color:var(--text-2);font-size:15px;font-family:inherit;
+}
+.modal-close:hover{background:var(--bg-subtle)}
+
+/* 历史版本列表 */
+.history-list{max-height:52vh;overflow-y:auto;text-align:left}
+.history-item{
+  display:flex;align-items:center;gap:12px;
+  padding:11px 14px;border:1px solid var(--line);border-radius:14px;
+}
+.history-item + .history-item{margin-top:8px}
+.history-item .v{font-family:var(--mono);font-weight:700;font-size:15px;color:var(--money)}
+.history-item .meta{font-size:12px;color:var(--text-2);margin-top:2px}
+.history-item .latest{
+  display:inline-block;background:var(--money-soft);color:var(--money);
+  font-size:10.5px;font-weight:600;padding:2px 7px;border-radius:999px;
+  vertical-align:middle;margin-left:4px;
+}
+.history-item .dl{margin-left:auto;font-size:13px;white-space:nowrap;color:var(--primary)}
+
+@media (max-width:860px){
+  .support{grid-template-columns:1fr}
+}
+
+/* ---------- 页脚 ---------- */
+footer{
+  background:var(--card);border-top:1px solid var(--line);
+  padding:44px 0 36px;font-size:13.5px;color:var(--text-2);
+}
+footer .wrap{display:grid;gap:20px}
+footer .brand{font-size:16px;margin-bottom:0}
+footer .cols{display:flex;flex-wrap:wrap;gap:28px;justify-content:space-between}
+footer .col{max-width:520px}
+footer a{color:var(--text-2)}
+footer .fine{font-size:12.5px;line-height:1.9;border-top:1px solid var(--line);padding-top:18px}
+
+/* ---------- 滚动淡入 ---------- */
+.reveal{opacity:0;transform:translateY(18px);transition:opacity .6s ease,transform .6s ease}
+.reveal.in{opacity:1;transform:none}
+
+/* ---------- 响应式 ---------- */
+@media (max-width:860px){
+  .nav-links{display:none}
+  section{padding:60px 0}
+  .hero{padding:52px 0 44px}
+  .mock-body{padding:16px}
+  .mock-row{grid-template-columns:1fr}
+  .mock-actions{margin-left:0;width:100%}
+  .mock-pill{padding:4px 10px;font-size:11.5px}
+}
+@media (prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}
+  .reveal{opacity:1;transform:none;transition:none}
+  .btn:hover{transform:none}
+  .card:hover{transform:none}
+}
+</style>
+</head>
+<body>
+
+<!-- ═══════════ 导航 ═══════════ -->
+<nav class="nav">
+  <div class="nav-inner">
+    <a class="brand" href="#top">
+      <img src="assets/app-icon.png" alt="SalaryTicker 图标">
+      SalaryTicker
+    </a>
+    <div class="nav-links">
+      <a href="#features">功能</a>
+      <a href="#how">怎么算的</a>
+      <a href="#muyu">摸鱼</a>
+      <a href="#install">安装</a>
+      <a href="#faq">常见问题</a>
+      <a href="#changelog">更新日志</a>
+      <a href="#support">支持</a>
+    </div>
+    <a class="btn" href="download/SalaryTicker.exe" download>下载</a>
+  </div>
+</nav>
+
+<!-- ═══════════ 首屏 ═══════════ -->
+<header class="hero" id="top">
+  <div class="wrap">
+    <h1>谋生有度，生活有光。</h1>
+    <p class="lead">
+      把月薪拆成看得见的每一秒。<br>
+      <span class="lead-sub">SalaryTicker 是一个工资实时计算器 · 内置深圳参数，其他城市可自行调整</span>
+    </p>
+
+    <div class="badges">
+      <span class="badge">💻 双击即用，无需安装</span>
+      <span class="badge">🔒 完全离线，不上传数据</span>
+      <span class="badge">🌴 节假日强制休息，不计薪</span>
+    </div>
+
+    <div class="cta-row">
+      <a class="btn" id="dl-main" href="download/SalaryTicker.exe" download>
+        ⬇ 下载 Windows 版 <small id="dl-ver" style="display:none"></small>
+      </a>
+      <a class="btn ghost" href="#features">先看看它能做什么</a>
+    </div>
+    <p class="cta-note" id="dl-note">Windows 10 / 11 · 64 位 · 免安装绿色版</p>
+
+    <!-- 应用窗口模型（纯 CSS 绘制，数字每秒真实跳动） -->
+    <div class="mockup">
+      <div class="mock-bar">
+        <div class="mock-logo">💰</div>
+        <div class="mock-name">SalaryTicker</div>
+        <div class="mock-tag">实时计算中</div>
+        <div class="mock-actions">
+          <span class="mock-pill">🐟 摸鱼统计</span>
+          <span class="mock-pill">🪟 迷你窗</span>
+          <span class="mock-pill">⚙️ 设置</span>
+        </div>
+      </div>
+
+      <div class="mock-body">
+        <div class="mock-card">
+          <div class="mock-label">🌱 本月已赚</div>
+          <div class="mock-money" id="live-money">¥10,726.25</div>
+          <div class="mock-bar-track"><div class="mock-bar-fill"></div></div>
+          <div class="mock-progress"><span>本月进度</span><span>66.7%</span></div>
+          <span class="mock-chip">税后 ¥15,764.00 · 日薪 ¥724.78 · 秒薪 ¥0.0252</span>
+        </div>
+
+        <div class="mock-row">
+          <div class="mock-card">
+            <div class="mock-label">☀️ 今日已赚</div>
+            <div class="mock-num" id="live-today">¥351.92</div>
+          </div>
+          <div class="mock-card">
+            <div class="mock-label">⏱️ 当前小时已赚</div>
+            <div class="mock-num" id="live-hour">¥80.03</div>
+          </div>
+        </div>
+
+        <div class="mock-card mock-status">
+          <div style="text-align:left">
+            <div class="mock-label">距离下班</div>
+            <div class="mock-count" id="live-countdown">04:06:55</div>
+          </div>
+          <div class="mock-state">赚钱中，每一秒都算数 💪</div>
+        </div>
+
+        <div class="mock-card" style="text-align:left">
+          <div class="mock-label" style="margin-bottom:10px">🐟 摸鱼一下 · 工资照常涨，只是看看花了老板多少钱</div>
+          <div class="mock-muyu">
+            <span>🚽 去趟 WC</span>
+            <span>☕ 倒杯水</span>
+            <span>🚬 抽根烟</span>
+          </div>
+          <div class="mock-hint">摸鱼时还能实时看到「白赚」了多少钱 😎</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 迷你悬浮窗点缀 -->
+    <div class="mock-mini">
+      <div class="mock-label">💰 本月已赚</div>
+      <div class="mock-money" id="live-mini">¥10,726.25</div>
+    </div>
+  </div>
+</header>
+
+<!-- ═══════════ 功能 ═══════════ -->
+<section id="features">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <span class="kicker">Features</span>
+      <h2>它到底能做什么</h2>
+      <p>不是又一个工资计算器 —— 它是你上班时挂在屏幕角落、一直在涨的那个数字。</p>
+    </div>
+
+    <div class="grid">
+      <div class="card reveal">
+        <div class="ico">💸</div>
+        <h3>两种模式，各取所需</h3>
+        <p>知道税前工资？自动算出五险一金与个税，得到税后到手。只知道到手多少？直接填一个数，立刻开始计时。</p>
+      </div>
+
+      <div class="card reveal">
+        <div class="ico">🏦</div>
+        <h3>五险一金，五种基数方式</h3>
+        <ul>
+          <li>自动（用工资作基数）</li>
+          <li>按下限 / 按上限（公司按最低或最高基数申报）</li>
+          <li>自定义基数 / 直接填月缴额</li>
+        </ul>
+        <p style="margin-top:8px">养老、医疗（深圳一档 / 深圳二档）、失业、公积金各档可独立设置，每项都实时显示计算过程。</p>
+      </div>
+
+      <div class="card reveal">
+        <div class="ico">⏱️</div>
+        <h3>三个维度的实时数字</h3>
+        <p>本月已赚、今日已赚、当前小时已赚，每秒刷新。月中才打开？会自动把本月 1 号到昨天的工资补上。</p>
+      </div>
+
+      <div class="card reveal">
+        <div class="ico">📅</div>
+        <h3>班制、节假日与补班</h3>
+        <p>5 天 8 小时、大小周、6 天制、每日 10 小时，或完全自定义（含多段午休）。内置法定节假日表，节假日强制休息不计薪；国家调休补班日照常计薪。</p>
+      </div>
+
+      <div class="card reveal">
+        <div class="ico">🐟</div>
+        <h3>摸鱼还能「白赚」</h3>
+        <p>点一下摸鱼按钮开始计时，实时显示这段时间白赚了多少钱。今日/本周/本月统计，纯属自娱自乐。</p>
+      </div>
+
+      <div class="card reveal">
+        <div class="ico">🪟</div>
+        <h3>迷你悬浮窗</h3>
+        <p>220×90 的无边框小窗，置顶显示本月已赚，可拖动、可调透明度、位置记忆，双击回到主界面。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════ 怎么算的 ═══════════ -->
+<section id="how" class="alt">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <span class="kicker">Transparent</span>
+      <h2>它是怎么算的</h2>
+      <p>公式全部摊开给你看 —— 而且所有政策参数都能在设置里改，政策变了不用等更新。</p>
+    </div>
+
+    <div class="formula reveal">
+<span class="c">// 日薪与秒薪</span>
+日薪  = 税后月薪 ÷ 月计薪天数<span class="c">（默认 21.75）</span>
+秒薪  = 日薪 ÷ 每日计薪小时<span class="c">（默认 8）</span> ÷ 3600
+
+<span class="c">// 五险一金（个人缴纳部分）</span>
+缴费基数 = <span class="k">clamp</span>(工资, 基数下限, 基数上限)
+个人缴纳 = 缴费基数 × 个人比例
+<span class="c">// 例：养老 8% · 医疗深圳一档 2% · 失业 0.2% · 公积金 5%~12%</span>
+
+<span class="c">// 个税（累计预扣法，按当前月自动累计）</span>
+累计应纳税所得额 = 累计收入 − 5000×月份数 − 累计五险一金 − 累计专项附加扣除
+当月个税 = 累计应纳税额 × 预扣率 − 速算扣除数 − 已预扣税额
+    </div>
+
+    <div class="notes">
+      <div class="note reveal">
+        <b>📖 参数可配置</b>
+        <span>社保基数上下限、各项比例、公积金比例、7 级税率表、节假日与补班日 —— 全部在「设置 → 政策参数」里，可随时更新。</span>
+      </div>
+      <div class="note reveal">
+        <b>🧮 计算口径</b>
+        <span>每项险种先各自四舍五入到分再求和（与工资条口径一致）。其他扣款（企业年金等）按税后扣减计入。</span>
+      </div>
+      <div class="note reveal">
+        <b>📌 仅供参考</b>
+        <span>计算结果仅供参考，以实际工资条为准。不同公司申报口径不同，这也是为什么提供五种基数方式。</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════ 摸鱼 ═══════════ -->
+<section id="muyu">
+  <div class="wrap">
+    <div class="muyu reveal">
+      <h2>🐟 摸鱼，但理直气壮</h2>
+      <p>
+        点一下「抽根烟」，计时开始，屏幕实时显示这段时间<b>白赚</b>了多少钱 ——
+        工资照常在涨，你只是让数字替你说出那句：「我摸的不是鱼，是带薪的。」
+      </p>
+      <div class="quotes">
+        <div>「今天你已经摸鱼 3 次，白赚 ¥18.90，相当于老板请你喝了杯奶茶 🧋」</div>
+        <div>「今天你已经摸鱼 6 次，白赚 ¥52.16，够买一份下午茶了 🍰 摸鱼界的劳模非你莫属！🏆」</div>
+      </div>
+      <p style="margin-top:18px;font-size:13.5px">
+        🔒 摸鱼记录只存本地，不上传、不联网。你也可以在设置里关掉历史记录。
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════ 隐私 ═══════════ -->
+<section class="alt privacy">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <span class="kicker">Privacy</span>
+      <h2>你的数据，只在你电脑里</h2>
+      <p>工资是很私人的事。所以它不联网、不注册、不上传。</p>
+    </div>
+
+    <div class="grid">
+      <div class="card reveal">
+        <div class="ico">💾</div>
+        <h3>只存本地</h3>
+        <p>配置、摸鱼记录全部保存在 <code style="font-family:var(--mono);font-size:13px">%AppData%\SalaryTicker\</code> 下的 JSON 文件，随时可备份、可查看、可删除。</p>
+      </div>
+      <div class="card reveal">
+        <div class="ico">🚫</div>
+        <h3>不上传任何信息</h3>
+        <p>没有账号、没有埋点、没有统计上报。你填了多少工资，只有你自己的电脑知道。</p>
+      </div>
+      <div class="card reveal">
+        <div class="ico">🔄</div>
+        <h3>联网只为一件事</h3>
+        <p>检查新版本（可选，可关闭）。关闭后应用完全不发起任何网络请求，功能一切正常。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════ 安装 ═══════════ -->
+<section id="install">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <span class="kicker">Get started</span>
+      <h2>三十秒就能用上</h2>
+      <p>绿色免安装：不需要装 .NET 运行时，不需要管理员权限，删掉 exe 就等于卸载。</p>
+    </div>
+
+    <div class="steps">
+      <div class="step reveal">
+        <h3>下载</h3>
+        <p>点页面上的下载按钮，得到一个约 69MB 的 <code>SalaryTicker.exe</code>（里面已打包运行环境）。</p>
+      </div>
+      <div class="step reveal">
+        <h3>放到可写目录</h3>
+        <p>建议放 <code>D:\Apps\</code> 或桌面等自己有写权限的位置。<b>不要放</b> <code>C:\Program Files</code>，否则自动更新会因权限失败。</p>
+      </div>
+      <div class="step reveal">
+        <h3>双击运行</h3>
+        <p>填一次工资与班制，保存，然后就可以看着数字涨了。之后有新版本会在顶部提示，一键更新。</p>
+      </div>
+    </div>
+
+    <div class="alert reveal">
+      <div class="ico">⚠️</div>
+      <div>
+        <h3>首次运行提示「Windows 已保护你的电脑」？</h3>
+        <p>
+          这是因为 SalaryTicker 没有购买代码签名证书。代码签名证书每年需要几百到上千元，Lee 老师暂时没有预算购买，所以 Windows 无法验证发布者，就会给出这个提示。
+        </p>
+        <p>
+          它不代表程序一定不安全，但系统确实无法帮你确认来源。请务必从本官网下载，不要从第三方渠道下载。
+        </p>
+        <div class="alert-steps">
+          <div class="alert-step"><span class="n">1</span>点「更多信息」</div>
+          <div class="alert-step"><span class="n">2</span>点「仍要运行」</div>
+          <div class="alert-step"><span class="n">3</span>之后就正常了</div>
+        </div>
+        <p class="alert-note">
+          针对该文件通常不再提示；但更新到新版本后可能再出现一次 —— 每次发版都会生成新文件，Windows 需要重新识别。
+        </p>
+        <p>
+          如果仍然不放心，可以先用杀毒软件扫描，或校验文件的 SHA256 值（下载页附有校验值）。
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════ 常见问题 ═══════════ -->
+<section id="faq" class="alt">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <span class="kicker">FAQ</span>
+      <h2>常见问题</h2>
+    </div>
+
+    <div class="faq">
+      <details class="reveal" open>
+        <summary>需要安装 .NET 运行时吗？要装什么依赖吗？</summary>
+        <div class="body">
+          <p>都不需要。这是一个自包含的单文件程序，运行环境已经打包进 exe（所以它有 69MB）。双击就能用，不需要安装任何东西，也不需要管理员权限。</p>
+        </div>
+      </details>
+
+      <details class="reveal">
+        <summary>这个软件收费吗？以后会变成收费软件吗？</summary>
+        <div class="body">
+          <p>完全免费：没有广告、没有会员、没有功能限制，也<b>没有打算变成收费软件</b>。</p>
+          <p>如果它帮到了你，可以在页面下方「请 Lee 老师喝杯咖啡」处随喜支持 —— 不请也完全没关系，你愿意用就是最好的支持。</p>
+        </div>
+      </details>
+
+      <details class="reveal">
+        <summary>我的工资数据会被上传吗？</summary>
+        <div class="body">
+          <p>不会。应用不上传任何数据，配置和摸鱼记录都只存在你自己电脑的 <code>%AppData%\SalaryTicker\</code> 目录里。</p>
+          <p>唯一的网络请求是「检查新版本」——只 GET 一个几百字节的版本清单，不发送任何你的信息；而且可以在「设置 → 更新」里完全关闭。</p>
+        </div>
+      </details>
+
+      <details class="reveal">
+        <summary>怎么卸载？</summary>
+        <div class="body">
+          <p>直接删掉 <code>SalaryTicker.exe</code> 就卸载了（它不写注册表）。如果想连配置一起清掉，再删除 <code>%AppData%\SalaryTicker\</code> 目录即可。</p>
+        </div>
+      </details>
+
+      <details class="reveal">
+        <summary>能自动更新吗？</summary>
+        <div class="body">
+          <p>可以。应用启动后会检查版本，发现新版本时顶部会出现提示条，点「立即更新」即可自动完成下载、校验与重启，不需要重新去网站下载。</p>
+        </div>
+      </details>
+
+      <details class="reveal">
+        <summary>能用在其他城市吗？</summary>
+        <div class="body">
+          <p>可以。所有政策参数（基数上下限、比例、税率、节假日）都能在「设置 → 政策参数」里改成你所在城市的值。</p>
+          <p>后续也计划内置更多城市的参数预设，让它开箱即用。</p>
+        </div>
+      </details>
+
+      <details class="reveal">
+        <summary>算出来的数和我工资条对不上？</summary>
+        <div class="body">
+          <p>常见原因是公司申报的缴费基数和实际工资不同。你可以在每个险种下选择「按下限」「按上限」或「自定义基数」，也可以直接从工资条抄数字用「直接填月缴额」。</p>
+          <p>另外提醒：计算结果仅供参考，请以实际工资条为准。</p>
+        </div>
+      </details>
+
+      <details class="reveal">
+        <summary>节假日为什么不计薪？周六补班为什么又计薪？</summary>
+        <div class="body">
+          <p>按 Lee 老师的理念：节假日就该强制休息，不计工资也不计加班费，不鼓励内卷。</p>
+          <p>而国家规定的「调休补班日」（周末上班的那几天）属于正常工作日，应用会照常计薪。节假日与补班日列表都预置了 2026 年的数据，也可以在设置里自行增删。</p>
+        </div>
+      </details>
+
+      <details class="reveal">
+        <summary>数据损坏了怎么办？</summary>
+        <div class="body">
+          <p>配置写入采用「先写临时文件再替换」，并会自动备份最近 10 份。如果配置文件意外损坏，应用会自动回退到最近的备份并在顶部提示，不会崩溃。</p>
+        </div>
+      </details>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════ 更新日志 ═══════════ -->
+<section id="changelog">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <span class="kicker">Changelog</span>
+      <h2>最新版本</h2>
+    </div>
+
+    <div class="changelog reveal">
+      <div class="ver" id="cl-meta" style="display:none">
+        <b id="cl-ver"></b>
+        <span id="cl-date"></span>
+        <span id="cl-size"></span>
+      </div>
+      <div class="notes" id="cl-notes">正在读取版本信息…</div>
+      <div class="hash" id="cl-hash"></div>
+      <div style="margin-top:20px">
+        <a class="btn" href="download/SalaryTicker.exe" download>⬇ 下载最新版</a>
+        <button class="btn ghost" type="button" id="btn-history" style="margin-left:8px">查看历史版本</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════ 支持与反馈 ═══════════ -->
+<section id="support" class="alt">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <span class="kicker">Support</span>
+      <h2>如果它帮到了你</h2>
+    </div>
+
+    <div class="support">
+      <!-- 打赏 -->
+      <div class="card coffee reveal">
+        <div class="ico">☕</div>
+        <h3>请 Lee 老师喝杯咖啡</h3>
+        <p>SalaryTicker 免费、离线、无广告，<br class="br-wide">
+           也没有打算变成收费软件。<br>
+           如果它帮你把工资算得更明白，<br class="br-wide">
+           或让上班的某一刻轻松了一点，<br>
+           可以请 Lee 老师喝杯咖啡。</p>
+        <p class="thanks">随喜就好，不请也完全没关系。<br>你愿意用，就是最好的支持。</p>
+        <div class="actions">
+          <button class="btn" type="button" id="btn-coffee">☕ 请 Lee 老师喝杯咖啡</button>
+        </div>
+      </div>
+
+      <!-- 反馈 -->
+      <div class="card reveal">
+        <div class="ico">🙋</div>
+        <h3>关于这个应用</h3>
+        <p>SalaryTicker 从设计、开发到测试，<br class="br-wide">
+           都是 Lee 老师一个人完成的，背后没有团队。<br>
+           如果你发现哪里算得不对、哪里用着别扭，<br class="br-wide">
+           或者有任何想法，欢迎随时写信告诉我 ——<br>
+           每一条反馈我都会认真看。</p>
+        <div class="actions">
+          <a class="btn ghost" href="mailto:leemail208@163.com">✉️ 写信给 Lee 老师</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 赞赏码弹窗 -->
+<div class="modal" id="modal-coffee" role="dialog" aria-modal="true" aria-label="微信赞赏码">
+  <div class="modal-box">
+    <button class="modal-close" type="button" id="modal-close" aria-label="关闭">✕</button>
+    <h3>☕ 请 Lee 老师喝杯咖啡</h3>
+    <p>微信扫一扫，随喜就好</p>
+    <!-- 依次尝试 donate.png → donate.jpg；都没有则降级为文字，绝不出现破图 -->
+    <img id="donate-img" src="assets/donate.png" alt="微信赞赏码"
+         onerror="if(!this.dataset.triedJpg){this.dataset.triedJpg='1';this.src='assets/donate.jpg';}else{this.style.display='none';var f=document.getElementById('donate-fallback');if(f){f.style.display='block';}}">
+    <p id="donate-fallback" style="display:none;margin-top:16px">
+      赞赏码暂时还没放上来，心意已经收到啦 ❤️<br>
+      有任何建议也欢迎写信：leemail208@163.com
+    </p>
+  </div>
+</div>
+
+<!-- 历史版本弹窗 -->
+<div class="modal" id="modal-history" role="dialog" aria-modal="true" aria-label="历史版本">
+  <div class="modal-box" style="max-width:440px">
+    <button class="modal-close" type="button" id="history-close" aria-label="关闭">✕</button>
+    <h3>📦 历史版本</h3>
+    <p style="margin-bottom:16px">想装回旧版本？点下面任意一个下载即可</p>
+    <div class="history-list" id="history-list">
+      <p style="text-align:center;color:var(--text-2)">正在读取…</p>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════ 页脚 ═══════════ -->
+<footer>
+  <div class="wrap">
+    <div class="cols">
+      <div class="col">
+        <div class="brand" style="margin-bottom:10px">
+          <img src="assets/app-icon.png" alt="" style="width:28px;height:28px;border-radius:9px">
+          SalaryTicker 实时计算器
+        </div>
+        <p>作者 Lee 老师 · <a href="mailto:leemail208@163.com">leemail208@163.com</a></p>
+      </div>
+      <div class="col">
+        <p><b>Lee 老师倡导全行业按法休息</b><br>不恶意内卷、不形式加班。这个计算器也会在节假日强制休息，不计算工资和加班费。</p>
+      </div>
+    </div>
+    <div class="fine">
+      ⚠️ 内置深圳参数；其他城市可在「设置 → 政策参数」中按当地政策调整。<br>
+      📌 计算结果仅供参考，以实际工资条为准。愿你的付出都有回响，休息也理直气壮。<br>
+      © 2026 SalaryTicker · 本页面不含任何第三方统计脚本
+    </div>
+  </div>
+</footer>
+
+<script>
+(function () {
+  'use strict';
+
+  var reduceMotion = window.matchMedia &&
+    window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* ---------------------------------------------------------------
+     1. 首屏数字：按秒薪每秒跳动（模拟真实运行的界面）
+     --------------------------------------------------------------- */
+  var SECOND_RATE = 0.0252;          // 秒薪（与页面展示的示例一致）
+  var SECONDS_PER_HOUR = 3600;
+
+  var els = {
+    money: document.getElementById('live-money'),
+    today: document.getElementById('live-today'),
+    hour:  document.getElementById('live-hour'),
+    mini:  document.getElementById('live-mini'),
+    countdown: document.getElementById('live-countdown')
+  };
+
+  var COUNTDOWN_START = 4 * 3600 + 6 * 60 + 55;   // 04:06:55
+
+  var state = {
+    money: 10726.25,
+    today: 351.92,
+    hour: 80.03,
+    countdown: COUNTDOWN_START
+  };
+
+  function fmt(v) {
+    var s = v.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+    return '¥' + s;
+  }
+
+  function fmtCountdown(totalSeconds) {
+    var s = Math.max(0, Math.floor(totalSeconds));
+    var h = Math.floor(s / 3600);
+    var m = Math.floor((s % 3600) / 60);
+    var sec = s % 60;
+    function pad(n) { return (n < 10 ? '0' : '') + n; }
+    return pad(h) + ':' + pad(m) + ':' + pad(sec);
+  }
+
+  function render() {
+    if (els.money) els.money.textContent = fmt(state.money);
+    if (els.mini)  els.mini.textContent  = fmt(state.money);
+    if (els.today) els.today.textContent = fmt(state.today);
+    if (els.hour)  els.hour.textContent  = fmt(state.hour);
+    if (els.countdown) els.countdown.textContent = fmtCountdown(state.countdown);
+  }
+
+  var timer = null;
+
+  function tick() {
+    state.money += SECOND_RATE;
+    state.today += SECOND_RATE;
+    state.hour  += SECOND_RATE;
+    // 整点后归零，与真实行为一致
+    if (state.hour > 100) state.hour = 0;
+
+    // 倒计时每秒递减，归零后重新开始（演示用循环）
+    state.countdown -= 1;
+    if (state.countdown < 0) state.countdown = COUNTDOWN_START;
+
+    render();
+  }
+
+  function start() {
+    if (reduceMotion || timer) return;
+    timer = setInterval(tick, 1000);
+  }
+
+  function stop() {
+    if (timer) { clearInterval(timer); timer = null; }
+  }
+
+  render();
+  start();
+
+  // 页面不可见时暂停，省电
+  document.addEventListener('visibilitychange', function () {
+    if (document.hidden) { stop(); } else { start(); }
+  });
+
+  /* ---------------------------------------------------------------
+     2. 滚动淡入
+     --------------------------------------------------------------- */
+  var revealEls = document.querySelectorAll('.reveal');
+
+  if (reduceMotion || !('IntersectionObserver' in window)) {
+    for (var i = 0; i < revealEls.length; i++) revealEls[i].classList.add('in');
+  } else {
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('in');
+          io.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
+
+    for (var j = 0; j < revealEls.length; j++) io.observe(revealEls[j]);
+  }
+
+  /* ---------------------------------------------------------------
+     3. 读取 version.json：版本号 / 体积 / 更新说明 / SHA256
+     --------------------------------------------------------------- */
+  fetch('version.json', { cache: 'no-store' })
+    .then(function (r) { if (!r.ok) throw new Error(r.status); return r.json(); })
+    .then(function (m) {
+      var ver = 'v' + m.version;
+
+      // 版本号一律「读到才显示」，页面里不写死任何版本 —— 这样发版后
+      // 忘了改 HTML 也不会露出过期版本号；清单读取失败时自动保持隐藏
+      var dlVer = document.getElementById('dl-ver');
+      if (dlVer) { dlVer.textContent = ver; dlVer.style.display = ''; }
+
+      var clVer = document.getElementById('cl-ver');
+      if (clVer) clVer.textContent = ver;
+
+      var clMeta = document.getElementById('cl-meta');
+      if (clMeta) clMeta.style.display = '';
+
+      if (m.size) {
+        var mb = (m.size / 1048576).toFixed(1) + ' MB';
+        var note = document.getElementById('dl-note');
+        if (note) note.textContent = 'Windows 10 / 11 · 64 位 · 免安装绿色版 · ' + mb;
+        var clSize = document.getElementById('cl-size');
+        if (clSize) clSize.textContent = mb;
+      }
+
+      if (m.publishedAt) {
+        var d = new Date(m.publishedAt);
+        var clDate = document.getElementById('cl-date');
+        if (clDate && !isNaN(d)) {
+          clDate.textContent = d.toLocaleDateString('zh-CN', { year: 'numeric', month: 'long', day: 'numeric' }) + ' 发布';
+        }
+      }
+
+      var clNotes = document.getElementById('cl-notes');
+      if (clNotes) clNotes.textContent = m.releaseNotes || '本次更新包含若干改进。';
+
+      if (m.sha256) {
+        var clHash = document.getElementById('cl-hash');
+        if (clHash) clHash.textContent = 'SHA256: ' + m.sha256;
+      }
+    })
+    .catch(function () {
+      var clNotes = document.getElementById('cl-notes');
+      if (clNotes) clNotes.textContent = '暂时无法读取版本信息，可直接点击下方按钮下载最新版。';
+    });
+
+  /* ---------------------------------------------------------------
+     4. 赞赏码弹窗（点击遮罩 / ✕ / Esc 关闭）
+     --------------------------------------------------------------- */
+  var modal      = document.getElementById('modal-coffee');
+  var btnCoffee  = document.getElementById('btn-coffee');
+  var btnClose   = document.getElementById('modal-close');
+
+  function openModal()  { if (modal) modal.classList.add('open'); }
+  function closeModal() { if (modal) modal.classList.remove('open'); }
+
+  if (btnCoffee) btnCoffee.addEventListener('click', openModal);
+  if (btnClose)  btnClose.addEventListener('click', closeModal);
+
+  if (modal) {
+    modal.addEventListener('click', function (e) {
+      if (e.target === modal) closeModal();   // 点遮罩关闭
+    });
+  }
+
+  /* ---------------------------------------------------------------
+     5. 历史版本列表（读取 nginx 的 JSON 目录清单并渲染）
+     --------------------------------------------------------------- */
+  var modalHistory = document.getElementById('modal-history');
+  var btnHistory   = document.getElementById('btn-history');
+  var historyClose = document.getElementById('history-close');
+  var historyList  = document.getElementById('history-list');
+  var historyLoaded = false;
+
+  // 把 "SalaryTicker-1.1.0.exe" 里的版本号抽出来用于排序
+  function versionKey(name) {
+    var m = name.match(/(\d+)\.(\d+)\.(\d+)/);
+    return m ? [+m[1], +m[2], +m[3]] : [0, 0, 0];
+  }
+
+  function renderHistory(files) {
+    files.sort(function (a, b) {
+      var x = versionKey(b.name), y = versionKey(a.name);
+      return (x[0] - y[0]) || (x[1] - y[1]) || (x[2] - y[2]);   // 版本号从新到旧
+    });
+
+    var html = '';
+    for (var i = 0; i < files.length; i++) {
+      var f = files[i];
+      var m = f.name.match(/SalaryTicker-(.+)\.exe$/i);
+      var ver = m ? m[1] : f.name;
+      var size = f.size ? (f.size / 1048576).toFixed(1) + ' MB' : '';
+      var date = f.mtime ? new Date(f.mtime).toLocaleDateString('zh-CN') : '';
+      var meta = [date, size].filter(Boolean).join(' · ');
+
+      html += '<div class="history-item">'
+            +   '<div>'
+            +     '<div class="v">v' + ver + (i === 0 ? '<span class="latest">最新</span>' : '') + '</div>'
+            +     '<div class="meta">' + meta + '</div>'
+            +   '</div>'
+            +   '<a class="dl" href="download/releases/' + encodeURIComponent(f.name) + '" download>下载</a>'
+            + '</div>';
+    }
+    historyList.innerHTML = html;
+  }
+
+  function loadHistory() {
+    fetch('download/releases/', { cache: 'no-store' })
+      .then(function (r) { if (!r.ok) throw new Error(r.status); return r.json(); })
+      .then(function (list) {
+        var files = (list || []).filter(function (f) {
+          return f.type === 'file' && /\.exe$/i.test(f.name);
+        });
+        if (!files.length) {
+          historyList.innerHTML = '<p style="text-align:center;color:var(--text-2)">暂无历史版本，可下载上方最新版</p>';
+          return;
+        }
+        renderHistory(files);
+      })
+      .catch(function () {
+        historyList.innerHTML = '<p style="text-align:center;color:var(--text-2)">暂时无法获取历史版本<br>可直接下载上方最新版</p>';
+      });
+  }
+
+  if (btnHistory) {
+    btnHistory.addEventListener('click', function () {
+      if (modalHistory) modalHistory.classList.add('open');
+      if (!historyLoaded) { historyLoaded = true; loadHistory(); }
+    });
+  }
+  if (historyClose) historyClose.addEventListener('click', function () {
+    if (modalHistory) modalHistory.classList.remove('open');
+  });
+  if (modalHistory) {
+    modalHistory.addEventListener('click', function (e) {
+      if (e.target === modalHistory) modalHistory.classList.remove('open');
+    });
+  }
+
+  // Esc 关闭任意打开的弹窗
+  document.addEventListener('keydown', function (e) {
+    if (e.key !== 'Escape') return;
+    var open = document.querySelectorAll('.modal.open');
+    for (var i = 0; i < open.length; i++) open[i].classList.remove('open');
+  });
+})();
+</script>
+</body>
+</html>

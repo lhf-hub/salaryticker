@@ -1,0 +1,76 @@
+<!-- ============================================================================
+     文件名：ConfirmDialog.xaml
+     功能描述：深色自定义确认对话框（替代 Win32 MessageBox）
+     ============================================================================ -->
+<Window x:Class="SalaryTicker.Dialogs.ConfirmDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Icon="/Assets/SalaryTicker.ico"
+        Title="确认"
+        Width="480" SizeToContent="Height"
+        WindowStartupLocation="CenterOwner"
+        WindowStyle="None"
+        AllowsTransparency="True"
+        Background="Transparent"
+        ResizeMode="NoResize"
+        ShowInTaskbar="False">
+
+    <Window.Triggers>
+        <EventTrigger RoutedEvent="Window.Loaded">
+            <BeginStoryboard>
+                <Storyboard>
+                    <DoubleAnimation Storyboard.TargetProperty="Opacity"
+                                     From="0" To="1" Duration="0:0:0.15"/>
+                </Storyboard>
+            </BeginStoryboard>
+        </EventTrigger>
+    </Window.Triggers>
+
+    <Border Background="{StaticResource CardBrush}"
+            CornerRadius="{StaticResource RadiusCard}"
+            BorderBrush="{StaticResource BorderLineBrush}"
+            BorderThickness="1"
+            Margin="12">
+        <Border.Effect>
+            <DropShadowEffect Color="{StaticResource ShadowColor}"
+                              BlurRadius="24" ShadowDepth="6" Opacity="0.5"/>
+        </Border.Effect>
+
+        <Grid Margin="24">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <!-- 标题 -->
+            <TextBlock Grid.Row="0"
+                       x:Name="TitleText"
+                       Text="确认操作"
+                       Style="{StaticResource TextCardTitle}"
+                       Margin="0,0,0,12"/>
+
+            <!-- 内容 -->
+            <TextBlock Grid.Row="1"
+                       x:Name="MessageText"
+                       Text=""
+                       Style="{StaticResource TextLabel}"
+                       TextWrapping="Wrap"
+                       Margin="0,0,0,24"/>
+
+            <!-- 按钮 -->
+            <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right">
+                <Button Content="取消"
+                        Style="{StaticResource ButtonGhost}"
+                        Click="Cancel_Click"
+                        Padding="20,8"
+                        Margin="0,0,12,0"/>
+                <Button Content="确定"
+                        x:Name="OkButton"
+                        Style="{StaticResource ButtonPrimary}"
+                        Click="Ok_Click"
+                        Padding="20,8"/>
+            </StackPanel>
+        </Grid>
+    </Border>
+</Window>

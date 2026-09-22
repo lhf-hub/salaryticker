@@ -1,0 +1,63 @@
+# Build results
+[Dd]ebug/
+[Rr]elease/
+x64/
+x86/
+[Aa][Rr][Mm]/
+[Aa][Rr][Mm]64/
+bld/
+[Bb]in/
+[Oo]bj/
+[Ll]og/
+[Ll]ogs/
+
+# Visual Studio cache/options
+.vs/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# Rider
+.idea/
+
+# NuGet
+*.nupkg
+*.snupkg
+**/[Pp]ackages/*
+!**/[Pp]ackages/build/
+
+# Test results
+[Tt]est[Rr]esult*/
+[Bb]uild[Ll]og.*
+
+# Publish output
+*.publish/
+publish/
+dist/
+
+# Deployment secrets (server address / ssh key path)
+tools/deploy.config.json
+
+# GitHub release token (personal access token)
+tools/github.config.json
+
+# User-specific files
+*.rsuser
+*.DotSettings.user
+
+# Backup files
+*.bak
+*.backup
+
+# Verification screenshots (test artifacts)
+screenshot*.png
+shot*.png
+r1366.png
+window.png
+
+# OS files
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+.DS_Store

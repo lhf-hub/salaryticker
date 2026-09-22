@@ -1,0 +1,252 @@
+<!-- ============================================================================
+     文件名：MainWindow.xaml
+     功能描述：主窗口（顶部工具栏 + 页面切换：仪表盘/摸鱼历史）
+     暖阳浅色风格：奶油底 + 白色圆角卡片 + 胶囊按钮
+     ============================================================================ -->
+<Window x:Class="SalaryTicker.Views.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Icon="/Assets/SalaryTicker.ico"
+        xmlns:vm="clr-namespace:SalaryTicker.ViewModels"
+        xmlns:pages="clr-namespace:SalaryTicker.Views.Pages"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        d:DataContext="{d:DesignInstance Type=vm:MainViewModel}"
+        mc:Ignorable="d"
+        Title="SalaryTicker - 实时计算器"
+        Width="1180" Height="880"
+        MinWidth="900" MinHeight="600"
+        WindowStartupLocation="CenterScreen"
+        Background="{StaticResource BgPageBrush}">
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- ══════════ 顶部工具栏 ══════════ -->
+        <Border Grid.Row="0"
+                Background="{StaticResource CardBrush}"
+                BorderBrush="{StaticResource BorderLineBrush}"
+                BorderThickness="0,0,0,1"
+                Padding="24,14">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <!-- 左侧：Logo -->
+                <StackPanel Grid.Column="0" Orientation="Horizontal">
+                    <Border Width="36" Height="36" CornerRadius="12"
+                            Background="{StaticResource PrimarySoftBrush}">
+                        <TextBlock Text="💰" FontSize="19"
+                                   HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    </Border>
+                    <TextBlock Text="SalaryTicker" FontSize="19" FontWeight="Bold"
+                               Foreground="{StaticResource TextPrimaryBrush}"
+                               VerticalAlignment="Center" Margin="10,0,0,0"/>
+                    <Border Background="{StaticResource MoneySoftBrush}"
+                            CornerRadius="999" Padding="10,4" Margin="10,0,0,0"
+                            VerticalAlignment="Center">
+                        <TextBlock Text="实时计算中" FontSize="11"
+                                   Foreground="{StaticResource MoneyBrush}"/>
+                    </Border>
+                </StackPanel>
+
+                <!-- 右侧：功能按钮 -->
+                <StackPanel Grid.Column="2" Orientation="Horizontal">
+                    <Button Style="{StaticResource ButtonGhost}"
+                            Command="{Binding ShowHistoryCommand}"
+                            Margin="0,0,8,0" Padding="16,8">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="🐟" FontSize="14" VerticalAlignment="Center"/>
+                            <TextBlock Text="摸鱼统计" Margin="7,0,0,0" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Button>
+
+                    <Button Style="{StaticResource ButtonGhost}"
+                            Command="{Binding ToggleMiniWindowCommand}"
+                            Margin="0,0,8,0" Padding="16,8">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="🪟" FontSize="14" VerticalAlignment="Center"/>
+                            <TextBlock Text="迷你窗" Margin="7,0,0,0" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Button>
+
+                    <Button Style="{StaticResource ButtonGhost}"
+                            Command="{Binding OpenSettingsCommand}"
+                            Padding="16,8">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="⚙️" FontSize="14" VerticalAlignment="Center"/>
+                            <TextBlock Text="设置" Margin="7,0,0,0" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Button>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- ══════════ 提示条区（配置损坏 / 发现新版本） ══════════ -->
+        <StackPanel Grid.Row="1">
+
+            <!-- 配置损坏等提示 -->
+            <Border Background="{StaticResource WarnSoftBrush}"
+                    Padding="24,12"
+                    Visibility="{Binding IsNoticeVisible, Converter={StaticResource BoolToVisibility}}">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <TextBlock Grid.Column="0" Text="⚠️" FontSize="15" VerticalAlignment="Center"/>
+
+                    <TextBlock Grid.Column="1"
+                               Text="{Binding NoticeText}"
+                               Foreground="#8A5A2B"
+                               Margin="10,0" TextWrapping="Wrap"
+                               VerticalAlignment="Center"/>
+
+                    <Button Grid.Column="2"
+                            Style="{StaticResource ButtonIcon}"
+                            Width="28" Height="28"
+                            Command="{Binding DismissNoticeCommand}">
+                        <TextBlock Text="✕" FontSize="12" Foreground="#8A5A2B"/>
+                    </Button>
+                </Grid>
+            </Border>
+
+            <!-- 位置小提示（仅在程序目录不可写时出现，可写时完全不打扰） -->
+            <Border Background="{StaticResource BgSubtleBrush}"
+                    Padding="24,12"
+                    Visibility="{Binding Update.IsPortabilityNoticeVisible, Converter={StaticResource BoolToVisibility}}">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <TextBlock Grid.Column="0"
+                               Text="{Binding Update.PortabilityNoticeText}"
+                               Foreground="{StaticResource TextPrimaryBrush}"
+                               TextWrapping="Wrap"
+                               VerticalAlignment="Center"/>
+
+                    <Button Grid.Column="1"
+                            Style="{StaticResource ButtonIcon}"
+                            Width="28" Height="28"
+                            Command="{Binding Update.DismissPortabilityNoticeCommand}">
+                        <TextBlock Text="✕" FontSize="12" Foreground="{StaticResource TextSecondaryBrush}"/>
+                    </Button>
+                </Grid>
+            </Border>
+
+            <!-- 发现新版本 -->
+            <Border Padding="24,12"
+                    Visibility="{Binding Update.IsVisible, Converter={StaticResource BoolToVisibility}}">
+                <Border.Style>
+                    <Style TargetType="Border">
+                        <Setter Property="Background" Value="{StaticResource PrimarySoftBrush}"/>
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding Update.IsError}" Value="True">
+                                <Setter Property="Background" Value="{StaticResource DangerSoftBrush}"/>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Border.Style>
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <TextBlock Grid.Column="0" Text="🎉" FontSize="15" VerticalAlignment="Center"/>
+
+                    <StackPanel Grid.Column="1" Margin="10,0" VerticalAlignment="Center">
+                        <TextBlock Text="{Binding Update.TitleText}"
+                                   FontWeight="SemiBold" FontSize="14"
+                                   Foreground="#8A4B38"/>
+                        <TextBlock Text="{Binding Update.NotesText}"
+                                   Style="{StaticResource TextSmall}"
+                                   TextWrapping="Wrap" Margin="0,3,0,0"/>
+                        <TextBlock Text="{Binding Update.StatusText}"
+                                   Style="{StaticResource TextSmall}"
+                                   FontWeight="SemiBold"
+                                   TextWrapping="Wrap" Margin="0,3,0,0"/>
+                        <ProgressBar Value="{Binding Update.Progress, Mode=OneWay}"
+                                     Minimum="0" Maximum="1"
+                                     Height="6" Margin="0,6,0,0"
+                                     Visibility="{Binding Update.IsDownloading, Converter={StaticResource BoolToVisibility}}"/>
+                    </StackPanel>
+
+                    <!-- 操作按钮（下载中隐藏） -->
+                    <Button Grid.Column="2"
+                            Content="立即更新"
+                            Style="{StaticResource ButtonPrimary}"
+                            Command="{Binding Update.StartUpdateCommand}"
+                            Padding="18,7" Margin="0,0,8,0"
+                            VerticalAlignment="Center"
+                            Visibility="{Binding Update.ShowAutoUpdateButton, Converter={StaticResource BoolToVisibility}}"/>
+
+                    <!-- 程序目录不可写时的兜底：引导到官网手动下载 -->
+                    <Button Grid.Column="2"
+                            Content="前往下载"
+                            Style="{StaticResource ButtonPrimary}"
+                            Command="{Binding Update.OpenDownloadPageCommand}"
+                            Padding="18,7" Margin="0,0,8,0"
+                            VerticalAlignment="Center"
+                            Visibility="{Binding Update.ShowManualDownloadButton, Converter={StaticResource BoolToVisibility}}"/>
+
+                    <Button Grid.Column="3"
+                            Content="忽略此版本"
+                            Style="{StaticResource ButtonGhost}"
+                            Command="{Binding Update.SkipVersionCommand}"
+                            Padding="14,7" Margin="0,0,4,0"
+                            VerticalAlignment="Center"
+                            Visibility="{Binding Update.IsDownloading, Converter={StaticResource InverseBoolToVisibility}}"/>
+
+                    <Button Grid.Column="4"
+                            Style="{StaticResource ButtonIcon}"
+                            Width="28" Height="28"
+                            VerticalAlignment="Center"
+                            Command="{Binding Update.DismissCommand}">
+                        <TextBlock Text="✕" FontSize="12" Foreground="#8A4B38"/>
+                    </Button>
+                </Grid>
+            </Border>
+        </StackPanel>
+
+        <!-- ══════════ 内容区：页面切换 ══════════ -->
+        <ContentControl Grid.Row="2" Content="{Binding}">
+            <ContentControl.Style>
+                <Style TargetType="ContentControl">
+                    <Setter Property="ContentTemplate">
+                        <Setter.Value>
+                            <DataTemplate>
+                                <pages:DashboardView/>
+                            </DataTemplate>
+                        </Setter.Value>
+                    </Setter>
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding CurrentView}" Value="MuyuHistory">
+                            <Setter Property="ContentTemplate">
+                                <Setter.Value>
+                                    <DataTemplate>
+                                        <pages:MuyuHistoryView DataContext="{Binding History}"/>
+                                    </DataTemplate>
+                                </Setter.Value>
+                            </Setter>
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </ContentControl.Style>
+        </ContentControl>
+    </Grid>
+</Window>

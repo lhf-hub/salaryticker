@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="SalaryTicker.csproj" />
+  <Project Path="tests\ShenzhenSalaryTimer.Tests\ShenzhenSalaryTimer.Tests.csproj" />
+</Solution>

@@ -1,0 +1,836 @@
+《深圳工资实时计算器》需求方案书
+版本：v1.1
+平台：Windows 桌面应用
+技术栈：C# + .NET 8 + WPF + MVVM
+适用城市：深圳
+作者：Lee老师
+联系邮箱：leemail208@163.com
+数据存储：本地 JSON 文件，无需联网，无需数据库
+免责声明：计算结果仅供参考，以实际工资条为准。
+
+0. 给 AI 的总指令（先读这一段）
+你是一名资深 WPF 开发工程师 + UI 设计师。请使用 C# .NET 8 + WPF + MVVM 开发《深圳工资实时计算器》。必须遵循：
+
+分阶段输出，不要一次性生成整个项目。
+
+先设计系统，再页面，再逻辑。
+
+所有代码使用中文注释，文件开头标注文件名。
+
+使用 CommunityToolkit.Mvvm 实现 MVVM。
+
+使用 System.Text.Json 做本地配置持久化。
+
+不引入任何数据库，不发起任何网络请求。
+
+不要使用默认灰色 WPF 控件样式，必须自定义现代化样式。
+
+每个阶段输出后，给出该阶段验收方法和可能的问题。
+
+计算逻辑必须可配置，不要硬编码政策参数。
+
+所有面向用户的文案，涉及作者时统一称“Lee老师”。
+
+关于页必须包含“深圳专用”说明和 Lee老师 邮箱。
+
+启动时必须先展示“温馨提示”启动页，用户确认后才能进入主界面。
+
+推荐开发顺序：
+
+阶段 1：项目结构 + 设计系统资源字典
+
+阶段 2：数据模型 + 配置持久化
+
+阶段 3：计算服务（税前模式）+ 启动页
+
+阶段 4：班制与实时工资引擎
+
+阶段 5：主界面 + 设置界面 + 动画
+
+阶段 6：摸鱼历史、悬浮窗、打包与测试
+
+1. 项目概述
+做一个深圳专用的工资实时计算器。用户可以输入税前工资或税后工资，选择深圳医保档位、公积金个人缴纳方式、班制，然后实时看到自己“已经赚了多少钱”。金额按 月、天、小时 三个维度增长，并带有摸鱼小按钮、下班倒计时、迷你悬浮窗等趣味功能。
+
+核心目标
+税前模式：输入税前工资，自动算五险一金个人部分、个税、税后到手，再进入实时工资计算。
+
+税后模式：直接输入税后到手，不反推、不算五险一金、不算个税，直接进入实时工资计算。
+
+根据班制实时计算当月已赚、今日已赚、当前小时已赚。
+
+当月已赚自动补发：用户月中打开，也自动把当月 1 号到昨天的工资补上。
+
+启动时展示温馨提示页，用户确认后进入主界面。
+
+界面现代、有趣、有动画，不像传统财务软件。
+
+所有政策参数可配置，政策变化后用户可自行更新。
+
+完全离线，所有数据存本地 JSON。
+
+非目标（一期不做）
+不做多城市切换。
+
+不做加班费计算。
+
+不做年终奖单独计税。
+
+不做法定节假日调休精确计算。
+
+不做云端同步、账号系统。
+
+不做复杂日历实际计薪模式（可作为二期高级选项）。
+
+不做联网更新检查。
+
+2. 技术选型与架构
+2.1 技术栈
+项目	选择
+语言	C#
+框架	.NET 8
+UI	WPF
+架构	MVVM
+MVVM 库	CommunityToolkit.Mvvm
+持久化	本地 JSON 文件
+打包	dotnet publish -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true
+2.2 关于数据库与联网的说明
+结论：用本地 JSON 文件，不用数据库，不联网。
+
+理由：
+
+数据量极小：整个 app 只有一份用户配置 + 一份摸鱼历史，JSON 完全够用。
+
+JSON 天然可读可备份：出问题时让用户把文件发给你就能排查。
+
+零依赖：System.Text.Json 是 .NET 内置的，不需要安装数据库引擎。
+
+完全离线：不发起任何网络请求，不检查更新，不上传任何数据。
+
+小 app 不需要数据库：SQLite 虽然也能用，但对这个场景是杀鸡用牛刀。
+
+存储位置：
+
+text
+%AppData%\ShenzhenSalaryTimer\settings.json     ← 用户配置
+%AppData%\ShenzhenSalaryTimer\runtime.json      ← 运行时状态
+%AppData%\ShenzhenSalaryTimer\muyu-history.json ← 摸鱼历史
+%AppData%\ShenzhenSalaryTimer\backup\           ← 自动备份目录
+JSON 写入要求：
+
+使用 System.Text.Json，开启 WriteIndented = true。
+
+写入采用“先写临时文件，再替换原文件”的方式。
+
+读取失败时自动回退到最近一次备份，并提示用户。
+
+文件损坏时给出友好提示，不直接崩溃。
+
+2.3 推荐项目结构
+text
+ShenzhenSalaryTimer/
+├── App.xaml
+├── App.xaml.cs
+├── Models/
+│   ├── AppSettings.cs
+│   ├── SocialSecurityParams.cs
+│   ├── TaxParams.cs
+│   ├── ShiftSettings.cs
+│   ├── MuyuButtonSettings.cs
+│   ├── MuyuRecord.cs
+│   └── RuntimeState.cs
+├── Services/
+│   ├── ConfigService.cs
+│   ├── MuyuHistoryService.cs
+│   ├── SalaryCalculator.cs
+│   ├── TaxCalculator.cs
+│   ├── SocialSecurityCalculator.cs
+│   ├── WorkTimeCalculator.cs
+│   └── SalaryTickerService.cs
+├── ViewModels/
+│   ├── SplashViewModel.cs
+│   ├── MainViewModel.cs
+│   ├── SettingsViewModel.cs
+│   └── MiniWindowViewModel.cs
+├── Views/
+│   ├── SplashWindow.xaml
+│   ├── MainWindow.xaml
+│   ├── SettingsWindow.xaml
+│   └── MiniWindow.xaml
+├── Resources/
+│   ├── Colors.xaml
+│   ├── Styles.xaml
+│   ├── Controls.xaml
+│   └── Icons.xaml
+└── Converters/
+    ├── CurrencyConverter.cs
+    ├── BoolToVisibilityConverter.cs
+    └── PercentConverter.cs
+3. 设计系统与样式引导（AI 重点）
+AI 做 WPF 最容易丑在：默认控件、灰色背景、拥挤布局、没有层次。请强制使用以下设计系统。
+
+3.1 设计 Token
+颜色
+
+用途	色值
+页面背景	#0B1220
+卡片背景	#111C2E
+卡片悬浮	#16243A
+主色/工资增长	#22C55E
+辅色/信息	#38BDF8
+警告/摸鱼	#F59E0B
+危险/重置	#EF4444
+主文字	#E2E8F0
+次要文字	#94A3B8
+边框	#1E293B
+字体
+
+全局：Microsoft YaHei UI
+
+大数字：Segoe UI，FontWeight="Bold"，FontSize="64" 或更大
+
+中数字：FontSize="32"
+
+小标签：FontSize="14"，Foreground="#94A3B8"
+
+间距与圆角
+
+页面边距 24，卡片内边距 20，卡片间距 16
+
+卡片圆角 16，按钮圆角 12，输入框圆角 8
+
+卡片阴影：BlurRadius="20"，ShadowDepth="4"，Opacity="0.35"
+
+动画
+
+数字更新：每秒变化时，数字颜色短暂变亮 0.15s。
+
+按钮悬停：背景色渐变 0.15s。
+
+进度条：LinearGradientBrush，从 #22C55E 到 #F59E0B 到 #EF4444。
+
+摸鱼弹窗：淡入淡出 + 轻微上浮。
+
+启动页：淡入 0.3s，确认后淡出 0.2s。
+
+3.2 如何引导 AI 做好样式
+给 AI 的样式指令模板：
+
+text
+请先只输出 Resources/Colors.xaml 和 Resources/Styles.xaml。
+要求：
+1. 定义深色主题颜色资源。
+2. 定义全局 TextBlock、Button、TextBox、ComboBox、Card 样式。
+3. Button 必须有圆角、悬停变色、按下缩小 0.98 的效果。
+4. 不要输出任何业务逻辑。
+5. 输出后解释每个资源字典的用途。
+等样式资源输出并确认后，再让 AI 写页面 XAML。
+
+4. 功能需求
+4.1 两种模式与简化设计
+应用支持两种模式，两种模式的输入复杂度完全不同：
+
+模式一：税前模式（精细模式）
+用户输入税前月薪，系统计算五险一金个人部分、个税、税后到手。
+
+用户可输入/选择的内容：
+
+养老保险
+
+方式 A：按深圳标准自动（系统用内置参数计算）
+
+方式 B：选择基数档位（下限 / 实际工资 / 上限 / 自定义基数）
+
+方式 C：直接输入个人月缴额
+
+医疗保险
+
+档位：一档 / 二档
+
+方式 A：按深圳标准自动
+
+方式 B：选择基数（下限 / 实际工资 / 上限 / 自定义基数）
+
+方式 C：直接输入个人月缴额
+
+失业保险
+
+方式 A：按深圳标准自动
+
+方式 B：选择基数或直接输入个人月缴额
+
+公积金
+
+方式 A：直接输入个人月缴额
+
+方式 B：输入基数 + 比例
+
+方式 C：输入基数 + 比例 + 上限（系统先钳制基数再计算）
+
+其他扣款（可选）
+
+用户可自行添加其他固定扣款项目（如企业年金、补充医疗等），填写名称和金额。
+
+个税相关
+
+当前月份（用于累计预扣）
+
+专项附加扣除（可选，默认 0）
+
+模式二：税后模式（极简模式）
+用户输入税后到手，不反推税前、不算五险一金、不算个税。
+
+设计意图：有些用户懒得输入五险一金和个税参数，他只知道自己每个月固定到手多少钱。对这类用户，税后模式就是“我就填一个数，然后直接开始看钱增长”。
+
+用户只需要输入：
+
+税后月到手金额
+
+班制
+
+不需要输入：
+
+税前工资
+
+医保档位
+
+公积金
+
+个税参数
+
+当前月份
+
+专项附加扣除
+
+输入完成后，直接进入实时工资计算流程。
+
+4.2 五险一金计算（仅税前模式）
+深圳个人缴纳部分：
+
+项目	个人比例	缴费基数下限	缴费基数上限
+养老保险	8%	4775 元	27549 元
+医疗保险一档	2%	6727 元	33633 元
+医疗保险二档	0.5%	6727 元	33633 元
+失业保险	0.2%	2520 元	44265 元
+公积金	5%～12% 或自定义	按公司规定	按公司规定
+以上为示例值，必须做成可配置。
+
+缴费基数规则：
+
+text
+缴费基数 = clamp(税前工资, 基数下限, 基数上限)
+个人缴纳额 = 缴费基数 × 个人比例
+灵活性要求：每个险种都支持三种输入方式，用户可自由切换。
+
+4.3 个税计算（仅税前模式）
+使用 累计预扣法。
+
+公式：
+
+text
+累计应纳税所得额 = 累计税前收入
+                  - 累计减除费用（5000 × 当前月份）
+                  - 累计五险一金个人部分
+                  - 累计专项附加扣除
+
+本期应预扣预缴税额 = 累计应纳税所得额 × 预扣率 - 速算扣除数 - 累计已预扣预缴税额
+预扣率表：
+
+级数	累计应纳税所得额	预扣率	速算扣除数
+1	≤ 36000	3%	0
+2	36000～144000	10%	2520
+3	144000～300000	20%	16920
+4	300000～420000	25%	31920
+5	420000～660000	30%	52920
+6	660000～960000	35%	85920
+7	> 960000	45%	181920
+一期假设用户每月工资相同，系统自动计算 1 月到当前月的累计，得出当前月个税。
+
+4.4 班制设置
+支持预设和自定义。
+
+预设：
+
+五天八小时双休：9:00–18:00，午休 12:00–13:00。
+
+大小周：大周双休，小周单休。
+
+六天工作制：周一至周六。
+
+每日十小时：9:00–20:00，午休 1 小时。
+
+自定义：
+
+上班时间、下班时间。
+
+午休段，可添加多个。
+
+每周工作日，勾选周一到周日。
+
+大小周循环设置。
+
+月计薪天数，默认 21.75。
+
+每日计薪小时，默认 8。
+
+重要说明：节假日统一不计算工资，系统强制休息，不含节假日工资及加班费。
+
+4.5 实时工资引擎
+计算秒薪：
+
+text
+日薪 = 税后月薪 / 月计薪天数（默认 21.75）
+秒薪 = 日薪 / 每日计薪小时 / 3600
+默认使用固定折算模式。二期可加“日历实际模式”。
+
+实时显示三个维度：
+
+本月已赚：大数字，实时增长。
+
+今日已赚：中数字，实时增长。
+
+当前小时已赚：小数字，从整点开始累计。
+
+当月已赚自动补发：
+
+用户第一次打开时：
+
+取当月 1 号到昨天。
+
+遍历每一天，如果是用户设置的工作日，加一个完整日薪。
+
+今天再按当前时间计算已赚。
+
+如果当前时间在上班前，今日已赚为 0。
+
+如果在午休，只算上午已工作部分。
+
+如果在下班后，今日已赚为完整日薪。
+
+状态判断：
+
+当前时间	状态	今日已赚
+上班前	未开工	0
+上午工作中	赚钱中	已工作秒数 × 秒薪
+午休中	休息中	上午已工作秒数 × 秒薪
+下午工作中	赚钱中	(上午 + 下午已工作秒数) × 秒薪
+下班后	已下班	完整日薪
+非工作日	强制休息	0
+4.6 摸鱼功能
+提供按钮：
+
+🚬 抽根烟
+
+🚽 去趟 WC
+
+☕ 倒杯水
+
+自定义摸鱼按钮
+
+点击后：
+
+记录开始时间。
+
+显示本次摸鱼时长。
+
+显示本次摸鱼“消耗金额” = 摸鱼秒数 × 秒薪。
+
+再次点击结束，写入历史记录。
+
+工资增长照常进行，摸鱼金额只是趣味展示。
+
+摸鱼历史记录：存本地，可选开启。
+
+默认开启，用户可在设置中关闭。
+
+存储位置：%AppData%\ShenzhenSalaryTimer\muyu-history.json
+
+每条记录包含：日期、按钮名称、开始时间、结束时间、时长秒数、消耗金额。
+
+提供“摸鱼统计”页面：今日次数/总时长/总消耗、本周汇总、本月汇总。
+
+幽默文案：“今天你已经摸鱼 3 次，消耗 ¥12.34，相当于老板请你喝了杯奶茶。”
+
+支持一键清空历史。
+
+隐私说明：摸鱼历史只存本地，不上传，不联网。
+
+4.7 启动页（首次展示温馨提示）
+每次启动 app 时，先展示启动页，类似游戏启动时的免责声明。
+
+启动页内容：
+
+text
+┌──────────────────────────────────────────────┐
+│                                              │
+│         💚 欢迎使用深圳工资实时计算器          │
+│                                              │
+│  ⚠️ 深圳专用                                  │
+│  本工具按深圳市社保、公积金、个税规则计算。     │
+│  其他城市政策不同，如有需求请联系 Lee老师：     │
+│  leemail208@163.com                          │
+│                                              │
+│  💚 写在最后                                  │
+│  希望每一个努力生活的人，都能被好好对待。       │
+│  Lee老师倡导全行业按法休息，不恶意内卷、        │
+│  不形式加班。这个计算器也会在节假日强制休息，   │
+│  不计算工资和加班费。                          │
+│                                              │
+│  📌 计算结果仅供参考，以实际工资条为准。        │
+│  愿你的付出都有回响，休息也理直气壮。           │
+│                                              │
+│  🔧 参数可配置                                │
+│  社保基数上下限、公积金比例、个税税率等参数     │
+│  已做成可配置项，政策调整后可在设置中手动更新。  │
+│                                              │
+│  ☐ 下次不再显示                              │
+│                                              │
+│           [ 我已知晓，开始使用 ]               │
+│                                              │
+└──────────────────────────────────────────────┘
+交互要求：
+
+启动页必须点击“我已知晓，开始使用”才能进入主界面。
+
+勾选“下次不再显示”后，下次启动跳过启动页，直接进主界面。
+
+设置页中提供“重新显示启动页”的选项。
+
+启动页淡入 0.3s，点击后淡出 0.2s 再打开主界面。
+
+4.8 迷你悬浮窗
+无边框窗口，始终置顶，可拖拽，透明度可调。
+
+只显示“本月已赚”大数字。
+
+双击返回主窗口。
+
+位置记忆，下次打开在同一位置。
+
+4.9 设置与参数配置
+设置窗口包含：
+
+工资与五险一金（含各险种输入方式切换）
+
+个税参数
+
+班制
+
+摸鱼按钮与摸鱼历史
+
+政策参数
+
+关于与温馨提示
+
+重新显示启动页
+
+参数修改确认：
+
+任何影响计算的参数修改，保存前弹出确认框：
+
+“修改后当前计时将重置，已累计的今日/当月数据会重新计算，确定吗？”
+
+用户确认后：
+
+暂停计时器。
+
+保存新参数。
+
+重新计算秒薪和当月已赚。
+
+恢复计时。
+
+4.10 关于与温馨提示
+⚠️ 深圳专用
+本工具按深圳市社保、公积金、个税规则计算。其他城市政策不同，如有需求请联系 Lee老师：leemail208@163.com
+
+💚 写在最后
+希望每一个努力生活的人，都能被好好对待。
+Lee老师倡导全行业按法休息，不恶意内卷、不形式加班。这个计算器也会在节假日强制休息，不计算工资和加班费。
+
+📌 计算结果仅供参考，以实际工资条为准。
+愿你的付出都有回响，休息也理直气壮。
+
+🔧 参数可配置
+社保基数上下限、公积金比例、个税税率等参数已做成可配置项，政策调整后可在设置中手动更新。
+
+底部小字短版：
+
+深圳专用 · Lee老师倡导按法休息：不恶意内卷、不形式加班，节假日系统强制休息，不计工资与加班费。结果仅供参考，以实际工资条为准。
+
+5. 数据模型
+csharp
+public enum SalaryMode { Gross, Net }
+public enum MedicalTier { Tier1, Tier2 }
+public enum InsuranceInputMode { Auto, Base, Amount }
+
+public class AppSettings
+{
+    public SalaryMode Mode { get; set; }
+    public decimal GrossSalary { get; set; }
+    public decimal NetSalary { get; set; }
+
+    // 养老保险
+    public InsuranceInputMode PensionInputMode { get; set; }
+    public decimal PensionBase { get; set; }
+    public decimal PensionAmount { get; set; }
+
+    // 医疗保险
+    public MedicalTier MedicalTier { get; set; }
+    public InsuranceInputMode MedicalInputMode { get; set; }
+    public decimal MedicalBase { get; set; }
+    public decimal MedicalAmount { get; set; }
+
+    // 失业保险
+    public InsuranceInputMode UnemploymentInputMode { get; set; }
+    public decimal UnemploymentBase { get; set; }
+    public decimal UnemploymentAmount { get; set; }
+
+    // 公积金
+    public HousingFundMode HousingFundMode { get; set; }
+    public decimal HousingFundAmount { get; set; }
+    public decimal HousingFundBase { get; set; }
+    public decimal HousingFundRate { get; set; }
+    public decimal HousingFundCap { get; set; }
+
+    // 其他扣款
+    public List<OtherDeduction> OtherDeductions { get; set; }
+
+    // 个税
+    public int CurrentMonth { get; set; }
+    public decimal SpecialDeduction { get; set; }
+
+    public SocialSecurityParams SocialSecurity { get; set; }
+    public TaxParams Tax { get; set; }
+    public ShiftSettings Shift { get; set; }
+    public List<MuyuButtonSettings> MuyuButtons { get; set; }
+    public bool MuyuHistoryEnabled { get; set; } = true;
+    public bool ShowSplashOnStartup { get; set; } = true;
+    public string Theme { get; set; } = "Dark";
+    public DateTime LastSaved { get; set; }
+}
+
+public class OtherDeduction
+{
+    public string Name { get; set; }
+    public decimal Amount { get; set; }
+}
+
+public class SocialSecurityParams
+{
+    public decimal PensionRate { get; set; } = 0.08m;
+    public decimal PensionMin { get; set; } = 4775m;
+    public decimal PensionMax { get; set; } = 27549m;
+
+    public decimal MedicalTier1Rate { get; set; } = 0.02m;
+    public decimal MedicalTier2Rate { get; set; } = 0.005m;
+    public decimal MedicalMin { get; set; } = 6727m;
+    public decimal MedicalMax { get; set; } = 33633m;
+
+    public decimal UnemploymentRate { get; set; } = 0.002m;
+    public decimal UnemploymentMin { get; set; } = 2520m;
+    public decimal UnemploymentMax { get; set; } = 44265m;
+}
+
+public class ShiftSettings
+{
+    public string PresetName { get; set; }
+    public TimeSpan WorkStart { get; set; }
+    public TimeSpan WorkEnd { get; set; }
+    public List<LunchBreak> LunchBreaks { get; set; }
+    public List<DayOfWeek> WorkDays { get; set; }
+    public decimal MonthlyPayDays { get; set; } = 21.75m;
+    public decimal DailyPayHours { get; set; } = 8m;
+}
+
+public class MuyuRecord
+{
+    public DateTime Date { get; set; }
+    public string ButtonLabel { get; set; }
+    public DateTime StartTime { get; set; }
+    public DateTime EndTime { get; set; }
+    public int DurationSeconds { get; set; }
+    public decimal CostAmount { get; set; }
+}
+
+public class RuntimeState
+{
+    public decimal MonthEarned { get; set; }
+    public decimal TodayEarned { get; set; }
+    public decimal HourEarned { get; set; }
+    public DateTime LastTick { get; set; }
+    public bool IsWorking { get; set; }
+    public bool IsLunchBreak { get; set; }
+    public DateTime? MuyuStartTime { get; set; }
+    public string CurrentMuyuButtonId { get; set; }
+}
+6. UI 页面与交互
+6.1 启动页
+见 4.7 节。全屏或居中大卡片，深色背景，内容居中，底部按钮显眼。
+
+6.2 主界面
+text
+┌──────────────────────────────────────────────┐
+│ 顶部：模式标签 / 设置按钮 / 迷你窗按钮        │
+├──────────────────────────────────────────────┤
+│ 大卡片：本月已赚                             │
+│         ¥ 12,345.67                          │
+│         进度条：本月进度                     │
+├──────────────────────────────────────────────┤
+│ 两个中卡片：今日已赚 | 当前小时已赚           │
+├──────────────────────────────────────────────┤
+│ 下班倒计时：距离下班还有 02:15:33             │
+├──────────────────────────────────────────────┤
+│ 摸鱼按钮区：🚬 抽根烟  🚽 去趟 WC  ☕ 倒杯水   │
+├──────────────────────────────────────────────┤
+│ 底部：深圳专用 · Lee老师倡导按法休息...       │
+└──────────────────────────────────────────────┘
+状态提示：
+
+状态	文案
+上班前	还没开工，先喝杯水吧 ☕
+工作中	赚钱中，每一秒都算数 💪
+午休中	午休中，好好休息 😴
+下班后	今天辛苦了，明天见 👋
+非工作日	今天强制休息，不计工资 🌴
+摸鱼中	摸鱼中，老板没看见 👀
+6.3 设置窗口
+左侧导航 + 右侧内容：
+
+工资与五险一金
+
+个税
+
+班制
+
+摸鱼按钮与历史
+
+政策参数
+
+关于与温馨提示
+
+重新显示启动页
+
+6.4 摸鱼历史页面
+今日汇总卡片：次数、总时长、总消耗。
+
+本周汇总卡片、本月汇总卡片。
+
+历史记录列表：日期、按钮、时长、消耗。
+
+一键清空按钮（带确认）。
+
+6.5 迷你悬浮窗
+尺寸约 220×90，半透明深色背景。
+
+显示“本月已赚”和金额。
+
+右下角小按钮可关闭或返回主窗口。
+
+位置记忆。
+
+7. 开发阶段与 AI 引导策略
+阶段 1：项目骨架 + 设计系统
+输出：.csproj、App.xaml、Resources/Colors.xaml、Styles.xaml、Controls.xaml
+
+验收：项目能编译，空窗口显示深色背景。
+
+阶段 2：数据模型 + 配置服务
+输出：Models/、Services/ConfigService.cs、Services/MuyuHistoryService.cs
+
+验收：能保存和读取 JSON 配置，能自动备份，能处理损坏文件。
+
+阶段 3：计算服务 + 启动页
+输出：SocialSecurityCalculator.cs、TaxCalculator.cs、SalaryCalculator.cs、SplashWindow.xaml
+
+验收：税前 20000、医保一档、公积金 5% 计算结果正确；启动页能展示并确认。
+
+阶段 4：班制与实时引擎
+输出：WorkTimeCalculator.cs、SalaryTickerService.cs
+
+验收：模拟时间，验证上班、午休、下班、跨天逻辑。
+
+阶段 5：主界面 + 设置界面 + 动画
+输出：MainWindow.xaml、SettingsWindow.xaml、MainViewModel.cs、SettingsViewModel.cs
+
+验收：界面美观，数字每秒增长，修改参数弹确认。
+
+阶段 6：摸鱼历史、悬浮窗、打包
+输出：MiniWindow.xaml、摸鱼历史页面、打包命令说明
+
+验收：悬浮窗置顶可拖拽，摸鱼记录能存能查能清空。
+
+8. 验收标准
+税前模式输入 20000，医保一档，公积金 5%，能算出五险一金个人部分和个税。
+
+税后模式只输入税后金额和班制，直接进入实时计算，不弹五险一金和个税。
+
+五险一金每个险种都支持“自动 / 基数 / 金额”三种输入方式切换。
+
+公积金支持“直接填金额 / 基数+比例 / 基数+比例+上限”三种方式。
+
+修改任何参数，弹出确认框，确认后计时重置。
+
+上班时间数字增长，午休暂停，下班停止。
+
+当月已赚自动补发 1 号到昨天的工资。
+
+摸鱼按钮能计时并显示消耗金额，摸鱼记录能存本地并查看。
+
+启动时先展示温馨提示页，确认后进主界面，可勾选不再显示。
+
+迷你悬浮窗置顶、可拖拽、透明度可调、位置记忆。
+
+界面在 1366×768 和 1920×1080 下正常。
+
+无未处理异常，退出后配置能恢复。
+
+关于页面包含深圳专用说明、Lee老师邮箱、温馨提示。
+
+全程无网络请求，无数据库依赖，仅读写本地 JSON。
+
+JSON 文件损坏时能自动回退备份并提示，不崩溃。
+
+9. 附录
+9.1 深圳参数示例（可配置）
+项目	个人比例	下限	上限
+养老	8%	4775	27549
+医疗一档	2%	6727	33633
+医疗二档	0.5%	6727	33633
+失业	0.2%	2520	44265
+公积金	5%～12%	按公司	按公司
+9.2 个税预扣率表
+级数	累计应纳税所得额	预扣率	速算扣除数
+1	≤ 36000	3%	0
+2	36000～144000	10%	2520
+3	144000～300000	20%	16920
+4	300000～420000	25%	31920
+5	420000～660000	30%	52920
+6	660000～960000	35%	85920
+7	> 960000	45%	181920
+9.3 温馨提示文案
+完整版（启动页 / 关于页）：
+
+⚠️ 深圳专用
+本工具按深圳市社保、公积金、个税规则计算。其他城市政策不同，如有需求请联系 Lee老师：leemail208@163.com
+
+💚 写在最后
+希望每一个努力生活的人，都能被好好对待。
+Lee老师倡导全行业按法休息，不恶意内卷、不形式加班。这个计算器也会在节假日强制休息，不计算工资和加班费。
+
+📌 计算结果仅供参考，以实际工资条为准。
+愿你的付出都有回响，休息也理直气壮。
+
+🔧 参数可配置
+社保基数上下限、公积金比例、个税税率等参数已做成可配置项，政策调整后可在设置中手动更新。
+
+短版（主界面底部）：
+
+深圳专用 · Lee老师倡导按法休息：不恶意内卷、不形式加班，节假日系统强制休息，不计工资与加班费。结果仅供参考，以实际工资条为准。
+
+9.4 打包命令
+bash
+dotnet publish -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -p:PublishTrimmed=true
+输出为一个独立的 .exe 文件，双击即可运行，无需安装 .NET 运行时。
+
+这份方案书可以直接作为 AI 开发的输入。建议你先把“第 0 章”和“第 3 章”发给 AI，让它先做设计系统；确认样式满意后，再逐步让它做计算、实时引擎和页面。

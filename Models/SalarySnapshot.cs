@@ -1,0 +1,47 @@
+// ============================================================================
+// 文件名：SalarySnapshot.cs
+// 功能描述：工资快照（实时引擎每次 tick 的输出）
+// ============================================================================
+
+namespace SalaryTicker.Models;
+
+using System;
+
+/// <summary>
+/// 工资快照
+/// </summary>
+public record SalarySnapshot
+{
+    /// <summary>当前时间</summary>
+    public DateTimeOffset Now { get; init; }
+
+    /// <summary>工作状态</summary>
+    public WorkStatus Status { get; init; }
+
+    /// <summary>是否在摸鱼</summary>
+    public bool IsMuyu { get; init; }
+
+    /// <summary>本月已赚</summary>
+    public decimal MonthEarned { get; init; }
+
+    /// <summary>今日已赚</summary>
+    public decimal TodayEarned { get; init; }
+
+    /// <summary>当前小时已赚</summary>
+    public decimal HourEarned { get; init; }
+
+    /// <summary>日薪</summary>
+    public decimal DailyRate { get; init; }
+
+    /// <summary>秒薪</summary>
+    public decimal SecondRate { get; init; }
+
+    /// <summary>税后月薪</summary>
+    public decimal NetMonthly { get; init; }
+
+    /// <summary>倒计时</summary>
+    public TimeSpan? Countdown { get; init; }
+
+    /// <summary>本月进度（0-1）</summary>
+    public double MonthProgress { get; init; }
+}
