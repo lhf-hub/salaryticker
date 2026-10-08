@@ -235,11 +235,7 @@ public partial class MainViewModel : ObservableObject
         }
 
         CountdownLabel = snapshot.Status == WorkStatus.NotStarted ? "距离上班" : "距离下班";
-
-        var countdown = snapshot.Countdown.Value;
-        CountdownText = countdown.TotalHours >= 1
-            ? $"{(int)countdown.TotalHours:D2}:{countdown.Minutes:D2}:{countdown.Seconds:D2}"
-            : $"{countdown.Minutes:D2}:{countdown.Seconds:D2}";
+        CountdownText = CountdownFormatter.Format(snapshot.Countdown.Value);
     }
 
     /// <summary>

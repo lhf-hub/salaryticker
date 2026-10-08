@@ -1,6 +1,6 @@
 // ============================================================================
 // 文件名：MiniWindow.xaml.cs
-// 功能描述：迷你悬浮窗代码后置（拖拽、位置记忆、透明度、返回主窗）
+// 功能描述：迷你悬浮窗代码后置（拖拽、位置记忆、透明度、返回主窗、状态行的下班倒计时）
 // ============================================================================
 
 using System;
@@ -106,7 +106,15 @@ public partial class MiniWindow : Window
         };
         AmountText.Text = $"¥{amount:N2}";
 
-        StatusText.Text = snapshot.Status switch
+        StatusText.Text = BuildStatusLine(snapshot);
+    }
+
+    /// <summary>
+    /// 状态行：状态文案，有倒计时时追加「· 距下班 02:15:30」
+    /// </summary>
+    private static string BuildStatusLine(SalarySnapshot snapshot)
+    {
+        var status = snapshot.Status switch
         {
             WorkStatus.Earning => "赚钱中 💪",
             WorkStatus.LunchBreak => "午休中 😴",
@@ -114,6 +122,9 @@ public partial class MiniWindow : Window
             WorkStatus.ForcedRest => "强制休息 🌴",
             _ => "未开工 ☕"
         };
+
+        var countdown = CountdownFormatter.GetShortText(snapshot.Countdown, snapshot.Status);
+        return countdown.Length == 0 ? status : $"{status} · {countdown}";
     }
 
     /// <summary>
