@@ -1,0 +1,6 @@
+{
+  "owner": "lhf-hub",
+  "repo": "salaryticker",
+  "token": "github_pat_REPLACE_WITH_YOUR_TOKEN",
+  "proxy": "http://127.0.0.1:7897"
+}
