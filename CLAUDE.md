@@ -79,13 +79,15 @@ powershell -File tools\deploy.ps1
 powershell -File tools\deploy-site.ps1
 ```
 
+**日常推送**（改文档、重构等不打 tag 的提交）：`powershell -File tools\release.ps1 -NoTag`。不带 `-NoTag` 时脚本会打 tag，而 tag 不可重复 —— csproj 版本号没升就不要用不带开关的调用。
+
 **构建只发生一次，就在第 4 步 `deploy.ps1`。** `release.ps1` 是纯 git 操作，不产出 exe —— 仓库是私有的、不挂 GitHub Release，exe 只从自己的服务器分发。
 
 ### 脚本职责（互不依赖）
 
 | 脚本 | 作用 | 常用开关 |
 |---|---|---|
-| `tools\release.ps1` | 代码进 GitHub（测试 + 提交 + tag + 推送） | `-SkipPush` 本地预演 / `-Message "<提交信息>"` |
+| `tools\release.ps1` | 代码进 GitHub（测试 + 提交 + tag + 推送） | `-NoTag` 日常推送不打 tag / `-SkipPush` 本地预演 / `-Message "<提交信息>"` |
 | `tools\deploy.ps1` | 应用进自己的服务器（exe + version.json + 软链） | `-SkipUpload` 只构建不上传 |
 | `tools\deploy-site.ps1` | 官网进自己的服务器（index.html + assets） | `-WithNginx` 同时更新 Nginx 配置 / `-NoVerify` 跳过上传后验证 |
 
@@ -113,8 +115,8 @@ powershell -File tools\deploy-site.ps1
 
 ## 八、环境要点与已知坑
 
-- **GitHub 直连被 DPI 按 SNI 拦截**（curl 直连 20 秒无响应），git 必须走本地代理 `http://127.0.0.1:7897`。`tools/github.config.json` 的 `proxy` 字段是唯一事实来源，`release.ps1` 会据此给 git 与 curl 都带上代理。
-- **全局 `credential.helper=manager` 会让 git 在无人值守时挂起**：服务器返回 401 后 Git Credential Manager 会弹 GUI 登录窗并一直等待。因此 `release.ps1` 把 token 直接放进 push URL（仅该条命令，不写入 `.git/config`，`git remote -v` 不会泄露）。
+- **GitHub 直连被 DPI 按 SNI 拦截**（curl 直连 20 秒无响应），git 必须走本地代理 `http://127.0.0.1:7897`。本仓库的 `.git/config` 已设好 `http.proxy` / `https.proxy`（**不进版本控制**，新克隆需重设）；`tools/github.config.json` 的 `proxy` 字段是脚本侧的来源，`release.ps1` 会据此给 git 显式带上代理。
+- **全局 `credential.helper=manager`（Git Credential Manager 2.6.1，已安装）在无人值守时会让 git 挂起**：服务器返回 401 后 GCM 要弹 GUI 登录窗，脚本里没人点就一直等。因此 `release.ps1` 把 token 直接放进 push URL（仅该条命令，不写入 `.git/config`，`git remote -v` 不会泄露）。人工在终端里手动 `git fetch` / `git pull` 时走的是 GCM 正常交互路径 —— 弹一次浏览器授权即可，属预期现象。
 - 域名被阿里云 ICP 备案拦截（申请中），备案通过前官网与应用内「检查更新」在部分网络会失败，属预期现象、不是 bug。**没有公开兜底下载渠道**：仓库私有且不挂 Release，GitHub 本身在国内也时通时不通，不适合当分发渠道。
 - 应用需放在可写目录（如 `D:\Apps\`）；放在 `Program Files` 下会因权限不足导致自动更新失败。
 - 无代码签名证书，首次运行新版本 Windows SmartScreen 会提示「来源不明」，属预期。
