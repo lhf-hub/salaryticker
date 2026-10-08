@@ -10,8 +10,12 @@
 #   -Message "<msg>"  Commit message (Conventional Commits, Chinese is fine).
 #                     When omitted you are prompted; press Enter to accept the
 #                     default "chore(release): v<version>".
-#   -SkipPush         Test + commit + tag locally only (dry run, nothing leaves
-#                     this machine).
+#   -NoTag            Everyday push: test + commit + push WITHOUT cutting a tag.
+#                     Use this while the csproj version has not been bumped yet -
+#                     otherwise the "tag already exists" guard blocks the push
+#                     until the version changes, even for a one-line docs fix.
+#   -SkipPush         Test + commit (+ tag) locally only (dry run, nothing
+#                     leaves this machine).
 #
 # Scope: the CODE - this git repository only.
 #   Building and shipping the APP to the server -> tools\deploy.ps1
@@ -33,7 +37,8 @@
 param(
     [string]$Message = "",
     [string]$ConfigPath = (Join-Path $PSScriptRoot "github.config.json"),
-    [switch]$SkipPush
+    [switch]$SkipPush,
+    [switch]$NoTag
 )
 
 $ErrorActionPreference = "Stop"
@@ -118,8 +123,10 @@ Write-Host "[1/6] Version: $version   Tag: $tag" -ForegroundColor Yellow
 # A tag must never move. If it exists the release already happened - bump the
 # version in the csproj instead of deleting the tag.
 # Where-Object { $_ } drops empty lines so an empty result really means "none".
-$localTag = @(Invoke-Git @("tag", "-l", $tag)) | Where-Object { $_ }
-if ($localTag) { throw "Tag $tag already exists locally. Bump <Version> in SalaryTicker.csproj." }
+if (-not $NoTag) {
+    $localTag = @(Invoke-Git @("tag", "-l", $tag)) | Where-Object { $_ }
+    if ($localTag) { throw "Tag $tag already exists locally. Bump <Version> in SalaryTicker.csproj, or use -NoTag to push without cutting a release." }
+}
 
 $branch = @(Invoke-Git @("rev-parse", "--abbrev-ref", "HEAD")) | Where-Object { $_ } | Select-Object -First 1
 if ($branch -ne "main") { throw "Releases are cut from 'main' only (currently on '$branch')." }
@@ -157,25 +164,35 @@ if ($dirty) {
     Invoke-Git @("commit", "-m", $Message) | Out-Null
     Write-Host "[4/6] Committed: $Message" -ForegroundColor Yellow
 } else {
-    Write-Host "[4/6] Nothing to commit - tagging the current HEAD" -ForegroundColor DarkYellow
+    $action = if ($NoTag) { "pushing" } else { "tagging" }
+    Write-Host "[4/6] Nothing to commit - $action the current HEAD" -ForegroundColor DarkYellow
 }
 
 # ---------------------------------------------------------------- 5. tag
 # Annotated tag: carries author and date, and 'git describe' can use it.
-Invoke-Git @("tag", "-a", $tag, "-m", "SalaryTicker $tag") | Out-Null
-Write-Host "[5/6] Tagged $tag" -ForegroundColor Yellow
+if ($NoTag) {
+    Write-Host "[5/6] -NoTag: no version tag (everyday push)" -ForegroundColor DarkYellow
+} else {
+    Invoke-Git @("tag", "-a", $tag, "-m", "SalaryTicker $tag") | Out-Null
+    Write-Host "[5/6] Tagged $tag" -ForegroundColor Yellow
+}
 
 if ($SkipPush) {
     Write-Host ""
     Write-Host "[6/6] -SkipPush: nothing pushed." -ForegroundColor DarkYellow
-    Write-Host "      Local only. Undo with: git tag -d $tag  (and git reset --soft HEAD~1)" -ForegroundColor DarkYellow
+    if ($NoTag) {
+        Write-Host "      Local only. Undo with: git reset --soft HEAD~1" -ForegroundColor DarkYellow
+    } else {
+        Write-Host "      Local only. Undo with: git tag -d $tag  (and git reset --soft HEAD~1)" -ForegroundColor DarkYellow
+    }
     exit 0
 }
 
 # ---------------------------------------------------------------- 6. push
 # The token goes into the push URL for this one command only, so it is never
 # written into .git/config and never shows up in 'git remote -v'.
-Write-Host "[6/6] Pushing main + tags to $slug ..." -ForegroundColor Yellow
+$what = if ($NoTag) { "main" } else { "main + tags" }
+Write-Host "[6/6] Pushing $what to $slug ..." -ForegroundColor Yellow
 $pushUrl = "https://x-access-token:$($cfg.token)@github.com/$slug.git"
 Invoke-Git @("push", $pushUrl, "main", "--follow-tags") | Out-Null
 
@@ -184,6 +201,12 @@ Write-Host "Done." -ForegroundColor Green
 Write-Host ""
 Write-Host "Version : $version"
 Write-Host "Commit  : $(@(Invoke-Git @('rev-parse', '--short', 'HEAD')) | Where-Object { $_ } | Select-Object -First 1)"
-Write-Host "Tag     : $tag"
-Write-Host ""
-Write-Host "Next: powershell -File tools\deploy.ps1   (build and ship this version to the auto-updater)" -ForegroundColor Gray
+if ($NoTag) {
+    Write-Host "Tag     : (none - everyday push)"
+    Write-Host ""
+    Write-Host "No tag was cut, so nothing new to ship. Use this script without -NoTag at release time." -ForegroundColor Gray
+} else {
+    Write-Host "Tag     : $tag"
+    Write-Host ""
+    Write-Host "Next: powershell -File tools\deploy.ps1   (build and ship this version to the auto-updater)" -ForegroundColor Gray
+}
