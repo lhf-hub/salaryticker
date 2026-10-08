@@ -55,7 +55,7 @@ SalaryTicker/
 ├── Assets/          应用图标（.ico）
 ├── tools/           图标生成 / 一键发布脚本
 ├── server/          Ubuntu 部署文件（Nginx 配置 + 下载页 + 部署说明）
-└── tests/           xUnit 单元测试（84 个用例）
+└── tests/           xUnit 单元测试（93 个用例）
 ```
 
 ## 数据存储
@@ -87,7 +87,7 @@ powershell -File tools/make-icon.ps1
 # 开发运行
 dotnet run
 
-# 运行单元测试（84 个用例）
+# 运行单元测试（93 个用例）
 dotnet test
 
 # 样式画廊（设计系统验收用）
@@ -127,13 +127,17 @@ dotnet publish SalaryTicker.csproj -c Release -r win-x64 --self-contained true \
 点「立即更新」→ 下载 + SHA256 校验 → 接力脚本在应用退出后替换 exe 并重启
 ```
 
-**两个独立的一键发布脚本**（应用与官网节奏不同，互不干扰）：
+**三个各司其职的一键发布脚本**（代码、应用、官网节奏不同，互不干扰）：
 
 ```powershell
-# 发应用（exe + version.json + 下载软链）
 notepad tools\release-notes.txt          # 1. 写本版更新日志
 notepad SalaryTicker.csproj              # 2. 改 <Version>
-powershell -File tools\deploy.ps1        # 3. 构建 + 哈希 + 清单 + 上传
+
+# 发代码到 GitHub（先跑 dotnet test，全绿才提交 + 打 tag + 推送）
+powershell -File tools\release.ps1
+
+# 发应用到自己的服务器（构建 + 哈希 + 清单 + 上传）
+powershell -File tools\deploy.ps1
 
 # 发官网（index.html + assets/）
 powershell -File tools\deploy-site.ps1   # 上传后会访问线上站点自动验证
@@ -141,8 +145,11 @@ powershell -File tools\deploy-site.ps1   # 上传后会访问线上站点自动�
 
 | 脚本 | 发布内容 | 常用开关 |
 |---|---|---|
+| `tools\release.ps1` | 代码进 GitHub：测试 + 提交 + tag + 推送 | `-SkipPush` 本地预演（只提交打 tag）<br>`-Message "<提交信息>"` |
 | `tools\deploy.ps1` | exe 归档 + version.json + 下载软链 | `-SkipUpload` 只构建不上传 |
 | `tools\deploy-site.ps1` | index.html + assets/ | `-WithNginx` 同时更新 nginx 配置（本地预检 + 服务器上 `nginx -t` 不通过自动回滚）<br>`-NoVerify` 跳过上传后验证 |
+
+> 远程仓库是**私有**的，且**不使用 GitHub Release** —— 它只做代码备份与历史留存，exe 一律从自己的服务器分发。`release.ps1` 因此是纯 git 操作，构建只发生一次，就在 `deploy.ps1`。首次使用需把 `tools/github.config.sample.json` 复制为 `tools/github.config.json` 并填入 PAT（该文件已 gitignore）。
 
 > 上传后验证会实际访问线上站点，并给出可操作的诊断（如「域名被阿里云 ICP 备案拦截」「HTTPS 端口不通」「nginx 根目录指错」）。
 
