@@ -12,7 +12,7 @@ SalaryTicker（实时计算器）—— Windows 桌面工资实时计算器。
 |---|---|
 | 技术栈 | C# / .NET 8 / WPF / MVVM（CommunityToolkit.Mvvm） |
 | 主工程 | `SalaryTicker.csproj` —— 版本号在 `<Version>`，发版时只改这里 |
-| 测试工程 | `tests/ShenzhenSalaryTimer.Tests/`（xUnit，93 个用例） |
+| 测试工程 | `tests/ShenzhenSalaryTimer.Tests/`（xUnit） |
 | 用户数据 | `%AppData%\SalaryTicker\`（纯 JSON，无数据库） |
 | 官网与下载页 | `server/`（Nginx 配置 + index.html） |
 | 线上地址 | https://salaryticker.leelab.com.cn |
@@ -22,12 +22,12 @@ SalaryTicker（实时计算器）—— Windows 桌面工资实时计算器。
 
 ```bash
 dotnet build                    # 编译
-dotnet test                     # 单元测试（93 项）
+dotnet test                     # 单元测试
 dotnet run                      # 开发运行
 dotnet run -- gallery           # 样式画廊（设计系统验收用）
 ```
 
-**提交前铁律：`dotnet build` 通过且 `dotnet test` 93 项全绿。** 每一次提交都要保持 `main` 可编译、测试通过。
+**提交前铁律：`dotnet build` 通过且 `dotnet test` 全部通过。** 每一次提交都要保持 `main` 可编译、测试全绿。
 
 ## 三、Git 规范
 
