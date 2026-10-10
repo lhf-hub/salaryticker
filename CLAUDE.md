@@ -83,12 +83,14 @@ powershell -File tools\deploy-site.ps1
 
 **构建只发生一次，就在第 4 步 `deploy.ps1`。** `release.ps1` 是纯 git 操作，不产出 exe —— 仓库是私有的、不挂 GitHub Release，exe 只从自己的服务器分发。
 
+`deploy.ps1` 还会把当前版本合并进 `tools/version-history.json`（官网「历史版本」弹窗的数据源，`tools/version-history.json` 是事实来源、服务器只收一份副本）并上传为站点根目录的 `history.json`。**条目一旦写入就冻结**——已发布的版本号不重用，重复部署同一版本不会改写历史；要改只能手工编辑那个 json。合并后脚本会提示把仓库里的 `version-history.json` 一并提交（它发生在 `release.ps1` 提交之后，所以会随下一次提交进 git）。
+
 ### 脚本职责（互不依赖）
 
 | 脚本 | 作用 | 常用开关 |
 |---|---|---|
 | `tools\release.ps1` | 代码进 GitHub（测试 + 提交 + tag + 推送） | `-NoTag` 日常推送不打 tag / `-SkipPush` 本地预演 / `-Message "<提交信息>"` |
-| `tools\deploy.ps1` | 应用进自己的服务器（exe + version.json + 软链） | `-SkipUpload` 只构建不上传 |
+| `tools\deploy.ps1` | 应用进自己的服务器（exe + version.json + history.json + 软链） | `-SkipUpload` 只构建不上传 |
 | `tools\deploy-site.ps1` | 官网进自己的服务器（index.html + assets） | `-WithNginx` 同时更新 Nginx 配置 / `-NoVerify` 跳过上传后验证 |
 
 ## 五、敏感文件（已 gitignore，**绝不提交**）
