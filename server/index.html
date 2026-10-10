@@ -361,21 +361,26 @@ details .body p + p{margin-top:8px}
 }
 .modal-close:hover{background:var(--bg-subtle)}
 
-/* 历史版本列表 */
+/* 历史版本列表：每个版本一个可展开的 details（继承 FAQ 的折叠样式） */
 .history-list{max-height:52vh;overflow-y:auto;text-align:left}
-.history-item{
-  display:flex;align-items:center;gap:12px;
-  padding:11px 14px;border:1px solid var(--line);border-radius:14px;
-}
+.history-item{display:block;border-radius:14px}
 .history-item + .history-item{margin-top:8px}
+.history-item summary{padding:13px 16px;font-size:14px;font-weight:600;gap:10px}
+.history-item .ver{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
 .history-item .v{font-family:var(--mono);font-weight:700;font-size:15px;color:var(--money)}
-.history-item .meta{font-size:12px;color:var(--text-2);margin-top:2px}
+.history-item .meta{font-size:12px;color:var(--text-2);font-weight:400}
 .history-item .latest{
   display:inline-block;background:var(--money-soft);color:var(--money);
   font-size:10.5px;font-weight:600;padding:2px 7px;border-radius:999px;
-  vertical-align:middle;margin-left:4px;
+  vertical-align:middle;margin-left:5px;
 }
-.history-item .dl{margin-left:auto;font-size:13px;white-space:nowrap;color:var(--primary)}
+.history-item .body{padding:0 16px 16px;display:flex;flex-direction:column;gap:10px}
+.history-item .notes{
+  background:var(--primary-soft);border-radius:12px;padding:12px 14px;margin:0;
+  font-size:13.5px;color:#8A4B38;white-space:pre-wrap;word-break:break-word;
+}
+.history-item .dl{align-self:flex-start;font-size:13px;white-space:nowrap;color:var(--primary)}
+.history-item .archive-only{font-size:12.5px;color:var(--text-2)}
 
 @media (max-width:860px){
   .support{grid-template-columns:1fr}
@@ -884,7 +889,7 @@ footer .fine{font-size:12.5px;line-height:1.9;border-top:1px solid var(--line);p
   <div class="modal-box" style="max-width:440px">
     <button class="modal-close" type="button" id="history-close" aria-label="关闭">✕</button>
     <h3>📦 历史版本</h3>
-    <p style="margin-bottom:16px">想装回旧版本？点下面任意一个下载即可</p>
+    <p style="margin-bottom:16px">点开任意版本可看该版更新了什么；最近 5 个版本可下载</p>
     <div class="history-list" id="history-list">
       <p style="text-align:center;color:var(--text-2)">正在读取…</p>
     </div>
@@ -1096,50 +1101,92 @@ footer .fine{font-size:12.5px;line-height:1.9;border-top:1px solid var(--line);p
   var historyList  = document.getElementById('history-list');
   var historyLoaded = false;
 
-  // 把 "SalaryTicker-1.1.0.exe" 里的版本号抽出来用于排序
-  function versionKey(name) {
-    var m = name.match(/(\d+)\.(\d+)\.(\d+)/);
+  // 只有排序最靠前的这几个版本提供下载按钮，更旧的仅存档
+  var HISTORY_DOWNLOAD_LIMIT = 5;
+
+  // 把 "1.1.0" 或 "SalaryTicker-1.1.0.exe" 里的版本号抽出来用于排序
+  function versionKey(text) {
+    var m = String(text).match(/(\d+)\.(\d+)\.(\d+)/);
     return m ? [+m[1], +m[2], +m[3]] : [0, 0, 0];
   }
 
-  function renderHistory(files) {
-    files.sort(function (a, b) {
-      var x = versionKey(b.name), y = versionKey(a.name);
-      return (x[0] - y[0]) || (x[1] - y[1]) || (x[2] - y[2]);   // 版本号从新到旧
+  function compareVersionDesc(a, b) {
+    var x = versionKey(a), y = versionKey(b);
+    return (x[0] - y[0]) || (x[1] - y[1]) || (x[2] - y[2]);   // 版本号从新到旧
+  }
+
+  function formatSize(bytes) {
+    return bytes ? (bytes / 1048576).toFixed(1) + ' MB' : '';
+  }
+
+  // 渲染成可展开的列表：summary 是版本号+元信息，展开后是更新说明与下载入口。
+  // releaseNotes 为字符串时才会出现说明框（拉不到 history.json 的兜底路径不带该字段）
+  function renderHistory(versions) {
+    var sorted = versions.slice().sort(function (a, b) {
+      return compareVersionDesc(b.version, a.version);
     });
 
     var html = '';
-    for (var i = 0; i < files.length; i++) {
-      var f = files[i];
-      var m = f.name.match(/SalaryTicker-(.+)\.exe$/i);
-      var ver = m ? m[1] : f.name;
-      var size = f.size ? (f.size / 1048576).toFixed(1) + ' MB' : '';
-      var date = f.mtime ? new Date(f.mtime).toLocaleDateString('zh-CN') : '';
-      var meta = [date, size].filter(Boolean).join(' · ');
+    for (var i = 0; i < sorted.length; i++) {
+      var v = sorted[i];
+      var meta = [v.publishedAt, formatSize(v.size)].filter(Boolean).join(' · ');
+      var hasNotes = (typeof v.releaseNotes === 'string');
 
-      html += '<div class="history-item">'
-            +   '<div>'
-            +     '<div class="v">v' + ver + (i === 0 ? '<span class="latest">最新</span>' : '') + '</div>'
-            +     '<div class="meta">' + meta + '</div>'
+      html += '<details class="history-item">'
+            +   '<summary>'
+            +     '<span class="ver">'
+            +       '<span class="v">v' + v.version + (i === 0 ? '<span class="latest">最新</span>' : '') + '</span>'
+            +       '<span class="meta">' + meta + '</span>'
+            +     '</span>'
+            +   '</summary>'
+            +   '<div class="body">'
+            +     (hasNotes ? '<p class="notes" data-notes="' + i + '"></p>' : '')
+            +     (i < HISTORY_DOWNLOAD_LIMIT
+                    ? '<a class="dl" href="download/releases/' + encodeURIComponent(v.archive) + '" download>下载此版本</a>'
+                    : '<span class="archive-only">仅存档，不提供下载</span>')
             +   '</div>'
-            +   '<a class="dl" href="download/releases/' + encodeURIComponent(f.name) + '" download>下载</a>'
-            + '</div>';
+            + '</details>';
     }
     historyList.innerHTML = html;
+
+    // 更新说明是自由文本，用 textContent 赋值，不拼进 innerHTML
+    for (var j = 0; j < sorted.length; j++) {
+      var target = historyList.querySelector('[data-notes="' + j + '"]');
+      if (!target) continue;
+      target.textContent = sorted[j].releaseNotes || '此版本早于更新日志启用，暂无说明。';
+    }
   }
 
+  // 首选站点维护的 history.json（含每版的更新说明）
   function loadHistory() {
+    fetch('history.json', { cache: 'no-store' })
+      .then(function (r) { if (!r.ok) throw new Error(r.status); return r.json(); })
+      .then(function (data) {
+        var versions = (data && data.versions) || [];
+        if (!versions.length) throw new Error('empty');
+        renderHistory(versions);
+      })
+      .catch(loadHistoryFromDirectory);
+  }
+
+  // 兜底：退回 nginx autoindex 的 JSON 目录清单（只有文件名/体积/时间，没有说明）
+  function loadHistoryFromDirectory() {
     fetch('download/releases/', { cache: 'no-store' })
       .then(function (r) { if (!r.ok) throw new Error(r.status); return r.json(); })
       .then(function (list) {
         var files = (list || []).filter(function (f) {
           return f.type === 'file' && /\.exe$/i.test(f.name);
         });
-        if (!files.length) {
-          historyList.innerHTML = '<p style="text-align:center;color:var(--text-2)">暂无历史版本，可下载上方最新版</p>';
-          return;
-        }
-        renderHistory(files);
+        if (!files.length) throw new Error('empty');
+        renderHistory(files.map(function (f) {
+          var m = f.name.match(/SalaryTicker-(.+)\.exe$/i);
+          return {
+            version: m ? m[1] : f.name,
+            size: f.size,
+            archive: f.name,
+            publishedAt: f.mtime ? new Date(f.mtime).toISOString().slice(0, 10) : ''
+          };
+        }));
       })
       .catch(function () {
         historyList.innerHTML = '<p style="text-align:center;color:var(--text-2)">暂时无法获取历史版本<br>可直接下载上方最新版</p>';
