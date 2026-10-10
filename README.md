@@ -153,7 +153,7 @@ powershell -File tools\deploy-site.ps1   # 上传后会访问线上站点自动�
 
 > 远程仓库是**私有**的，且**不使用 GitHub Release** —— 它只做代码备份与历史留存，exe 一律从自己的服务器分发。`release.ps1` 因此是纯 git 操作，构建只发生一次，就在 `deploy.ps1`。首次使用需把 `tools/github.config.sample.json` 复制为 `tools/github.config.json` 并填入 PAT（该文件已 gitignore）。
 
-> 上传后验证会实际访问线上站点，并给出可操作的诊断（如「域名被阿里云 ICP 备案拦截」「HTTPS 端口不通」「nginx 根目录指错」）。
+> 上传后验证会实际访问线上站点，并给出可操作的诊断（如「域名被 ICP 备案拦截」「HTTPS 端口不通」「nginx 根目录指错」）。
 
 首次使用需把 `tools/deploy.config.sample.json` 复制为 `tools/deploy.config.json` 并填写服务器信息（该文件已 gitignore）。
 

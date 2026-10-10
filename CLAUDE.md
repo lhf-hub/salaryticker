@@ -117,7 +117,7 @@ powershell -File tools\deploy-site.ps1
 
 - **GitHub 直连被 DPI 按 SNI 拦截**（curl 直连 20 秒无响应），git 必须走本地代理 `http://127.0.0.1:7897`。本仓库的 `.git/config` 已设好 `http.proxy` / `https.proxy`（**不进版本控制**，新克隆需重设）；`tools/github.config.json` 的 `proxy` 字段是脚本侧的来源，`release.ps1` 会据此给 git 显式带上代理。
 - **全局 `credential.helper=manager`（Git Credential Manager 2.6.1，已安装）在无人值守时会让 git 挂起**：服务器返回 401 后 GCM 要弹 GUI 登录窗，脚本里没人点就一直等。因此 `release.ps1` 把 token 直接放进 push URL（仅该条命令，不写入 `.git/config`，`git remote -v` 不会泄露）。人工在终端里手动 `git fetch` / `git pull` 时走的是 GCM 正常交互路径 —— 弹一次浏览器授权即可，属预期现象。
-- 域名被阿里云 ICP 备案拦截（申请中），备案通过前官网与应用内「检查更新」在部分网络会失败，属预期现象、不是 bug。**没有公开兜底下载渠道**：仓库私有且不挂 Release，GitHub 本身在国内也时通时不通，不适合当分发渠道。
+- 域名备案已完成（2026-10-10 复测：官网 HTTP 200、`version.json` 与下载链接均正常）。此前被阿里云 ICP 拦截期间官网与「检查更新」会失败，那属于预期现象；现已恢复，若再出现 403 + `Server: Beaver` 即为备案状态异常。
 - 应用需放在可写目录（如 `D:\Apps\`）；放在 `Program Files` 下会因权限不足导致自动更新失败。
 - 无代码签名证书，首次运行新版本 Windows SmartScreen 会提示「来源不明」，属预期。
 
