@@ -17,7 +17,8 @@ public sealed class SalaryEngine
     private readonly TimeProvider _timeProvider;
     private SalaryResult? _cachedSalary;
     private AppSettings? _cachedSettings;
-    private (int year, int month)? _cachedBackfill;
+    // 缓存键必须带"今天"：补发天数算的是"1 号到昨天"，跨天后结果每天都变
+    private (int year, int month, int day)? _cachedBackfill;
     private int _cachedBackfillDays;
 
     public SalaryEngine(TimeProvider timeProvider)
@@ -129,11 +130,11 @@ public sealed class SalaryEngine
     /// </summary>
     private int GetBackfillDays(int year, int month, DateOnly today, ShiftSettings shift, ISet<DateOnly> holidays, AppSettings settings, ISet<DateOnly> makeupWorkDays)
     {
-        if (_cachedBackfill == (year, month) && _cachedSettings == settings)
+        if (_cachedBackfill == (year, month, today.Day) && _cachedSettings == settings)
             return _cachedBackfillDays;
 
         _cachedBackfillDays = WorkTimeCalculator.GetMonthBackfillDays(year, month, today, shift, holidays, makeupWorkDays);
-        _cachedBackfill = (year, month);
+        _cachedBackfill = (year, month, today.Day);
         return _cachedBackfillDays;
     }
 

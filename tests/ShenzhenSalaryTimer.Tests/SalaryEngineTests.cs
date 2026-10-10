@@ -120,6 +120,31 @@ public class SalaryEngineTests
     }
 
     [Fact]
+    public void ComputeSnapshot_CrossesMidnight_RefreshesBackfillDays()
+    {
+        // 应用一直开着跨天时，补发天数必须跟着刷新
+        // 缓存键曾经漏掉"今天"，导致跨天后本月已赚冻结在首算那天的值
+        var settings = CreateTestSettings();
+        var timeProvider = new FakeTimeProvider(CreateLocalTime(2026, 1, 15, 10, 0, 0)); // 周四 10:00
+        var engine = new SalaryEngine(timeProvider);
+
+        var day1 = engine.ComputeSnapshot(timeProvider.GetLocalNow(), settings);
+
+        // 同一个引擎实例、同一个 settings 引用，只把时间推进到第二天同一时刻
+        timeProvider.Set(CreateLocalTime(2026, 1, 16, 10, 0, 0)); // 周五 10:00
+        var day2 = engine.ComputeSnapshot(timeProvider.GetLocalNow(), settings);
+
+        // 今日已赚不变（同样是 9:00→10:00 一小时）
+        Assert.Equal(day1.TodayEarned, day2.TodayEarned);
+        Assert.Equal(day1.DailyRate, day2.DailyRate);
+
+        // 但补发天数要多算 1/15 这一天，即整月多一个日薪
+        Assert.True(Math.Abs((day1.MonthEarned + day1.DailyRate) - day2.MonthEarned) < 0.0001m,
+            $"跨天后本月已赚应多一个日薪：前一天 {day1.MonthEarned}，后一天 {day2.MonthEarned}，日薪 {day1.DailyRate}");
+        Assert.True(day2.MonthProgress > day1.MonthProgress);
+    }
+
+    [Fact]
     public void InvalidateCache_ClearsCachedSalary()
     {
         var settings = CreateTestSettings();
