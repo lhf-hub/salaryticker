@@ -20,11 +20,11 @@
     <AssemblyTitle>SalaryTicker 实时计算器</AssemblyTitle>
     <Product>SalaryTicker</Product>
     <Company>Lee老师</Company>
-    <Version>1.1.4</Version>
+    <Version>1.1.5</Version>
     <!-- 显式声明，保证更新比对与发布脚本读取到的版本号稳定 -->
-    <AssemblyVersion>1.1.4.0</AssemblyVersion>
-    <FileVersion>1.1.4.0</FileVersion>
-    <InformationalVersion>1.1.4</InformationalVersion>
+    <AssemblyVersion>1.1.5.0</AssemblyVersion>
+    <FileVersion>1.1.5.0</FileVersion>
+    <InformationalVersion>1.1.5</InformationalVersion>
   </PropertyGroup>
 
   <ItemGroup>
