@@ -142,6 +142,13 @@ public partial class MainViewModel : ObservableObject
     /// <summary>退出请求</summary>
     public event EventHandler? ExitRequested;
 
+    /// <summary>
+    /// 上次发起「运行中定期检查」的时间（内存态）。
+    /// 用它而不是持久化的 LastUpdateCheckUtc，是为了让检查失败也能在下一个周期重试 ——
+    /// 挂机多天时一次网络抖动不该让新版本提示推迟一整天。
+    /// </summary>
+    private DateTime _lastPeriodicCheckUtc = DateTime.MinValue;
+
     public MainViewModel()
     {
         _dispatcher = Application.Current?.Dispatcher ?? Dispatcher.CurrentDispatcher;
@@ -221,8 +228,25 @@ public partial class MainViewModel : ObservableObject
         // 「本月日薪」按当月实际计薪天数摊平，和上面的「本月已赚」同一口径
         SalarySummary = $"税后 ¥{snapshot.NetMonthly:N2} · 本月日薪 ¥{snapshot.DailyRate:N2} · 秒薪 ¥{snapshot.SecondRate:N4}";
 
+        // 挂机时也要能收到新版本提示
+        MaybeCheckUpdatePeriodically(snapshot.Now);
+
         // 触发数字脉冲动画
         TriggerPulse();
+    }
+
+    /// <summary>
+    /// 应用一直开着时定期检查更新。
+    /// 真正是否发请求由 UpdateLogic.ShouldCheckNow 的最小间隔再兜一层，
+    /// 所以这里每秒调用也不会刷请求。
+    /// </summary>
+    private void MaybeCheckUpdatePeriodically(DateTimeOffset now)
+    {
+        var nowUtc = now.UtcDateTime;
+        if (!UpdateLogic.ShouldCheckPeriodically(_lastPeriodicCheckUtc, nowUtc)) return;
+
+        _lastPeriodicCheckUtc = nowUtc;
+        _ = Update.CheckForUpdateAsync();
     }
 
     /// <summary>

@@ -173,7 +173,8 @@ public partial class UpdateViewModel : ObservableObject
             using var cts = new CancellationTokenSource(CheckTimeout);
             var manifest = await _updateService.FetchManifestAsync(url, cts.Token);
 
-            // 无论成功与否都记录检查时间，避免频繁请求服务器
+            // 无论成功与否都记录检查时间，起的是"最小间隔"作用（UpdateLogic.MinCheckInterval）：
+            // 正常使用下每次进应用都会检查，只有刚查过的 10 分钟内再启动才会跳过。
             settings.LastUpdateCheckUtc = nowUtc;
             _saveSettings();
 

@@ -81,27 +81,75 @@ public class UpdateLogicTests
     }
 
     [Fact]
-    public void ShouldCheckNow_WithinInterval_ReturnsFalse()
+    public void ShouldCheckNow_WithinMinInterval_ReturnsFalse()
     {
         var now = new DateTime(2026, 9, 20, 12, 0, 0, DateTimeKind.Utc);
-        var lastCheck = now.AddHours(-3); // 3 小时前（< 6 小时）
+        var lastCheck = now.AddMinutes(-5); // 5 分钟前（< 10 分钟）
         Assert.False(UpdateLogic.ShouldCheckNow(true, "https://example.com/version.json", lastCheck, now));
     }
 
     [Fact]
-    public void ShouldCheckNow_AfterInterval_ReturnsTrue()
+    public void ShouldCheckNow_ExactlyAtMinInterval_ReturnsTrue()
     {
         var now = new DateTime(2026, 9, 20, 12, 0, 0, DateTimeKind.Utc);
-        var lastCheck = now.AddHours(-7); // 7 小时前（> 6 小时）
+        var lastCheck = now - UpdateLogic.MinCheckInterval;
         Assert.True(UpdateLogic.ShouldCheckNow(true, "https://example.com/version.json", lastCheck, now));
     }
 
     [Fact]
-    public void ShouldCheckNow_ExactlyAtInterval_ReturnsTrue()
+    public void ShouldCheckNow_HalfHourAgo_ReturnsTrue()
+    {
+        // 回归：以前最小间隔是 6 小时，导致"进了应用也不查"，只有手动点才弹提示
+        var now = new DateTime(2026, 9, 20, 12, 0, 0, DateTimeKind.Utc);
+        var lastCheck = now.AddMinutes(-30);
+        Assert.True(UpdateLogic.ShouldCheckNow(true, "https://example.com/version.json", lastCheck, now));
+    }
+
+    [Fact]
+    public void ShouldCheckNow_Yesterday_ReturnsTrue()
     {
         var now = new DateTime(2026, 9, 20, 12, 0, 0, DateTimeKind.Utc);
-        var lastCheck = now - UpdateLogic.CheckInterval;
+        var lastCheck = now.AddDays(-1);
         Assert.True(UpdateLogic.ShouldCheckNow(true, "https://example.com/version.json", lastCheck, now));
+    }
+
+    // ========== 运行中的定期检查 ==========
+
+    [Fact]
+    public void ShouldCheckPeriodically_FirstEverAttempt_ReturnsTrue()
+    {
+        var now = new DateTime(2026, 9, 20, 12, 0, 0, DateTimeKind.Utc);
+        Assert.True(UpdateLogic.ShouldCheckPeriodically(DateTime.MinValue, now));
+    }
+
+    [Fact]
+    public void ShouldCheckPeriodically_OneHourAgo_ReturnsFalse()
+    {
+        var now = new DateTime(2026, 9, 20, 12, 0, 0, DateTimeKind.Utc);
+        Assert.False(UpdateLogic.ShouldCheckPeriodically(now.AddHours(-1), now));
+    }
+
+    [Fact]
+    public void ShouldCheckPeriodically_ExactlyOnePeriod_ReturnsTrue()
+    {
+        var now = new DateTime(2026, 9, 20, 12, 0, 0, DateTimeKind.Utc);
+        Assert.True(UpdateLogic.ShouldCheckPeriodically(now - UpdateLogic.PeriodicCheckInterval, now));
+    }
+
+    [Fact]
+    public void ShouldCheckPeriodically_OneSecondShortOfPeriod_ReturnsFalse()
+    {
+        // 这条每秒都会被调用一次，判错就会变成每秒发请求
+        var now = new DateTime(2026, 9, 20, 12, 0, 0, DateTimeKind.Utc);
+        var justUnder = now - UpdateLogic.PeriodicCheckInterval + TimeSpan.FromSeconds(1);
+        Assert.False(UpdateLogic.ShouldCheckPeriodically(justUnder, now));
+    }
+
+    [Fact]
+    public void ShouldCheckPeriodically_Overnight_ReturnsTrue()
+    {
+        var now = new DateTime(2026, 9, 21, 9, 0, 0, DateTimeKind.Utc);
+        Assert.True(UpdateLogic.ShouldCheckPeriodically(now.AddHours(-15), now));
     }
 
     // ========== 跳过版本 ==========

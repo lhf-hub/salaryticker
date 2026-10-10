@@ -13,8 +13,15 @@ using System;
 /// </summary>
 public static class UpdateLogic
 {
-    /// <summary>两次检查之间的最小间隔（避免频繁请求服务器）</summary>
-    public static readonly TimeSpan CheckInterval = TimeSpan.FromHours(6);
+    /// <summary>
+    /// 两次检查之间的最小间隔。
+    /// 只用来防止反复重启（或定期检查正好撞上刚做完的检查）时刷请求 ——
+    /// 正常使用下每次进入应用都会检查一次。清单只有几百字节，不必吝啬。
+    /// </summary>
+    public static readonly TimeSpan MinCheckInterval = TimeSpan.FromMinutes(10);
+
+    /// <summary>应用持续运行时的重新检查间隔（挂机好几天也能收到新版本提示）</summary>
+    public static readonly TimeSpan PeriodicCheckInterval = TimeSpan.FromHours(6);
 
     /// <summary>
     /// 解析版本号字符串（容错处理）
@@ -62,11 +69,20 @@ public static class UpdateLogic
         if (!enabled) return false;
         if (string.IsNullOrWhiteSpace(url)) return false;
 
-        if (lastCheckUtc.HasValue && nowUtc - lastCheckUtc.Value < CheckInterval)
+        if (lastCheckUtc.HasValue && nowUtc - lastCheckUtc.Value < MinCheckInterval)
             return false;
 
         return true;
     }
+
+    /// <summary>
+    /// 判断应用运行期间是否该再做一次定期检查。
+    /// 只看"距离上次尝试够不够久"，不看开关与地址 —— 那两样由 ShouldCheckNow 在
+    /// 真正发请求前把关。之所以按"尝试"而不是"成功"计时，是为了让一次网络抖动
+    /// 不至于让新版本提示推迟一整个周期。
+    /// </summary>
+    public static bool ShouldCheckPeriodically(DateTime lastAttemptUtc, DateTime nowUtc)
+        => nowUtc - lastAttemptUtc >= PeriodicCheckInterval;
 
     /// <summary>
     /// 判断是否应该向用户提示这个新版本（用户已忽略的版本不再提示）
