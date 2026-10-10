@@ -204,6 +204,27 @@ public class WorkTimeCalculatorTests
         Assert.Equal(4, days);
     }
 
+    [Theory]
+    [InlineData(2026, 1, 21)]   // 元旦假期，1/4 补班
+    [InlineData(2026, 9, 22)]   // 中秋，9/20 国庆补班
+    [InlineData(2026, 10, 18)]  // 国庆长假，10/10 补班
+    public void GetPayableDaysInMonth_Uses2026HolidayAndMakeupTables(int year, int month, int expected)
+    {
+        var shift = CreateDefaultShift();
+
+        var holidays = new HashSet<DateOnly>();
+        foreach (var h in SettingsDefaults.Holidays2026())
+            holidays.Add(h.Date);
+
+        var makeupWorkDays = new HashSet<DateOnly>();
+        foreach (var m in SettingsDefaults.MakeupWorkDays2026())
+            makeupWorkDays.Add(m.Date);
+
+        var days = WorkTimeCalculator.GetPayableDaysInMonth(year, month, shift, holidays, makeupWorkDays);
+
+        Assert.Equal(expected, days);
+    }
+
     [Fact]
     public void GetWorkDaysForWeek_AlternateWeek_ReturnsCorrect()
     {

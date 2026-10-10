@@ -104,6 +104,24 @@ public static class WorkTimeCalculator
     }
 
     /// <summary>
+    /// 获取指定月份的总计薪天数（整月）
+    /// 用于"按当月摊平"的日薪：日薪 = 税后月薪 ÷ 当月计薪天数，月底累计正好等于月薪
+    /// </summary>
+    public static int GetPayableDaysInMonth(int year, int month, ShiftSettings shift, ISet<DateOnly> holidays, ISet<DateOnly>? makeupWorkDays = null)
+    {
+        var days = 0;
+        var daysInMonth = DateTime.DaysInMonth(year, month);
+
+        for (var day = 1; day <= daysInMonth; day++)
+        {
+            if (IsPayableDay(new DateOnly(year, month, day), shift, holidays, makeupWorkDays))
+                days++;
+        }
+
+        return days;
+    }
+
+    /// <summary>
     /// 获取每日总工作秒数
     /// </summary>
     public static long GetTotalWorkSeconds(ShiftSettings shift)

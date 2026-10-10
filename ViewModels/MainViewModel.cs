@@ -194,10 +194,8 @@ public partial class MainViewModel : ObservableObject
         StatusText = GetStatusText(snapshot.Status, snapshot.IsMuyu);
         UpdateCountdown(snapshot);
 
-        var settings = AppServices.Config.Settings;
-        SalarySummary = settings.Mode == SalaryMode.Gross
-            ? $"税后 ¥{snapshot.NetMonthly:N2} · 日薪 ¥{snapshot.DailyRate:N2} · 秒薪 ¥{snapshot.SecondRate:N4}"
-            : $"税后 ¥{snapshot.NetMonthly:N2} · 日薪 ¥{snapshot.DailyRate:N2} · 秒薪 ¥{snapshot.SecondRate:N4}";
+        // 「本月日薪」按当月实际计薪天数摊平，和上面的「本月已赚」同一口径
+        SalarySummary = $"税后 ¥{snapshot.NetMonthly:N2} · 本月日薪 ¥{snapshot.DailyRate:N2} · 秒薪 ¥{snapshot.SecondRate:N4}";
 
         // 触发数字脉冲动画
         TriggerPulse();

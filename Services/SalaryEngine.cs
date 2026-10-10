@@ -17,6 +17,9 @@ public sealed class SalaryEngine
     private readonly TimeProvider _timeProvider;
     private SalaryResult? _cachedSalary;
     private AppSettings? _cachedSettings;
+    // 日薪依赖当月的计薪天数，所以 (年, 月) 也是缓存键的一部分
+    private int _cachedYear;
+    private int _cachedMonth;
     // 缓存键必须带"今天"：补发天数算的是"1 号到昨天"，跨天后结果每天都变
     private (int year, int month, int day)? _cachedBackfill;
     private int _cachedBackfillDays;
@@ -31,9 +34,6 @@ public sealed class SalaryEngine
     /// </summary>
     public SalarySnapshot ComputeSnapshot(DateTimeOffset now, AppSettings settings)
     {
-        // 计算税后工资（带缓存）
-        var salary = GetSalary(settings);
-
         // 获取节假日集合
         var holidays = new HashSet<DateOnly>();
         foreach (var h in settings.HolidayDates)
@@ -44,11 +44,20 @@ public sealed class SalaryEngine
         foreach (var m in settings.MakeupWorkDays)
             makeupWorkDays.Add(m.Date);
 
+        var today = DateOnly.FromDateTime(now.LocalDateTime);
+
+        // 当月实际计薪天数：日薪/秒薪的除数。按当月摊平后月底累计正好等于月薪，
+        // 不会因为节假日多而短缺、也不会因为工作日多而超出
+        var payableDaysInMonth = WorkTimeCalculator.GetPayableDaysInMonth(
+            today.Year, today.Month, settings.Shift, holidays, makeupWorkDays);
+
+        // 计算税后工资（带缓存）
+        var salary = GetSalary(settings, today.Year, today.Month, payableDaysInMonth);
+
         // 获取今日工作信息
         var dayInfo = WorkTimeCalculator.GetDayInfo(now, settings.Shift, holidays, makeupWorkDays);
 
         // 计算当月补发
-        var today = DateOnly.FromDateTime(now.LocalDateTime);
         var backfillDays = GetBackfillDays(today.Year, today.Month, today, settings.Shift, holidays, settings, makeupWorkDays);
 
         // 计算各项收入
@@ -58,9 +67,10 @@ public sealed class SalaryEngine
         // 计算当前小时已赚：本整点至今与今天工作区间的重叠秒数 × 秒薪（秒级精确）
         var hourEarned = ComputeHourEarned(now, dayInfo.Intervals, salary.SecondRate);
 
-        // 计算本月进度
-        var totalMonthDays = GetTotalPayableDaysInMonth(today.Year, today.Month, settings.Shift, holidays, makeupWorkDays);
-        var monthProgress = totalMonthDays > 0 ? (double)(monthEarned / (totalMonthDays * salary.DailyRate)) : 0;
+        // 计算本月进度（分子分母同为"当月口径"，月底恰好到 100%）
+        var monthProgress = payableDaysInMonth > 0
+            ? (double)(monthEarned / (payableDaysInMonth * salary.DailyRate))
+            : 0;
         monthProgress = Math.Clamp(monthProgress, 0, 1);
 
         return new SalarySnapshot
@@ -113,14 +123,19 @@ public sealed class SalaryEngine
     }
 
     /// <summary>
-    /// 获取税后工资（带缓存）
+    /// 获取税后工资（带缓存；日薪依赖按 (年, 月) 算出的计薪天数，所以键里必须带上）
     /// </summary>
-    private SalaryResult GetSalary(AppSettings settings)
+    private SalaryResult GetSalary(AppSettings settings, int year, int month, int payableDaysInMonth)
     {
-        if (_cachedSettings != settings || _cachedSalary == null)
+        if (_cachedSalary == null
+            || _cachedSettings != settings
+            || _cachedYear != year
+            || _cachedMonth != month)
         {
-            _cachedSalary = SalaryCalculator.Compute(settings);
+            _cachedSalary = SalaryCalculator.Compute(settings, payableDaysInMonth);
             _cachedSettings = settings;
+            _cachedYear = year;
+            _cachedMonth = month;
         }
         return _cachedSalary;
     }
@@ -138,21 +153,4 @@ public sealed class SalaryEngine
         return _cachedBackfillDays;
     }
 
-    /// <summary>
-    /// 获取当月总计薪天数
-    /// </summary>
-    private int GetTotalPayableDaysInMonth(int year, int month, ShiftSettings shift, ISet<DateOnly> holidays, ISet<DateOnly> makeupWorkDays)
-    {
-        var days = 0;
-        var daysInMonth = DateTime.DaysInMonth(year, month);
-
-        for (var day = 1; day <= daysInMonth; day++)
-        {
-            var date = new DateOnly(year, month, day);
-            if (WorkTimeCalculator.IsPayableDay(date, shift, holidays, makeupWorkDays))
-                days++;
-        }
-
-        return days;
-    }
 }

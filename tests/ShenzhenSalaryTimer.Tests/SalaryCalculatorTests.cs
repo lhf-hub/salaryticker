@@ -52,7 +52,8 @@ public class SalaryCalculatorTests
     public void Compute_GrossMode_Baseline_Month9()
     {
         var settings = CreateBaselineSettings(9);
-        var result = SalaryCalculator.Compute(settings);
+        // 2026 年 9 月实际计薪 22 天（22 个工作日 − 中秋 + 国庆补班）
+        var result = SalaryCalculator.Compute(settings, payableDaysInMonth: 22);
 
         // 五险一金：养老 1600 + 医疗 400 + 失业 40 + 公积金 1000 = 3040
         Assert.Equal(3040m, result.InsuranceTotal);
@@ -64,24 +65,48 @@ public class SalaryCalculatorTests
         // 税后 = 20000 - 3040 - 1196 = 15764
         Assert.Equal(15764m, result.NetMonthly);
 
-        // 日薪 = 15764 / 21.75 = 724.7816...
-        Assert.True(result.DailyRate > 724.78m && result.DailyRate < 724.79m);
+        // 日薪 = 15764 / 22 = 716.5454...（按当月实际计薪天数摊平）
+        Assert.Equal(15764m / 22m, result.DailyRate);
 
-        // 秒薪 = 724.7816 / 8 / 3600 = 0.025166...
-        Assert.True(result.SecondRate > 0.02516m && result.SecondRate < 0.02517m);
+        // 秒薪 = 716.5454... / 8 / 3600
+        Assert.Equal(15764m / 22m / 8m / 3600m, result.SecondRate);
     }
 
     [Fact]
     public void Compute_GrossMode_Month1_FirstBracket()
     {
         var settings = CreateBaselineSettings(1);
-        var result = SalaryCalculator.Compute(settings);
+        var result = SalaryCalculator.Compute(settings, payableDaysInMonth: 21);
 
         // 1月个税：累计 11960 → 3% = 358.80
         Assert.Equal(358.80m, result.MonthTax);
 
         // 税后 = 20000 - 3040 - 358.80 = 16601.20
         Assert.Equal(16601.20m, result.NetMonthly);
+    }
+
+    [Fact]
+    public void Compute_ZeroPayableDays_FallsBackToMonthlyPayDays()
+    {
+        // 理论上不会出现（工作日本身至少一天），但要防除零
+        var settings = CreateBaselineSettings(9);
+        var result = SalaryCalculator.Compute(settings, payableDaysInMonth: 0);
+
+        Assert.Equal(15764m / 21.75m, result.DailyRate);
+    }
+
+    [Fact]
+    public void Compute_NonPositiveDivisors_DoesNotThrow()
+    {
+        // settings.json 被手改坏时也不应该每 tick 抛异常
+        var settings = CreateBaselineSettings(9);
+        settings.Shift.MonthlyPayDays = 0m;
+        settings.Shift.DailyPayHours = 0m;
+
+        var result = SalaryCalculator.Compute(settings, payableDaysInMonth: 0);
+
+        Assert.True(result.DailyRate > 0m);
+        Assert.True(result.SecondRate > 0m);
     }
 
     [Fact]
@@ -98,13 +123,13 @@ public class SalaryCalculatorTests
             }
         };
 
-        var result = SalaryCalculator.Compute(settings);
+        var result = SalaryCalculator.Compute(settings, payableDaysInMonth: 18);
 
         Assert.Equal(15000m, result.NetMonthly);
         Assert.Equal(0m, result.InsuranceTotal);
         Assert.Equal(0m, result.MonthTax);
 
-        var expectedDaily = 15000m / 21.75m;
+        var expectedDaily = 15000m / 18m;
         Assert.Equal(expectedDaily, result.DailyRate);
     }
 
@@ -137,7 +162,7 @@ public class SalaryCalculatorTests
             }
         };
 
-        var result = SalaryCalculator.Compute(settings);
+        var result = SalaryCalculator.Compute(settings, payableDaysInMonth: 21);
         Assert.Equal(0m, result.NetMonthly);  // 税后为负，钳制到 0
     }
 }

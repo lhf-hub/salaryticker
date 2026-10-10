@@ -40,7 +40,7 @@ public class ShiftSettings
         DayOfWeek.Thursday, DayOfWeek.Friday
     };
 
-    /// <summary>月计薪天数（制度）</summary>
+    /// <summary>制度月计薪天数（仅"当月计薪天数为 0"时兜底；正常情况下日薪按当月实际计薪天数摊平）</summary>
     public decimal MonthlyPayDays { get; set; } = 21.75m;
 
     /// <summary>日计薪小时数</summary>

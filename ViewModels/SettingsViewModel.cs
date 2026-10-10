@@ -199,10 +199,6 @@ public partial class SettingsViewModel : ObservableObject
     [ObservableProperty]
     private string _lunchEndText = "13:00";
 
-    /// <summary>月计薪天数</summary>
-    [ObservableProperty]
-    private decimal _monthlyPayDays = 21.75m;
-
     /// <summary>日计薪小时</summary>
     [ObservableProperty]
     private decimal _dailyPayHours = 8m;
@@ -392,7 +388,6 @@ public partial class SettingsViewModel : ObservableObject
             LunchStartText = settings.Shift.LunchBreaks[0].Start.ToString(@"hh\:mm");
             LunchEndText = settings.Shift.LunchBreaks[0].End.ToString(@"hh\:mm");
         }
-        MonthlyPayDays = settings.Shift.MonthlyPayDays;
         DailyPayHours = settings.Shift.DailyPayHours;
         AlternateWeekEnabled = settings.Shift.AlternateWeekEnabled;
         AnchorWeekIsBig = settings.Shift.AnchorWeekIsBig;
@@ -455,11 +450,6 @@ public partial class SettingsViewModel : ObservableObject
         if (end <= start)
         {
             error = "下班时间必须晚于上班时间";
-            return false;
-        }
-        if (MonthlyPayDays <= 0)
-        {
-            error = "月计薪天数必须大于 0";
             return false;
         }
         if (DailyPayHours <= 0)
@@ -536,7 +526,6 @@ public partial class SettingsViewModel : ObservableObject
         {
             new LunchBreak { Start = lunchStart, End = lunchEnd }
         };
-        draft.Shift.MonthlyPayDays = MonthlyPayDays;
         draft.Shift.DailyPayHours = DailyPayHours;
         draft.Shift.AlternateWeekEnabled = AlternateWeekEnabled;
         draft.Shift.AnchorWeekIsBig = AnchorWeekIsBig;
@@ -613,7 +602,7 @@ public partial class SettingsViewModel : ObservableObject
             || a.HousingFundCap != b.HousingFundCap
             || a.CurrentMonth != b.CurrentMonth || a.SpecialDeduction != b.SpecialDeduction
             || a.Shift.WorkStart != b.Shift.WorkStart || a.Shift.WorkEnd != b.Shift.WorkEnd
-            || a.Shift.MonthlyPayDays != b.Shift.MonthlyPayDays || a.Shift.DailyPayHours != b.Shift.DailyPayHours
+            || a.Shift.DailyPayHours != b.Shift.DailyPayHours
             || a.SocialSecurity.PensionRate != b.SocialSecurity.PensionRate
             || a.SocialSecurity.PensionMin != b.SocialSecurity.PensionMin
             || a.SocialSecurity.PensionMax != b.SocialSecurity.PensionMax
@@ -840,7 +829,6 @@ public partial class SettingsViewModel : ObservableObject
             LunchStartText = shift.LunchBreaks[0].Start.ToString(@"hh\:mm");
             LunchEndText = shift.LunchBreaks[0].End.ToString(@"hh\:mm");
         }
-        MonthlyPayDays = shift.MonthlyPayDays;
         DailyPayHours = shift.DailyPayHours;
         AlternateWeekEnabled = shift.AlternateWeekEnabled;
 

@@ -145,6 +145,53 @@ public class SalaryEngineTests
     }
 
     [Fact]
+    public void ComputeSnapshot_LastPayableDayOfMonth_EqualsNetMonthly()
+    {
+        // 10 月是节假日大月（2026 年只有 18 个计薪日）。日薪按当月摊平后，
+        // 最后一个计薪日下班时「本月已赚」必须精确等于税后月薪
+        // —— 这正是"节假日多的月份月底短缺"的修复目标
+        var settings = CreateTestSettings();
+        settings.HolidayDates = SettingsDefaults.Holidays2026();
+        settings.MakeupWorkDays = SettingsDefaults.MakeupWorkDays2026();
+        settings.CurrentMonth = 10;
+
+        var timeProvider = new FakeTimeProvider(CreateLocalTime(2026, 10, 30, 19, 0, 0)); // 周五 19:00（10/31 是周六）
+        var engine = new SalaryEngine(timeProvider);
+
+        var snapshot = engine.ComputeSnapshot(timeProvider.GetLocalNow(), settings);
+
+        Assert.Equal(WorkStatus.OffWork, snapshot.Status);
+        Assert.Equal(snapshot.NetMonthly / 18m, snapshot.DailyRate);
+        Assert.True(Math.Abs(snapshot.MonthEarned - snapshot.NetMonthly) < 0.01m,
+            $"月底本月已赚应等于税后月薪：已赚 {snapshot.MonthEarned}，月薪 {snapshot.NetMonthly}");
+        Assert.True(snapshot.MonthProgress >= 0.9999,
+            $"月底进度应到 100%：{snapshot.MonthProgress}");
+    }
+
+    [Fact]
+    public void ComputeSnapshot_MonthChanges_RecomputesDailyRate()
+    {
+        // 同一个引擎跨月时，日薪的除数（当月计薪天数）必须跟着换
+        // —— 缓存键不能只认 settings 引用
+        var settings = CreateTestSettings();
+        settings.HolidayDates = SettingsDefaults.Holidays2026();
+        settings.MakeupWorkDays = SettingsDefaults.MakeupWorkDays2026();
+
+        var timeProvider = new FakeTimeProvider(CreateLocalTime(2026, 9, 30, 10, 0, 0));
+        var engine = new SalaryEngine(timeProvider);
+
+        var sep = engine.ComputeSnapshot(timeProvider.GetLocalNow(), settings);
+
+        timeProvider.Set(CreateLocalTime(2026, 10, 12, 10, 0, 0));
+        var oct = engine.ComputeSnapshot(timeProvider.GetLocalNow(), settings);
+
+        // 9 月 22 个计薪日、10 月 18 个，同一个引擎也要重算
+        Assert.Equal(sep.NetMonthly / 22m, sep.DailyRate);
+        Assert.Equal(oct.NetMonthly / 18m, oct.DailyRate);
+        Assert.NotEqual(sep.DailyRate, oct.DailyRate);
+    }
+
+    [Fact]
     public void InvalidateCache_ClearsCachedSalary()
     {
         var settings = CreateTestSettings();
@@ -220,8 +267,9 @@ public class SalaryEngineTests
 
         var snapshot = engine.ComputeSnapshot(timeProvider.GetLocalNow(), settings);
 
-        // 进度应该在 0-1 之间
+        // 1/31 是周六，此时本月的计薪日已经全部过完，进度必须到 100%
         Assert.InRange(snapshot.MonthProgress, 0, 1);
+        Assert.True(snapshot.MonthProgress >= 0.9999, $"月底进度应到 100%：{snapshot.MonthProgress}");
     }
 
     [Fact]

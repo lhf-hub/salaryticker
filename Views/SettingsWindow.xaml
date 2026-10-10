@@ -355,18 +355,14 @@
                                 <ColumnDefinition Width="140"/>
                                 <ColumnDefinition Width="*"/>
                             </Grid.ColumnDefinitions>
-                            <TextBlock Grid.Column="0" Text="月计薪天数" Style="{StaticResource TextLabel}" VerticalAlignment="Center"/>
-                            <TextBox Grid.Column="1" Text="{Binding MonthlyPayDays}" Width="120" HorizontalAlignment="Left"/>
-                        </Grid>
-
-                        <Grid Margin="0,0,0,8">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="140"/>
-                                <ColumnDefinition Width="*"/>
-                            </Grid.ColumnDefinitions>
                             <TextBlock Grid.Column="0" Text="日计薪小时" Style="{StaticResource TextLabel}" VerticalAlignment="Center"/>
                             <TextBox Grid.Column="1" Text="{Binding DailyPayHours}" Width="120" HorizontalAlignment="Left"/>
                         </Grid>
+
+                        <TextBlock Text="日薪 = 税后月薪 ÷ 当月实际计薪天数（由每周工作日与节假日/补班日自动算出），月底累计正好等于税后月薪。"
+                                   Style="{StaticResource TextSmall}" TextWrapping="Wrap" Margin="0,4,0,0"/>
+                        <TextBlock Text="注意：日计薪小时需与班制实际时长一致（如 9:00-18:00 含 1 小时午休 = 8 小时），否则月底累计不会正好等于月薪。"
+                                   Style="{StaticResource TextSmall}" TextWrapping="Wrap" Margin="0,4,0,0"/>
                     </StackPanel>
                 </Border>
 

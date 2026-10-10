@@ -30,7 +30,7 @@ public record SalarySnapshot
     /// <summary>当前小时已赚</summary>
     public decimal HourEarned { get; init; }
 
-    /// <summary>日薪</summary>
+    /// <summary>日薪（税后月薪 ÷ 当月实际计薪天数，月底累计正好等于月薪）</summary>
     public decimal DailyRate { get; init; }
 
     /// <summary>秒薪</summary>
