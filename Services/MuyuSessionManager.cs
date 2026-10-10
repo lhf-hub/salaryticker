@@ -83,9 +83,22 @@ public sealed class MuyuSessionManager
     }
 
     /// <summary>
-    /// 结束摸鱼会话
+    /// 结束摸鱼会话（用户手动点停）
     /// </summary>
-    public MuyuRecord? Stop()
+    public MuyuRecord? Stop() => EndSession(interrupted: false, notify: true);
+
+    /// <summary>
+    /// 应用退出时收尾：把仍在进行的会话按「中断」落盘，避免这段计时凭空消失。
+    /// 不触发 SessionEnded —— 界面正在关闭，没必要再更新一次。
+    /// </summary>
+    public MuyuRecord? StopInterrupted() => EndSession(interrupted: true, notify: false);
+
+    /// <summary>
+    /// 结束会话并落盘
+    /// </summary>
+    /// <param name="interrupted">是否因应用退出而中断</param>
+    /// <param name="notify">是否触发 SessionEnded 事件</param>
+    private MuyuRecord? EndSession(bool interrupted, bool notify)
     {
         if (_activeSession == null) return null;
 
@@ -94,6 +107,14 @@ public sealed class MuyuSessionManager
 
         var endTime = _timeProvider.GetLocalNow().LocalDateTime;
         var duration = (int)(endTime - _activeSession.StartTime).TotalSeconds;
+
+        // 退出收尾时，不足 1 秒的会话没有记录价值，直接丢弃
+        // （否则每次刚点开就退出都会留下一条 0 秒记录）
+        if (interrupted && duration <= 0)
+        {
+            _activeSession = null;
+            return null;
+        }
 
         // 获取当前秒薪
         var settings = GetCurrentSettings();
@@ -107,14 +128,14 @@ public sealed class MuyuSessionManager
             StartTime = _activeSession.StartTime,
             EndTime = endTime,
             DurationSeconds = duration,
-            CostAmount = duration * snapshot.SecondRate
+            CostAmount = duration * snapshot.SecondRate,
+            Interrupted = interrupted
         };
 
         _historyService.Append(record);
-        var session = _activeSession;
         _activeSession = null;
 
-        SessionEnded?.Invoke(this, record);
+        if (notify) SessionEnded?.Invoke(this, record);
         return record;
     }
 

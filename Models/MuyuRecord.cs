@@ -20,4 +20,10 @@ public class MuyuRecord
     public int DurationSeconds { get; set; }
     /// <summary>折算成本</summary>
     public decimal CostAmount { get; set; }
+
+    /// <summary>
+    /// 是否为「中断」结束：应用退出时这段计时仍在进行，由退出流程收尾记录。
+    /// 老数据没有该字段，反序列化后为 false，无需迁移。
+    /// </summary>
+    public bool Interrupted { get; set; }
 }

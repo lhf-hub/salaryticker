@@ -117,7 +117,10 @@ public partial class MuyuHistoryViewModel : ObservableObject
             Records.Add(new MuyuRecordRow
             {
                 DateText = record.Date.ToString("yyyy-MM-dd"),
-                ButtonLabel = record.ButtonLabel,
+                // 退出应用导致未正常点停的会话标成「中断」，避免看起来像一次完整摸鱼
+                ButtonLabel = record.Interrupted
+                    ? $"{record.ButtonLabel}（中断）"
+                    : record.ButtonLabel,
                 TimeRangeText = $"{record.StartTime:HH:mm} - {record.EndTime:HH:mm}",
                 DurationText = FormatDuration(record.DurationSeconds),
                 CostText = $"¥{record.CostAmount:N2}"

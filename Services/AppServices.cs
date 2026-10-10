@@ -72,6 +72,10 @@ public static class AppServices
     /// </summary>
     public static void Shutdown()
     {
+        // 收尾进行中的摸鱼会话（标记为「中断」），避免这段计时在退出时凭空消失。
+        // 必须在服务释放之前：它要用 Engine 算秒薪、写历史文件。
+        MuyuSessions?.StopInterrupted();
+
         OffWorkReminder?.Dispose();
         Ticker?.Dispose();
         _initialized = false;
