@@ -171,7 +171,9 @@
                                     <TextBlock Grid.Column="0" Text="{Binding DateText}" Style="{StaticResource TextLabel}"/>
                                     <TextBlock Grid.Column="1" Text="{Binding ButtonLabel}" Style="{StaticResource TextLabel}"/>
                                     <TextBlock Grid.Column="2" Text="{Binding TimeRangeText}" Style="{StaticResource TextLabel}"/>
-                                    <TextBlock Grid.Column="3" Text="{Binding DurationText}" Style="{StaticResource TextLabel}"/>
+                                    <TextBlock Grid.Column="3" Text="{Binding DurationText}"
+                                               Style="{StaticResource TextLabel}"
+                                               ToolTip="{Binding DurationTooltip}"/>
                                     <TextBlock Grid.Column="4" Text="{Binding CostText}"
                                                Foreground="{StaticResource WarnBrush}" FontWeight="SemiBold"/>
                                 </Grid>
@@ -196,11 +198,15 @@
                 </StackPanel>
             </Border>
 
-            <!-- 隐私说明 -->
-            <TextBlock Text="🔒 摸鱼历史只存本地，不上传。"
+            <!-- 隐私与口径说明 -->
+            <TextBlock Text="时长与白赚只统计工作时段内的部分（午休、下班后、节假日不计）。"
                        Style="{StaticResource TextSmall}"
                        TextAlignment="Center"
                        Margin="0,16,0,0"/>
+            <TextBlock Text="🔒 摸鱼历史只存本地，不上传。"
+                       Style="{StaticResource TextSmall}"
+                       TextAlignment="Center"
+                       Margin="0,6,0,0"/>
 
         </StackPanel>
     </ScrollViewer>

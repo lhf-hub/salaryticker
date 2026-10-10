@@ -53,8 +53,13 @@ public class MuyuSessionTests : IDisposable
         settings.SpecialDeduction = 0;
         settings.HolidayDates = new List<HolidayEntry>();
         settings.MakeupWorkDays = new List<HolidayEntry>();
-        settings.Shift.WorkStart = new TimeSpan(9, 0, 0);
-        settings.Shift.WorkEnd = new TimeSpan(18, 0, 0);
+        // 用户的实际班制：8:00-17:30 上班、12:00-13:30 午休
+        settings.Shift.WorkStart = new TimeSpan(8, 0, 0);
+        settings.Shift.WorkEnd = new TimeSpan(17, 30, 0);
+        settings.Shift.LunchBreaks = new List<LunchBreak>
+        {
+            new() { Start = new TimeSpan(12, 0, 0), End = new TimeSpan(13, 30, 0) }
+        };
         return settings;
     }
 
@@ -168,6 +173,206 @@ public class MuyuSessionTests : IDisposable
         Assert.NotNull(manager.StopInterrupted());
         Assert.Null(manager.StopInterrupted());
         Assert.Single(_history.Records);
+    }
+
+    // ========== 「白赚」只算工作时段 ==========
+
+    [Fact]
+    public void Stop_AcrossLunch_RecordsOnlyWorkSeconds()
+    {
+        var settings = CreateSettings();
+        var time = new FakeTimeProvider(CreateLocalTime(2026, 1, 7, 11, 50, 0)); // 周三
+        var manager = CreateManager(time, settings);
+
+        manager.Start("wc", "🚽 去趟 WC");
+        time.Advance(TimeSpan.FromMinutes(110));    // → 13:40
+        var record = manager.Stop();
+
+        Assert.NotNull(record);
+        // [11:50,12:00)=600 + [13:30,13:40)=600，中间 90 分钟午休不计
+        Assert.Equal(1200, record!.DurationSeconds);
+
+        var rate = new SalaryEngine(time).ComputeSnapshot(time.GetLocalNow(), settings).SecondRate;
+        Assert.Equal(1200 * rate, record.CostAmount);
+    }
+
+    [Fact]
+    public void Stop_FullyInsideLunch_DiscardsButStillResetsUi()
+    {
+        var settings = CreateSettings();
+        var time = new FakeTimeProvider(CreateLocalTime(2026, 1, 7, 12, 15, 0));
+        var manager = CreateManager(time, settings);
+
+        MuyuRecord? endedWith = null;
+        var endedCount = 0;
+        manager.SessionEnded += (_, r) => { endedCount++; endedWith = r; };
+
+        manager.Start("wc", "🚽 去趟 WC");
+        time.Advance(TimeSpan.FromMinutes(45));     // → 13:00，全程午休
+        var record = manager.Stop();
+
+        Assert.Null(record);
+        Assert.Empty(_history.Records);
+        Assert.Null(manager.Active);
+
+        // 关键：丢弃记录也必须通知界面复位，否则按钮会永久卡在「进行中」
+        Assert.Equal(1, endedCount);
+        Assert.Null(endedWith);
+    }
+
+    [Fact]
+    public void Stop_SameSecond_DiscardsButStillResetsUi()
+    {
+        var settings = CreateSettings();
+        var time = new FakeTimeProvider(CreateLocalTime(2026, 1, 7, 10, 0, 0));
+        var manager = CreateManager(time, settings);
+
+        var ended = 0;
+        manager.SessionEnded += (_, _) => ended++;
+
+        manager.Start("wc", "🚽 去趟 WC");
+        var record = manager.Stop();
+
+        Assert.Null(record);
+        Assert.Empty(_history.Records);
+        Assert.Equal(1, ended);
+    }
+
+    [Theory]
+    [InlineData(7, 7, 0)]    // 上班前
+    [InlineData(7, 19, 0)]   // 下班后
+    public void Stop_OutsideWorkHours_IsDiscarded(int day, int hour, int minute)
+    {
+        var settings = CreateSettings();
+        var time = new FakeTimeProvider(CreateLocalTime(2026, 1, day, hour, minute, 0));
+        var manager = CreateManager(time, settings);
+
+        manager.Start("wc", "🚽 去趟 WC");
+        time.Advance(TimeSpan.FromMinutes(10));
+
+        Assert.Null(manager.Stop());
+        Assert.Empty(_history.Records);
+    }
+
+    [Fact]
+    public void Stop_OnWeekend_IsDiscarded()
+    {
+        var settings = CreateSettings();
+        var time = new FakeTimeProvider(CreateLocalTime(2026, 1, 10, 10, 0, 0)); // 周六
+        var manager = CreateManager(time, settings);
+
+        manager.Start("wc", "🚽 去趟 WC");
+        time.Advance(TimeSpan.FromMinutes(5));
+
+        Assert.Null(manager.Stop());
+        Assert.Empty(_history.Records);
+    }
+
+    [Fact]
+    public void Stop_OnHoliday_IsDiscarded()
+    {
+        var settings = CreateSettings();
+        settings.HolidayDates = new List<HolidayEntry>
+        {
+            new() { Date = new DateOnly(2026, 1, 7), Name = "测试节假日" }
+        };
+        var time = new FakeTimeProvider(CreateLocalTime(2026, 1, 7, 10, 0, 0)); // 周三，被设为节假日
+        var manager = CreateManager(time, settings);
+
+        manager.Start("wc", "🚽 去趟 WC");
+        time.Advance(TimeSpan.FromMinutes(5));
+
+        Assert.Null(manager.Stop());
+        Assert.Empty(_history.Records);
+    }
+
+    [Fact]
+    public void Stop_OnMakeupWeekend_IsRecorded()
+    {
+        var settings = CreateSettings();
+        settings.MakeupWorkDays = new List<HolidayEntry>
+        {
+            new() { Date = new DateOnly(2026, 1, 4), Name = "测试补班" }
+        };
+        var time = new FakeTimeProvider(CreateLocalTime(2026, 1, 4, 10, 0, 0)); // 周日补班
+        var manager = CreateManager(time, settings);
+
+        manager.Start("wc", "🚽 去趟 WC");
+        time.Advance(TimeSpan.FromMinutes(5));
+        var record = manager.Stop();
+
+        Assert.NotNull(record);
+        Assert.Equal(300, record!.DurationSeconds);
+        Assert.True(record.CostAmount > 0);
+        Assert.False(record.Interrupted);
+    }
+
+    [Fact]
+    public void StopInterrupted_DuringLunch_RecordsMorningOnly()
+    {
+        var settings = CreateSettings();
+        var time = new FakeTimeProvider(CreateLocalTime(2026, 1, 7, 11, 0, 0));
+        var manager = CreateManager(time, settings);
+
+        manager.Start("wc", "🚽 去趟 WC");
+        time.Advance(TimeSpan.FromMinutes(90));     // → 12:30，已进入午休
+        var record = manager.StopInterrupted();
+
+        Assert.NotNull(record);
+        Assert.True(record!.Interrupted);
+        Assert.Equal(3600, record.DurationSeconds); // 只算 [11:00,12:00)
+    }
+
+    [Fact]
+    public void StopInterrupted_OutsideWorkHours_DiscardsWithoutEvent()
+    {
+        var settings = CreateSettings();
+        var time = new FakeTimeProvider(CreateLocalTime(2026, 1, 7, 12, 15, 0));
+        var manager = CreateManager(time, settings);
+
+        var ended = 0;
+        manager.SessionEnded += (_, _) => ended++;
+
+        manager.Start("wc", "🚽 去趟 WC");
+        time.Advance(TimeSpan.FromMinutes(30));
+
+        Assert.Null(manager.StopInterrupted());
+        Assert.Empty(_history.Records);
+        Assert.Equal(0, ended);   // 退出收尾不触发界面事件
+    }
+
+    [Fact]
+    public void GetLiveUpdate_DuringLunch_FreezesWorkTimeButNotWallClock()
+    {
+        var settings = CreateSettings();
+        var time = new FakeTimeProvider(CreateLocalTime(2026, 1, 7, 11, 50, 0));
+        var manager = CreateManager(time, settings);
+
+        manager.Start("wc", "🚽 去趟 WC");
+        time.Advance(TimeSpan.FromMinutes(20));     // → 12:10
+
+        var at1210 = manager.GetLiveUpdate();
+        Assert.NotNull(at1210);
+        Assert.Equal(TimeSpan.FromMinutes(20), at1210!.Elapsed);        // 墙上继续走
+        Assert.Equal(TimeSpan.FromMinutes(10), at1210.WorkElapsed);     // 只到 12:00
+
+        time.Advance(TimeSpan.FromMinutes(30));     // → 12:40，仍在午休
+
+        var at1240 = manager.GetLiveUpdate();
+        Assert.NotNull(at1240);
+        Assert.Equal(TimeSpan.FromMinutes(50), at1240!.Elapsed);
+        Assert.Equal(TimeSpan.FromMinutes(10), at1240.WorkElapsed);     // 冻结
+        Assert.Equal(at1210.Cost, at1240.Cost);                         // 金额冻结
+    }
+
+    [Fact]
+    public void GetLiveUpdate_NoActiveSession_ReturnsNull()
+    {
+        var settings = CreateSettings();
+        var time = new FakeTimeProvider(CreateLocalTime(2026, 1, 7, 10, 0, 0));
+        var manager = CreateManager(time, settings);
+
+        Assert.Null(manager.GetLiveUpdate());
     }
 
     // ========== 老数据兼容 ==========

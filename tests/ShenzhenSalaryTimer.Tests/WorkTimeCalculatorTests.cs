@@ -35,6 +35,29 @@ public class WorkTimeCalculatorTests
     }
 
     /// <summary>
+    /// 用户的实际班制：8:00-17:30 上班、12:00-13:30 午休（每日工作 8 小时）
+    /// </summary>
+    private ShiftSettings CreateUserShift()
+    {
+        return new ShiftSettings
+        {
+            PresetName = "自定义",
+            WorkStart = new TimeSpan(8, 0, 0),
+            WorkEnd = new TimeSpan(17, 30, 0),
+            LunchBreaks = new List<LunchBreak>
+            {
+                new() { Start = new TimeSpan(12, 0, 0), End = new TimeSpan(13, 30, 0) }
+            },
+            WorkDays = new List<DayOfWeek>
+            {
+                DayOfWeek.Monday, DayOfWeek.Tuesday, DayOfWeek.Wednesday,
+                DayOfWeek.Thursday, DayOfWeek.Friday
+            },
+            AlternateWeekEnabled = false
+        };
+    }
+
+    /// <summary>
     /// 辅助方法：创建本地时间的 DateTimeOffset
     /// </summary>
     private static DateTimeOffset CreateLocalTime(int year, int month, int day, int hour, int minute, int second = 0)
@@ -244,5 +267,186 @@ public class WorkTimeCalculatorTests
         // 下一周（小周）：1月12日所在周
         var smallWeekSaturday = new DateOnly(2026, 1, 17); // 周六
         Assert.Contains(DayOfWeek.Saturday, WorkTimeCalculator.GetWorkDaysForWeek(smallWeekSaturday, shift));
+    }
+
+    // ========== 工作时段内的秒数（摸鱼「白赚」的口径） ==========
+
+    /// <summary>2026 年 1 月的某个本地时刻（1/7 周三、1/4 周日、1/10 周六、1/17 周六）</summary>
+    private static DateTime At(int day, int hour, int minute) => new(2026, 1, day, hour, minute, 0);
+
+    private static readonly HashSet<DateOnly> NoHolidays = new();
+
+    [Fact]
+    public void GetWorkedSecondsBetween_WithinWorkHours_CountsFully()
+    {
+        var shift = CreateUserShift();
+
+        Assert.Equal(1800, WorkTimeCalculator.GetWorkedSecondsBetween(At(7, 8, 30), At(7, 9, 0), shift, NoHolidays));
+    }
+
+    [Fact]
+    public void GetWorkedSecondsBetween_ClipsAtWorkEnd()
+    {
+        var shift = CreateUserShift();
+
+        // 17:30 下班，之后不算
+        Assert.Equal(1800, WorkTimeCalculator.GetWorkedSecondsBetween(At(7, 17, 0), At(7, 18, 0), shift, NoHolidays));
+    }
+
+    [Fact]
+    public void GetWorkedSecondsBetween_SkipsLunchBreak()
+    {
+        var shift = CreateUserShift();
+
+        // [11:00,12:00)=3600 + [13:30,14:00)=1800，午休 90 分钟不计
+        Assert.Equal(5400, WorkTimeCalculator.GetWorkedSecondsBetween(At(7, 11, 0), At(7, 14, 0), shift, NoHolidays));
+    }
+
+    [Fact]
+    public void GetWorkedSecondsBetween_FullyInLunch_ReturnsZero()
+    {
+        var shift = CreateUserShift();
+
+        Assert.Equal(0, WorkTimeCalculator.GetWorkedSecondsBetween(At(7, 12, 15), At(7, 13, 0), shift, NoHolidays));
+    }
+
+    [Fact]
+    public void GetWorkedSecondsBetween_StartsDuringLunch_CountsAfternoonOnly()
+    {
+        var shift = CreateUserShift();
+
+        // 12:15 开始，13:30 之后才开始算
+        Assert.Equal(1800, WorkTimeCalculator.GetWorkedSecondsBetween(At(7, 12, 15), At(7, 14, 0), shift, NoHolidays));
+    }
+
+    [Fact]
+    public void GetWorkedSecondsBetween_FullWorkday_ReturnsTotalWorkSeconds()
+    {
+        var shift = CreateUserShift();
+
+        var worked = WorkTimeCalculator.GetWorkedSecondsBetween(At(7, 8, 0), At(7, 17, 30), shift, NoHolidays);
+
+        Assert.Equal(28800, worked);                                         // 9.5 小时 − 1.5 小时午休
+        Assert.Equal(WorkTimeCalculator.GetTotalWorkSeconds(shift), worked);
+    }
+
+    [Theory]
+    [InlineData(7, 0, 0, 7, 30)]    // 上班前
+    [InlineData(7, 19, 0, 20, 0)]   // 下班后
+    public void GetWorkedSecondsBetween_OutsideWorkHours_ReturnsZero(int day, int fromHour, int fromMinute, int toHour, int toMinute)
+    {
+        var shift = CreateUserShift();
+
+        var worked = WorkTimeCalculator.GetWorkedSecondsBetween(
+            At(day, fromHour, fromMinute), At(day, toHour, toMinute), shift, NoHolidays);
+
+        Assert.Equal(0, worked);
+    }
+
+    [Fact]
+    public void GetWorkedSecondsBetween_EndNotAfterStart_ReturnsZero()
+    {
+        var shift = CreateUserShift();
+
+        Assert.Equal(0, WorkTimeCalculator.GetWorkedSecondsBetween(At(7, 10, 0), At(7, 10, 0), shift, NoHolidays));
+        Assert.Equal(0, WorkTimeCalculator.GetWorkedSecondsBetween(At(7, 11, 0), At(7, 10, 0), shift, NoHolidays));
+    }
+
+    [Fact]
+    public void GetWorkedSecondsBetween_CrossMidnight_CountsBothSides()
+    {
+        var shift = CreateUserShift();
+
+        // 周三 [17:00,17:30)=1800 + 周四 [8:00,8:30)=1800
+        var worked = WorkTimeCalculator.GetWorkedSecondsBetween(At(7, 17, 0), At(8, 8, 30), shift, NoHolidays);
+
+        Assert.Equal(3600, worked);
+    }
+
+    [Fact]
+    public void GetWorkedSecondsBetween_CrossMidnight_SkipsOvernightGap()
+    {
+        var shift = CreateUserShift();
+
+        Assert.Equal(0, WorkTimeCalculator.GetWorkedSecondsBetween(At(7, 23, 0), At(8, 0, 30), shift, NoHolidays));
+    }
+
+    [Fact]
+    public void GetWorkedSecondsBetween_CrossMultipleDays_CountsEachWorkSegment()
+    {
+        var shift = CreateUserShift();
+
+        // 周三 [16:00,17:30)=5400 + 周四 [8:00,9:45)=6300
+        var worked = WorkTimeCalculator.GetWorkedSecondsBetween(At(7, 16, 0), At(8, 9, 45), shift, NoHolidays);
+
+        Assert.Equal(11700, worked);
+    }
+
+    [Fact]
+    public void GetWorkedSecondsBetween_Weekend_ReturnsZero()
+    {
+        var shift = CreateUserShift();
+
+        Assert.Equal(0, WorkTimeCalculator.GetWorkedSecondsBetween(At(10, 10, 0), At(10, 11, 0), shift, NoHolidays));
+    }
+
+    [Fact]
+    public void GetWorkedSecondsBetween_MakeupWorkday_Counts()
+    {
+        var shift = CreateUserShift();
+        var makeup = new HashSet<DateOnly> { new(2026, 1, 4) }; // 周日补班
+
+        var worked = WorkTimeCalculator.GetWorkedSecondsBetween(At(4, 10, 0), At(4, 11, 0), shift, NoHolidays, makeup);
+
+        Assert.Equal(3600, worked);
+    }
+
+    [Fact]
+    public void GetWorkedSecondsBetween_Holiday_ReturnsZero()
+    {
+        var shift = CreateUserShift();
+        var holidays = new HashSet<DateOnly> { new(2026, 1, 7) }; // 周三设为节假日
+
+        Assert.Equal(0, WorkTimeCalculator.GetWorkedSecondsBetween(At(7, 10, 0), At(7, 11, 0), shift, holidays));
+    }
+
+    [Fact]
+    public void GetWorkedSecondsBetween_LunchAfterWorkEnd_DoesNotExtendPastWorkEnd()
+    {
+        // 设置不合理时（午休排在下班之后）不能切出一段跨越下班的工作区间：
+        // GetWorkIntervals 的上一段必须截断到下班时间，否则下班后的时间会被算成工作时段
+        var shift = CreateUserShift();
+        shift.WorkEnd = new TimeSpan(10, 0, 0);   // 8:00-10:00，午休仍是 12:00-13:30
+
+        // 下班后的一段时间不应算数
+        Assert.Equal(0, WorkTimeCalculator.GetWorkedSecondsBetween(At(7, 10, 55), At(7, 11, 5), shift, NoHolidays));
+
+        // 工作区间被正确截断为 [8:00, 10:00]
+        Assert.Equal(7200, WorkTimeCalculator.GetWorkedSecondsBetween(At(7, 8, 0), At(7, 12, 0), shift, NoHolidays));
+
+        var info = WorkTimeCalculator.GetDayInfo(
+            new DateTimeOffset(new DateTime(2026, 1, 7, 9, 0, 0)), shift, NoHolidays);
+        Assert.Single(info.Intervals);
+        Assert.Equal(new TimeSpan(10, 0, 0), info.Intervals[0].End);
+    }
+
+    [Fact]
+    public void GetWorkedSecondsBetween_AlternateWeek_RespectsSmallAndBigWeek()
+    {
+        var shift = CreateUserShift();
+        shift.AlternateWeekEnabled = true;
+        shift.AnchorWeekMonday = new DateOnly(2026, 1, 5);
+        shift.AnchorWeekIsBig = true;
+        shift.AltWorkDays = new List<DayOfWeek>
+        {
+            DayOfWeek.Monday, DayOfWeek.Tuesday, DayOfWeek.Wednesday,
+            DayOfWeek.Thursday, DayOfWeek.Friday, DayOfWeek.Saturday
+        };
+
+        // 大周周六（1/10）不上班
+        Assert.Equal(0, WorkTimeCalculator.GetWorkedSecondsBetween(At(10, 10, 0), At(10, 11, 0), shift, NoHolidays));
+
+        // 小周周六（1/17）上班
+        Assert.Equal(3600, WorkTimeCalculator.GetWorkedSecondsBetween(At(17, 10, 0), At(17, 11, 0), shift, NoHolidays));
     }
 }

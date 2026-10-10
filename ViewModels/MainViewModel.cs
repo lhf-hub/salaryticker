@@ -257,27 +257,33 @@ public partial class MainViewModel : ObservableObject
     /// <summary>
     /// 摸鱼会话实时更新
     /// </summary>
-    private void OnMuyuUpdated(object? sender, (MuyuSession session, TimeSpan elapsed, decimal cost) args)
+    private void OnMuyuUpdated(object? sender, MuyuLiveUpdate update)
     {
         _dispatcher.InvokeAsync(() =>
         {
-            var button = FindButton(args.session.ButtonId);
+            var button = FindButton(update.Session.ButtonId);
             if (button == null) return;
+
+            var wall = $"{(int)update.Elapsed.TotalMinutes:D2}:{update.Elapsed.Seconds:D2}";
 
             button.IsRunning = true;
             button.IsActive = true;
-            button.ElapsedText = $"{(int)args.elapsed.TotalMinutes:D2}:{args.elapsed.Seconds:D2}";
-            button.CostText = $"¥{args.cost:N2}";
+            button.ElapsedText = wall;
+            button.CostText = $"¥{update.Cost:N2}";
+
+            // 墙上时长与工作时段时长不一致时补一句，解释午休/下班后白赚为什么冻结
+            var work = $"{(int)update.WorkElapsed.TotalMinutes:D2}:{update.WorkElapsed.Seconds:D2}";
+            var workSuffix = work == wall ? "" : $"（工作时段 {work}）";
 
             IsMuyuRunning = true;
-            MuyuStatusText = $"🐟 {args.session.Label} 中 · {button.ElapsedText} · 白赚 {button.CostText}";
+            MuyuStatusText = $"🐟 {update.Session.Label} 中 · {wall}{workSuffix} · 白赚 {button.CostText}";
         });
     }
 
     /// <summary>
-    /// 摸鱼会话结束
+    /// 摸鱼会话结束（record 为 null 表示这段会话没有产生记录，只需复位界面）
     /// </summary>
-    private void OnMuyuEnded(object? sender, MuyuRecord record)
+    private void OnMuyuEnded(object? sender, MuyuRecord? record)
     {
         _dispatcher.InvokeAsync(() =>
         {

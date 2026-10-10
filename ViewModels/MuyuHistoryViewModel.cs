@@ -24,6 +24,8 @@ public class MuyuRecordRow
     public string ButtonLabel { get; set; } = "";
     public string TimeRangeText { get; set; } = "";
     public string DurationText { get; set; } = "";
+    /// <summary>墙上时长与工作时段时长不一致时才填（悬停显示），一致时为 null</summary>
+    public string? DurationTooltip { get; set; }
     public string CostText { get; set; } = "";
 }
 
@@ -114,6 +116,10 @@ public partial class MuyuHistoryViewModel : ObservableObject
         Records.Clear();
         foreach (var record in service.Records.OrderByDescending(r => r.StartTime).Take(100))
         {
+            // DurationSeconds 只统计工作时段，与「时间段」列的墙上区间可能对不上，
+            // 不一致时用悬停提示解释
+            var wallSeconds = (int)(record.EndTime - record.StartTime).TotalSeconds;
+
             Records.Add(new MuyuRecordRow
             {
                 DateText = record.Date.ToString("yyyy-MM-dd"),
@@ -123,6 +129,9 @@ public partial class MuyuHistoryViewModel : ObservableObject
                     : record.ButtonLabel,
                 TimeRangeText = $"{record.StartTime:HH:mm} - {record.EndTime:HH:mm}",
                 DurationText = FormatDuration(record.DurationSeconds),
+                DurationTooltip = record.DurationSeconds == wallSeconds
+                    ? null
+                    : $"墙上 {FormatDuration(wallSeconds)} · 工作时段 {FormatDuration(record.DurationSeconds)}",
                 CostText = $"¥{record.CostAmount:N2}"
             });
         }

@@ -86,6 +86,51 @@ public static class WorkTimeCalculator
     }
 
     /// <summary>
+    /// 统计 [start, end) 内落在工作时段里的秒数（跨天、跨午休均支持）
+    /// 与「今日已赚」同口径：只认计薪日（补班日算、节假日与周末不算），
+    /// 且只算每日工作区间内的时间（已扣除午休）
+    /// </summary>
+    public static long GetWorkedSecondsBetween(
+        DateTime start, DateTime end, ShiftSettings shift,
+        ISet<DateOnly> holidays, ISet<DateOnly>? makeupWorkDays = null)
+    {
+        if (end <= start) return 0;
+
+        // 工作区间只由班制决定（按周而不是按日），循环外算一次
+        var intervals = GetWorkIntervals(shift);
+        var totalSeconds = 0L;
+
+        for (var date = DateOnly.FromDateTime(start); date <= DateOnly.FromDateTime(end); date = date.AddDays(1))
+        {
+            if (!IsPayableDay(date, shift, holidays, makeupWorkDays))
+                continue;
+
+            // 会话与该自然日的交集
+            var dayStart = date.ToDateTime(TimeOnly.MinValue);
+            var dayEnd = dayStart.AddDays(1);
+            var segStart = start > dayStart ? start : dayStart;
+            var segEnd = end < dayEnd ? end : dayEnd;
+            if (segEnd <= segStart) continue;
+
+            // 转成"当日 0 点起的偏移"以便与工作区间比较。
+            // TimeSpan 没有 24:00，交集右端落在次日 0 点时取整日长度。
+            var rangeStart = segStart.TimeOfDay;
+            var rangeEnd = segStart.Date == segEnd.Date ? segEnd.TimeOfDay : TimeSpan.FromDays(1);
+
+            foreach (var interval in intervals)
+            {
+                var overlapStart = rangeStart > interval.Start ? rangeStart : interval.Start;
+                var overlapEnd = rangeEnd < interval.End ? rangeEnd : interval.End;
+
+                if (overlapEnd > overlapStart)
+                    totalSeconds += (long)(overlapEnd - overlapStart).TotalSeconds;
+            }
+        }
+
+        return totalSeconds;
+    }
+
+    /// <summary>
     /// 获取当月补发天数（从1号到昨天）
     /// </summary>
     public static int GetMonthBackfillDays(int year, int month, DateOnly today, ShiftSettings shift, ISet<DateOnly> holidays, ISet<DateOnly>? makeupWorkDays = null)
@@ -149,9 +194,13 @@ public static class WorkTimeCalculator
         var current = workStart;
         foreach (var lunch in lunches)
         {
+            // 上段必须截断到下班时间：若午休开始得比下班还晚（设置不合理时可能出现），
+            // 直接 add(current, lunch.Start) 会切出一段跨越下班的工作区间
             if (lunch.Start > current)
             {
-                intervals.Add(new WorkInterval(current, lunch.Start));
+                var segmentEnd = lunch.Start < workEnd ? lunch.Start : workEnd;
+                if (segmentEnd > current)
+                    intervals.Add(new WorkInterval(current, segmentEnd));
             }
             current = lunch.End > current ? lunch.End : current;
         }
