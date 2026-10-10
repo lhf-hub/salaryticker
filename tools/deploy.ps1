@@ -9,7 +9,10 @@
 #   Add -SkipUpload to only build locally (staging ends up in dist\upload\).
 #
 # This script publishes the APP only:
-#   version.json + download/releases/<ver>.exe + download/SalaryTicker.exe symlink
+#   version.json + history.json + download/releases/<ver>.exe
+#   + download/SalaryTicker.exe symlink
+# history.json (the website's version history list) is kept in the repo as
+# tools\version-history.json and refreshed here on every release.
 #
 # The website (index.html + assets/) has its own script: tools\deploy-site.ps1
 #
@@ -134,8 +137,49 @@ Copy-Item $exePath (Join-Path $stageDir $archiveName) -Force
 $manifestPath = Join-Path $stageDir "version.json"
 [System.IO.File]::WriteAllText($manifestPath, $manifestJson, (New-Object System.Text.UTF8Encoding($false)))
 
+# ------------------------------------------------------------ 4b. history
+# Cumulative version list behind the website's "version history" dialog.
+# The file in the repo is the source of truth; the server only gets a copy,
+# so losing the server does not lose the history.
+$historyFile = Join-Path $PSScriptRoot "version-history.json"
+
+$entries = @()
+if (Test-Path $historyFile) {
+    $loaded = Get-Content $historyFile -Raw -Encoding UTF8 | ConvertFrom-Json
+    if ($loaded.versions) { $entries = @($loaded.versions) }
+}
+
+# A published version number is never reused (see CLAUDE.md), so an entry
+# that already exists is left frozen: re-deploying the same version must not
+# rewrite history. Editing the entry by hand is the way to fix a typo.
+$existing = $entries | Where-Object { $_.version -eq $version } | Select-Object -First 1
+if ($existing) {
+    Write-Host "[4b] $version is already in the history - entry left untouched" -ForegroundColor DarkYellow
+} else {
+    $entries += [pscustomobject]@{
+        version      = $version
+        publishedAt  = (Get-Date).ToString("yyyy-MM-dd")
+        size         = $size
+        archive      = $archiveName
+        releaseNotes = $notes
+    }
+}
+
+# Newest first. All versions are plain "x.y.z", so a numeric key is enough
+# (a plain string sort would put 1.10.0 before 1.9.0).
+$entries = @($entries | Sort-Object -Descending -Property @{ Expression = {
+    $p = $_.version.Split('.')
+    ([int]$p[0] * 1000000) + ([int]$p[1] * 1000) + [int]$p[2]
+} })
+
+$historyJson = [ordered]@{ versions = $entries } | ConvertTo-Json -Depth 4
+[System.IO.File]::WriteAllText($historyFile, $historyJson, (New-Object System.Text.UTF8Encoding($false)))
+$historyPath = Join-Path $stageDir "history.json"
+[System.IO.File]::WriteAllText($historyPath, $historyJson, (New-Object System.Text.UTF8Encoding($false)))
+
 Write-Host "[4/6] Manifest generated:" -ForegroundColor Yellow
 Write-Host "      $downloadUrl"
+Write-Host "      history: $($entries.Count) version(s)"
 
 if ($SkipUpload -or -not $cfg) {
     if (-not $cfg -and -not $SkipUpload) {
@@ -148,6 +192,9 @@ if ($SkipUpload -or -not $cfg) {
     Write-Host "Local artifacts:" -ForegroundColor Green
     Write-Host "  $(Join-Path $stageDir $archiveName)"
     Write-Host "  $manifestPath"
+    Write-Host "  $historyPath"
+    Write-Host ""
+    Write-Host "version-history.json was updated in the repo - commit it with the next change." -ForegroundColor DarkYellow
     exit 0
 }
 
@@ -172,6 +219,7 @@ $remoteDir = $cfg.remoteDir.TrimEnd('/')
 
 # Layout on the server:
 #   <remoteDir>/version.json                     -> app checks this
+#   <remoteDir>/history.json                     -> website version history dialog
 #   <remoteDir>/download/SalaryTicker.exe        -> clean download path (symlink)
 #   <remoteDir>/download/releases/<ver>.exe      -> versioned archive
 & ssh @sshArgs $target "mkdir -p '$remoteDir/download/releases'"
@@ -182,6 +230,9 @@ if ($LASTEXITCODE -ne 0) { throw "scp failed (archive)" }
 
 & scp @scpArgs $manifestPath "${target}:$remoteDir/version.json"
 if ($LASTEXITCODE -ne 0) { throw "scp failed (version.json)" }
+
+& scp @scpArgs $historyPath "${target}:$remoteDir/history.json"
+if ($LASTEXITCODE -ne 0) { throw "scp failed (history.json)" }
 
 & ssh @sshArgs $target "cd '$remoteDir/download' && ln -sfn 'releases/$archiveName' $exeName && ls -l $exeName"
 if ($LASTEXITCODE -ne 0) { throw "ssh failed (symlink)" }
@@ -196,6 +247,10 @@ if ($publicUrl) {
     Write-Host "Download: $publicUrl/download/$exeName" -ForegroundColor Cyan
     Write-Host "Archive : $downloadUrl" -ForegroundColor Cyan
     Write-Host "Manifest: $publicUrl/version.json" -ForegroundColor Cyan
+    Write-Host "History : $publicUrl/history.json" -ForegroundColor Cyan
     Write-Host ""
     Write-Host "(website is published separately: tools\deploy-site.ps1)" -ForegroundColor DarkGray
 }
+
+Write-Host ""
+Write-Host "tools\version-history.json was updated in the repo - commit it with the next change." -ForegroundColor DarkYellow
