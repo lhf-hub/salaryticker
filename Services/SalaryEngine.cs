@@ -17,7 +17,7 @@ public sealed class SalaryEngine
     private readonly TimeProvider _timeProvider;
     private SalaryResult? _cachedSalary;
     private AppSettings? _cachedSettings;
-    // 日薪依赖当月的计薪天数，所以 (年, 月) 也是缓存键的一部分
+    // 日薪依赖当月的计薪天数，个税依赖当月的累计预扣档位，所以 (年, 月) 也是缓存键的一部分
     private int _cachedYear;
     private int _cachedMonth;
     // 缓存键必须带"今天"：补发天数算的是"1 号到昨天"，跨天后结果每天都变
@@ -123,7 +123,8 @@ public sealed class SalaryEngine
     }
 
     /// <summary>
-    /// 获取税后工资（带缓存；日薪依赖按 (年, 月) 算出的计薪天数，所以键里必须带上）
+    /// 获取税后工资（带缓存；日薪依赖按 (年, 月) 算出的计薪天数，个税依赖当月档位，
+    /// 所以键里必须带上——同一个引擎跨月时会用到）
     /// </summary>
     private SalaryResult GetSalary(AppSettings settings, int year, int month, int payableDaysInMonth)
     {
@@ -132,7 +133,7 @@ public sealed class SalaryEngine
             || _cachedYear != year
             || _cachedMonth != month)
         {
-            _cachedSalary = SalaryCalculator.Compute(settings, payableDaysInMonth);
+            _cachedSalary = SalaryCalculator.Compute(settings, payableDaysInMonth, month);
             _cachedSettings = settings;
             _cachedYear = year;
             _cachedMonth = month;

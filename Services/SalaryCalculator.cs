@@ -22,7 +22,11 @@ public static class SalaryCalculator
     /// 按当月摊平后，整月累计正好等于税后月薪——否则节假日多的月份月底会短缺、
     /// 工作日多的月份会超出。
     /// </param>
-    public static SalaryResult Compute(AppSettings s, int payableDaysInMonth)
+    /// <param name="currentMonth">
+    /// 当前月份（1-12），用于个税累计预扣。由 SalaryEngine 按系统日期传入，
+    /// 不再作为用户设置持久化——跨月后自动跟随，不会停留在旧月份。
+    /// </param>
+    public static SalaryResult Compute(AppSettings s, int payableDaysInMonth, int currentMonth)
     {
         var payDays = ResolvePayDays(s, payableDaysInMonth);
         var payHours = ResolvePayHours(s.Shift);
@@ -41,7 +45,7 @@ public static class SalaryCalculator
             s.GrossSalary,
             insurance.Total,
             s.SpecialDeduction,
-            s.CurrentMonth,
+            currentMonth,
             s.Tax);
 
         var netMonthly = s.GrossSalary - insurance.Total - monthTax;

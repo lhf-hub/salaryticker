@@ -29,7 +29,6 @@ public class SalaryEngineTests
         var settings = SettingsDefaults.Create();
         settings.Mode = SalaryMode.Gross;
         settings.GrossSalary = 20000;
-        settings.CurrentMonth = 1;
         settings.PensionInputMode = InsuranceInputMode.Auto;
         settings.MedicalTier = MedicalTier.Tier1;
         settings.MedicalInputMode = InsuranceInputMode.Auto;
@@ -153,7 +152,6 @@ public class SalaryEngineTests
         var settings = CreateTestSettings();
         settings.HolidayDates = SettingsDefaults.Holidays2026();
         settings.MakeupWorkDays = SettingsDefaults.MakeupWorkDays2026();
-        settings.CurrentMonth = 10;
 
         var timeProvider = new FakeTimeProvider(CreateLocalTime(2026, 10, 30, 19, 0, 0)); // 周五 19:00（10/31 是周六）
         var engine = new SalaryEngine(timeProvider);

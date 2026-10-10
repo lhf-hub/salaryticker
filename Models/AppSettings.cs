@@ -59,8 +59,6 @@ public class AppSettings
     public List<OtherDeduction> OtherDeductions { get; set; } = new();
 
     // ========== 个税 ==========
-    /// <summary>当前月份（用于累计预扣）</summary>
-    public int CurrentMonth { get; set; } = DateTime.Now.Month;
     /// <summary>专项附加扣除</summary>
     public decimal SpecialDeduction { get; set; }
 

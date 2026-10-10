@@ -267,9 +267,10 @@
                                 <ColumnDefinition Width="180"/>
                                 <ColumnDefinition Width="*"/>
                             </Grid.ColumnDefinitions>
-                            <TextBlock Grid.Column="0" Text="当前月份（1-12）" Style="{StaticResource TextLabel}"
+                            <TextBlock Grid.Column="0" Text="当前月份" Style="{StaticResource TextLabel}"
                                        VerticalAlignment="Center"/>
-                            <TextBox Grid.Column="1" Text="{Binding CurrentMonth}" Width="100" HorizontalAlignment="Left"/>
+                            <TextBlock Grid.Column="1" Text="{Binding CurrentMonthText}" Style="{StaticResource TextLabel}"
+                                       VerticalAlignment="Center"/>
                         </Grid>
 
                         <Grid Margin="0,0,0,12">
@@ -284,7 +285,7 @@
 
                         <TextBlock Text="说明：采用累计预扣法。系统假设每月工资相同，自动计算 1 月至当前月的累计，"
                                    Style="{StaticResource TextSmall}" TextWrapping="Wrap" Margin="0,8,0,0"/>
-                        <TextBlock Text="得出当前月个税。跨月后请手动更新月份以保持准确。"
+                        <TextBlock Text="得出当前月个税。月份按系统日期自动确定，跨月无需手动维护。"
                                    Style="{StaticResource TextSmall}" TextWrapping="Wrap"/>
                     </StackPanel>
                 </Border>

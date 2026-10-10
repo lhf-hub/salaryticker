@@ -169,9 +169,8 @@ public partial class SettingsViewModel : ObservableObject
 
     // ========== 个税 ==========
 
-    /// <summary>当前月份（1-12）</summary>
-    [ObservableProperty]
-    private int _currentMonth = DateTime.Now.Month;
+    /// <summary>当前月份展示文本（按系统日期自动确定，不持久化）</summary>
+    public string CurrentMonthText => $"{DateTime.Now.Month} 月";
 
     /// <summary>专项附加扣除</summary>
     [ObservableProperty]
@@ -378,7 +377,6 @@ public partial class SettingsViewModel : ObservableObject
         foreach (var d in settings.OtherDeductions)
             OtherDeductions.Add(new OtherDeduction { Name = d.Name, Amount = d.Amount });
 
-        CurrentMonth = settings.CurrentMonth;
         SpecialDeduction = settings.SpecialDeduction;
 
         WorkStartText = settings.Shift.WorkStart.ToString(@"hh\:mm");
@@ -457,11 +455,6 @@ public partial class SettingsViewModel : ObservableObject
             error = "日计薪小时必须大于 0";
             return false;
         }
-        if (CurrentMonth < 1 || CurrentMonth > 12)
-        {
-            error = "当前月份必须在 1-12 之间";
-            return false;
-        }
         if (IsGrossMode && GrossSalary <= 0)
         {
             error = "税前工资必须大于 0";
@@ -511,7 +504,6 @@ public partial class SettingsViewModel : ObservableObject
         foreach (var d in OtherDeductions)
             draft.OtherDeductions.Add(new OtherDeduction { Name = d.Name, Amount = d.Amount });
 
-        draft.CurrentMonth = CurrentMonth;
         draft.SpecialDeduction = SpecialDeduction;
 
         // 班制
@@ -600,7 +592,7 @@ public partial class SettingsViewModel : ObservableObject
             || a.HousingFundMode != b.HousingFundMode || a.HousingFundAmount != b.HousingFundAmount
             || a.HousingFundBase != b.HousingFundBase || a.HousingFundRate != b.HousingFundRate
             || a.HousingFundCap != b.HousingFundCap
-            || a.CurrentMonth != b.CurrentMonth || a.SpecialDeduction != b.SpecialDeduction
+            || a.SpecialDeduction != b.SpecialDeduction
             || a.Shift.WorkStart != b.Shift.WorkStart || a.Shift.WorkEnd != b.Shift.WorkEnd
             || a.Shift.DailyPayHours != b.Shift.DailyPayHours
             || a.SocialSecurity.PensionRate != b.SocialSecurity.PensionRate
