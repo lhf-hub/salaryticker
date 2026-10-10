@@ -202,6 +202,10 @@ public partial class SettingsViewModel : ObservableObject
     [ObservableProperty]
     private decimal _dailyPayHours = 8m;
 
+    /// <summary>下班到点提醒（响铃约 60 秒）</summary>
+    [ObservableProperty]
+    private bool _offWorkReminderEnabled;
+
     /// <summary>是否启用大小周</summary>
     [ObservableProperty]
     private bool _alternateWeekEnabled;
@@ -425,6 +429,7 @@ public partial class SettingsViewModel : ObservableObject
             MakeupWorkDays.Add(new HolidayEntry { Date = m.Date, Name = m.Name });
 
         ShowSplashOnStartup = settings.ShowSplashOnStartup;
+        OffWorkReminderEnabled = settings.OffWorkReminderEnabled;
 
         UpdateCheckEnabled = settings.UpdateCheckEnabled;
         UpdateCheckUrl = settings.UpdateCheckUrl;
@@ -559,6 +564,7 @@ public partial class SettingsViewModel : ObservableObject
             draft.MakeupWorkDays.Add(new HolidayEntry { Date = m.Date, Name = m.Name });
 
         draft.ShowSplashOnStartup = ShowSplashOnStartup;
+        draft.OffWorkReminderEnabled = OffWorkReminderEnabled;
 
         // 更新设置（这些字段不参与"计时将重置"判断）
         draft.UpdateCheckEnabled = UpdateCheckEnabled;

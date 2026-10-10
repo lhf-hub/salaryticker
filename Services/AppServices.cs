@@ -35,6 +35,9 @@ public static class AppServices
     /// <summary>应用更新服务（唯一会发起网络请求的服务）</summary>
     public static UpdateService Update { get; private set; } = null!;
 
+    /// <summary>下班到点提醒服务</summary>
+    public static OffWorkReminderService OffWorkReminder { get; private set; } = null!;
+
     /// <summary>时间提供者（生产环境使用系统时间）</summary>
     public static TimeProvider TimeProvider { get; private set; } = TimeProvider.System;
 
@@ -56,6 +59,7 @@ public static class AppServices
         Ticker = new SalaryTickerService(Engine, TimeProvider, () => Config.Settings);
         MuyuSessions = new MuyuSessionManager(MuyuHistory, Engine, TimeProvider, () => Config.Settings);
         Update = new UpdateService(TimeProvider);
+        OffWorkReminder = new OffWorkReminderService(Ticker, () => Config.Settings);
 
         // 清理上次更新失败留下的临时文件
         UpdateService.CleanupTempFiles();
@@ -68,6 +72,7 @@ public static class AppServices
     /// </summary>
     public static void Shutdown()
     {
+        OffWorkReminder?.Dispose();
         Ticker?.Dispose();
         _initialized = false;
     }

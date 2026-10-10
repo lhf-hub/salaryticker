@@ -390,6 +390,17 @@
                                    Style="{StaticResource TextSmall}" TextWrapping="Wrap"/>
                     </StackPanel>
                 </Border>
+
+                <!-- ══════ 下班提醒 ══════ -->
+                <Border Style="{StaticResource Card}" Margin="0,0,0,16">
+                    <StackPanel>
+                        <TextBlock Text="下班提醒" Style="{StaticResource TextCardTitle}" Margin="0,0,0,12"/>
+                        <CheckBox Content="到点后播放系统提示音提醒下班（默认关闭）"
+                                  IsChecked="{Binding OffWorkReminderEnabled}" Margin="0,0,0,8"/>
+                        <TextBlock Text="到了下班时间响铃约 60 秒（系统提示音，每 2 秒一次）。音量与是否出声跟随 Windows 的声音设置；仅在应用运行期间有效。"
+                                   Style="{StaticResource TextSmall}" TextWrapping="Wrap"/>
+                    </StackPanel>
+                </Border>
             </StackPanel>
 
             <!-- ══════ 分区 4：摸鱼按钮 ══════ -->

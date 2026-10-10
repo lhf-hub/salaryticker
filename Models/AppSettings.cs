@@ -83,6 +83,10 @@ public class AppSettings
     /// <summary>是否启用摸鱼历史</summary>
     public bool MuyuHistoryEnabled { get; set; } = true;
 
+    // ========== 提醒 ==========
+    /// <summary>下班到点提醒（响铃约 60 秒），默认关闭</summary>
+    public bool OffWorkReminderEnabled { get; set; }
+
     // ========== UI ==========
     /// <summary>是否显示启动画面</summary>
     public bool ShowSplashOnStartup { get; set; } = true;
