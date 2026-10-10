@@ -74,6 +74,19 @@ public enum WorkStatus
 }
 
 /// <summary>
+/// 摸鱼会话的结束方式
+/// </summary>
+public enum MuyuEndReason
+{
+    /// <summary>用户手动点停</summary>
+    Manual,
+    /// <summary>到点自动结束（跨进午休或下班）</summary>
+    Boundary,
+    /// <summary>应用退出时中断</summary>
+    AppExit
+}
+
+/// <summary>
 /// 迷你悬浮窗显示的指标
 /// </summary>
 public enum MiniMetric

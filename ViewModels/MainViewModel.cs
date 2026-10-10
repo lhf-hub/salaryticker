@@ -107,6 +107,30 @@ public partial class MainViewModel : ObservableObject
     [ObservableProperty]
     private bool _isMuyuRunning;
 
+    /// <summary>
+    /// 摸鱼按钮是否可用：只有工作时段能摸鱼。
+    /// 午休、上班前、下班后、周末节假日都禁用（那段时间本来就归你，没有"摸鱼"一说）。
+    /// </summary>
+    [ObservableProperty]
+    private bool _isMuyuEnabled;
+
+    /// <summary>工作状态变化时同步摸鱼按钮可用性（单一数据源，不依赖 ApplySnapshot 的调用顺序）</summary>
+    partial void OnStatusChanged(WorkStatus value)
+        => IsMuyuEnabled = value == WorkStatus.Earning;
+
+    /// <summary>不可摸鱼时展示的说明文案</summary>
+    public string MuyuDisabledHint => Status switch
+    {
+        WorkStatus.LunchBreak => "午休时间不算摸鱼，这是你应得的休息 😴",
+        WorkStatus.OffWork => "已经下班啦，这段时间完全属于你 👋",
+        WorkStatus.ForcedRest => "今天休息，没有「摸鱼」这一说 🌴",
+        _ => "还没到上班时间，先忙点自己的事吧 ☕"
+    };
+
+    /// <summary>状态变化时一并刷新禁用文案</summary>
+    partial void OnIsMuyuEnabledChanged(bool value)
+        => OnPropertyChanged(nameof(MuyuDisabledHint));
+
     // ========== 依赖 ==========
 
     /// <summary>设置窗口打开请求</summary>
@@ -264,19 +288,13 @@ public partial class MainViewModel : ObservableObject
             var button = FindButton(update.Session.ButtonId);
             if (button == null) return;
 
-            var wall = $"{(int)update.Elapsed.TotalMinutes:D2}:{update.Elapsed.Seconds:D2}";
-
             button.IsRunning = true;
             button.IsActive = true;
-            button.ElapsedText = wall;
+            button.ElapsedText = $"{(int)update.Elapsed.TotalMinutes:D2}:{update.Elapsed.Seconds:D2}";
             button.CostText = $"¥{update.Cost:N2}";
 
-            // 墙上时长与工作时段时长不一致时补一句，解释午休/下班后白赚为什么冻结
-            var work = $"{(int)update.WorkElapsed.TotalMinutes:D2}:{update.WorkElapsed.Seconds:D2}";
-            var workSuffix = work == wall ? "" : $"（工作时段 {work}）";
-
             IsMuyuRunning = true;
-            MuyuStatusText = $"🐟 {update.Session.Label} 中 · {wall}{workSuffix} · 白赚 {button.CostText}";
+            MuyuStatusText = $"🐟 {update.Session.Label} 中 · {button.ElapsedText} · 白赚 {button.CostText}";
         });
     }
 

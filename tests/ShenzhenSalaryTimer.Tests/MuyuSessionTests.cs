@@ -83,7 +83,7 @@ public class MuyuSessionTests : IDisposable
         var record = manager.Stop();
 
         Assert.NotNull(record);
-        Assert.False(record!.Interrupted);
+        Assert.Equal(MuyuEndReason.Manual, record!.EndReason);
         Assert.Equal(300, record.DurationSeconds);
         Assert.True(record.CostAmount > 0);
         Assert.Null(manager.Active);
@@ -105,14 +105,14 @@ public class MuyuSessionTests : IDisposable
         var record = manager.StopInterrupted();
 
         Assert.NotNull(record);
-        Assert.True(record!.Interrupted);
+        Assert.Equal(MuyuEndReason.AppExit, record!.EndReason);
         Assert.Equal("☕ 倒杯水", record.ButtonLabel);
         Assert.Equal(180, record.DurationSeconds);
         Assert.Null(manager.Active);
 
         // 关键：这段计时必须落盘，而不是随退出消失
         Assert.Single(_history.Records);
-        Assert.True(_history.Records[0].Interrupted);
+        Assert.Equal(MuyuEndReason.AppExit, _history.Records[0].EndReason);
     }
 
     [Fact]
@@ -304,7 +304,7 @@ public class MuyuSessionTests : IDisposable
         Assert.NotNull(record);
         Assert.Equal(300, record!.DurationSeconds);
         Assert.True(record.CostAmount > 0);
-        Assert.False(record.Interrupted);
+        Assert.Equal(MuyuEndReason.Manual, record.EndReason);
     }
 
     [Fact]
@@ -319,7 +319,7 @@ public class MuyuSessionTests : IDisposable
         var record = manager.StopInterrupted();
 
         Assert.NotNull(record);
-        Assert.True(record!.Interrupted);
+        Assert.Equal(MuyuEndReason.AppExit, record!.EndReason);
         Assert.Equal(3600, record.DurationSeconds); // 只算 [11:00,12:00)
     }
 
@@ -375,6 +375,134 @@ public class MuyuSessionTests : IDisposable
         Assert.Null(manager.GetLiveUpdate());
     }
 
+    // ========== 非工作时段自动中断 ==========
+
+    [Fact]
+    public void InterruptIfNotEarning_DuringWork_DoesNotInterrupt()
+    {
+        var settings = CreateSettings();
+        var time = new FakeTimeProvider(CreateLocalTime(2026, 1, 7, 10, 0, 0));
+        var manager = CreateManager(time, settings);
+
+        manager.Start("wc", "🚽 去趟 WC");
+        time.Advance(TimeSpan.FromMinutes(5));
+
+        Assert.False(manager.InterruptIfNotEarning());
+        Assert.NotNull(manager.Active);
+        Assert.Empty(_history.Records);
+    }
+
+    [Fact]
+    public void InterruptIfNotEarning_CrossIntoLunch_RecordsBoundary()
+    {
+        var settings = CreateSettings();
+        var time = new FakeTimeProvider(CreateLocalTime(2026, 1, 7, 11, 50, 0)); // 周三
+        var manager = CreateManager(time, settings);
+
+        MuyuRecord? endedWith = null;
+        manager.SessionEnded += (_, r) => endedWith = r;
+
+        manager.Start("wc", "🚽 去趟 WC");
+        time.Advance(TimeSpan.FromMinutes(10) + TimeSpan.FromSeconds(5));  // → 12:00:05，已进午休
+
+        Assert.True(manager.InterruptIfNotEarning());
+        Assert.Null(manager.Active);
+
+        Assert.NotNull(endedWith);                                  // 必须通知界面复位
+        Assert.Equal(MuyuEndReason.Boundary, endedWith!.EndReason);
+        Assert.Equal(600, endedWith.DurationSeconds);               // 只算到 12:00
+        Assert.Single(_history.Records);
+    }
+
+    [Fact]
+    public void InterruptIfNotEarning_CrossWorkEnd_RecordsBoundary()
+    {
+        var settings = CreateSettings();
+        var time = new FakeTimeProvider(CreateLocalTime(2026, 1, 7, 17, 25, 0));
+        var manager = CreateManager(time, settings);
+
+        manager.Start("wc", "🚽 去趟 WC");
+        time.Advance(TimeSpan.FromMinutes(5) + TimeSpan.FromSeconds(5));   // → 17:30:05，已下班
+
+        Assert.True(manager.InterruptIfNotEarning());
+
+        var record = _history.Records[0];
+        Assert.Equal(MuyuEndReason.Boundary, record.EndReason);
+        Assert.Equal(300, record.DurationSeconds);                  // 只算到 17:30
+    }
+
+    [Fact]
+    public void InterruptIfNotEarning_NoActiveSession_ReturnsFalse()
+    {
+        var settings = CreateSettings();
+        var time = new FakeTimeProvider(CreateLocalTime(2026, 1, 7, 12, 15, 0)); // 午休中，但没开会话
+        var manager = CreateManager(time, settings);
+
+        Assert.False(manager.InterruptIfNotEarning());
+        Assert.Empty(_history.Records);
+    }
+
+    [Fact]
+    public void InterruptIfNotEarning_SecondCallIsNoOp()
+    {
+        var settings = CreateSettings();
+        var time = new FakeTimeProvider(CreateLocalTime(2026, 1, 7, 11, 50, 0));
+        var manager = CreateManager(time, settings);
+
+        manager.Start("wc", "🚽 去趟 WC");
+        time.Advance(TimeSpan.FromMinutes(15));   // → 12:05
+
+        Assert.True(manager.InterruptIfNotEarning());
+        Assert.False(manager.InterruptIfNotEarning());
+        Assert.Single(_history.Records);
+    }
+
+    [Fact]
+    public void InterruptIfNotEarning_AtBoundaryWithNoWorkSeconds_DiscardsButResets()
+    {
+        // 正好在午休边界点开（12:00:00 起就是午休）—— 一秒工作时段都没攒到，
+        // 不落记录但界面要复位
+        var settings = CreateSettings();
+        var time = new FakeTimeProvider(CreateLocalTime(2026, 1, 7, 12, 0, 0));
+        var manager = CreateManager(time, settings);
+
+        var ended = 0;
+        manager.SessionEnded += (_, _) => ended++;
+
+        manager.Start("wc", "🚽 去趟 WC");
+        time.Advance(TimeSpan.FromSeconds(2));    // → 12:00:01
+
+        Assert.True(manager.InterruptIfNotEarning());
+        Assert.Empty(_history.Records);
+        Assert.Equal(1, ended);
+    }
+
+    // ========== 历史快照（并发安全） ==========
+
+    [Fact]
+    public void Records_ReturnsSnapshot_SoLaterAppendDoesNotBreakEnumeration()
+    {
+        var settings = CreateSettings();
+        var time = new FakeTimeProvider(CreateLocalTime(2026, 1, 7, 10, 0, 0));
+        var manager = CreateManager(time, settings);
+
+        manager.Start("wc", "🚽 去趟 WC");
+        time.Advance(TimeSpan.FromMinutes(5));
+        manager.Stop();
+
+        // 取到快照后再追加一条，之前那份不应受影响（到点自动中断会在后台线程写入）
+        var snapshot = _history.Records;
+        var countInSnapshot = snapshot.Count;
+
+        manager.Start("water", "☕ 倒杯水");
+        time.Advance(TimeSpan.FromMinutes(5));
+        manager.Stop();
+
+        Assert.Equal(1, countInSnapshot);
+        Assert.Equal(countInSnapshot, snapshot.Count);
+        Assert.Equal(2, _history.Records.Count);
+    }
+
     // ========== 老数据兼容 ==========
 
     [Fact]
@@ -394,7 +522,7 @@ public class MuyuSessionTests : IDisposable
             var service = new MuyuHistoryService(dir);
 
             Assert.Single(service.Records);
-            Assert.False(service.Records[0].Interrupted);
+            Assert.Equal(MuyuEndReason.Manual, service.Records[0].EndReason);
             Assert.Equal(600, service.Records[0].DurationSeconds);
             Assert.Equal("☕ 倒杯水", service.Records[0].ButtonLabel);
         }

@@ -9,6 +9,7 @@ using SalaryTicker.Models;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 
 /// <summary>
 /// 摸鱼统计结果
@@ -51,12 +52,23 @@ public sealed class MuyuHistoryDocument
 public sealed class MuyuHistoryService
 {
     private readonly JsonFileStore<MuyuHistoryDocument> _store;
+
+    /// <summary>
+    /// 保护 _document 的锁。
+    /// 写入可能来自摸鱼定时器线程（到点自动中断的落盘），读取在 UI 线程，
+    /// 不加锁会在枚举时撞出「集合已被修改」。
+    /// </summary>
+    private readonly object _gate = new();
+
     private MuyuHistoryDocument _document;
 
     /// <summary>
-    /// 只读的摸鱼记录列表
+    /// 摸鱼记录快照（返回副本，调用方可安全枚举）
     /// </summary>
-    public IReadOnlyList<MuyuRecord> Records => _document.Records;
+    public IReadOnlyList<MuyuRecord> Records
+    {
+        get { lock (_gate) return _document.Records.ToArray(); }
+    }
 
     /// <summary>
     /// 初始化摸鱼历史服务
@@ -79,8 +91,11 @@ public sealed class MuyuHistoryService
     /// <param name="record">摸鱼记录</param>
     public void Append(MuyuRecord record)
     {
-        _document.Records.Add(record);
-        _store.Save(_document);
+        lock (_gate)
+        {
+            _document.Records.Add(record);
+            _store.Save(_document);
+        }
     }
 
     /// <summary>
@@ -88,8 +103,11 @@ public sealed class MuyuHistoryService
     /// </summary>
     public void ClearAll()
     {
-        _document.Records.Clear();
-        _store.Save(_document);
+        lock (_gate)
+        {
+            _document.Records.Clear();
+            _store.Save(_document);
+        }
     }
 
     /// <summary>
@@ -105,30 +123,33 @@ public sealed class MuyuHistoryService
         var daysSinceMonday = ((int)today.DayOfWeek + 6) % 7;
         var monday = today.AddDays(-daysSinceMonday);
 
-        foreach (var record in _document.Records)
+        lock (_gate)
         {
-            // 今日统计
-            if (record.Date == today)
+            foreach (var record in _document.Records)
             {
-                stats.TodayCount++;
-                stats.TodayTotalSeconds += record.DurationSeconds;
-                stats.TodayTotalCost += record.CostAmount;
-            }
+                // 今日统计
+                if (record.Date == today)
+                {
+                    stats.TodayCount++;
+                    stats.TodayTotalSeconds += record.DurationSeconds;
+                    stats.TodayTotalCost += record.CostAmount;
+                }
 
-            // 本周统计（从周一到今天）
-            if (record.Date >= monday && record.Date <= today)
-            {
-                stats.WeekCount++;
-                stats.WeekTotalSeconds += record.DurationSeconds;
-                stats.WeekTotalCost += record.CostAmount;
-            }
+                // 本周统计（从周一到今天）
+                if (record.Date >= monday && record.Date <= today)
+                {
+                    stats.WeekCount++;
+                    stats.WeekTotalSeconds += record.DurationSeconds;
+                    stats.WeekTotalCost += record.CostAmount;
+                }
 
-            // 本月统计
-            if (record.Date.Year == today.Year && record.Date.Month == today.Month)
-            {
-                stats.MonthCount++;
-                stats.MonthTotalSeconds += record.DurationSeconds;
-                stats.MonthTotalCost += record.CostAmount;
+                // 本月统计
+                if (record.Date.Year == today.Year && record.Date.Month == today.Month)
+                {
+                    stats.MonthCount++;
+                    stats.MonthTotalSeconds += record.DurationSeconds;
+                    stats.MonthTotalCost += record.CostAmount;
+                }
             }
         }
 

@@ -164,7 +164,20 @@
                                    FontWeight="SemiBold"/>
                     </Border>
 
-                    <!-- 摸鱼按钮（蜜桃橙胶囊） -->
+                    <!-- 非工作时段禁用提示：这段时间本来就归你 -->
+                    <Border Background="{StaticResource InfoSoftBrush}"
+                            CornerRadius="16"
+                            Padding="16,10"
+                            Margin="0,0,0,14"
+                            Visibility="{Binding IsMuyuEnabled, Converter={StaticResource InverseBoolToVisibility}}">
+                        <TextBlock Text="{Binding MuyuDisabledHint}"
+                                   Foreground="{StaticResource InfoBrush}"
+                                   FontSize="14"
+                                   FontWeight="SemiBold"
+                                   TextWrapping="Wrap"/>
+                    </Border>
+
+                    <!-- 摸鱼按钮（蜜桃橙胶囊；非工作时段禁用） -->
                     <ItemsControl ItemsSource="{Binding MuyuButtons}">
                         <ItemsControl.ItemsPanel>
                             <ItemsPanelTemplate>
@@ -174,6 +187,8 @@
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
                                 <Button Style="{StaticResource ButtonMuyu}"
+                                        IsEnabled="{Binding DataContext.IsMuyuEnabled,
+                                                    RelativeSource={RelativeSource AncestorType=ItemsControl}}"
                                         Command="{Binding DataContext.MuyuClickCommand,
                                                   RelativeSource={RelativeSource AncestorType=ItemsControl}}"
                                         CommandParameter="{Binding}"

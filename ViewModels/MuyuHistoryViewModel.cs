@@ -123,10 +123,13 @@ public partial class MuyuHistoryViewModel : ObservableObject
             Records.Add(new MuyuRecordRow
             {
                 DateText = record.Date.ToString("yyyy-MM-dd"),
-                // 退出应用导致未正常点停的会话标成「中断」，避免看起来像一次完整摸鱼
-                ButtonLabel = record.Interrupted
-                    ? $"{record.ButtonLabel}（中断）"
-                    : record.ButtonLabel,
+                // 非正常结束的会话标出原因，避免看起来像一次完整摸鱼
+                ButtonLabel = record.EndReason switch
+                {
+                    MuyuEndReason.Boundary => $"{record.ButtonLabel}（到点结束）",
+                    MuyuEndReason.AppExit => $"{record.ButtonLabel}（中断）",
+                    _ => record.ButtonLabel
+                },
                 TimeRangeText = $"{record.StartTime:HH:mm} - {record.EndTime:HH:mm}",
                 DurationText = FormatDuration(record.DurationSeconds),
                 DurationTooltip = record.DurationSeconds == wallSeconds
