@@ -479,7 +479,7 @@ footer .fine{font-size:12.5px;line-height:1.9;border-top:1px solid var(--line);p
           <div class="mock-money" id="live-money">¥10,726.25</div>
           <div class="mock-bar-track"><div class="mock-bar-fill"></div></div>
           <div class="mock-progress"><span>本月进度</span><span>66.7%</span></div>
-          <span class="mock-chip">税后 ¥15,764.00 · 日薪 ¥724.78 · 秒薪 ¥0.0252</span>
+          <span class="mock-chip">税后 ¥15,764.00 · 本月日薪 ¥875.78 · 秒薪 ¥0.0304</span>
         </div>
 
         <div class="mock-row">
@@ -585,9 +585,12 @@ footer .fine{font-size:12.5px;line-height:1.9;border-top:1px solid var(--line);p
     </div>
 
     <div class="formula reveal">
-<span class="c">// 日薪与秒薪</span>
-日薪  = 税后月薪 ÷ 月计薪天数<span class="c">（默认 21.75）</span>
+<span class="c">// 日薪与秒薪（按当月摊平，所以节假日多的月份日薪自动更高）</span>
+日薪  = 税后月薪 ÷ 当月实际计薪天数<span class="c">（按每周工作日 + 节假日/补班日算出）</span>
 秒薪  = 日薪 ÷ 每日计薪小时<span class="c">（默认 8）</span> ÷ 3600
+
+<span class="c">// 本月已赚（月底累计正好等于月薪）</span>
+本月已赚 = 已过计薪天数 × 日薪 + 今日已工作秒数 × 秒薪
 
 <span class="c">// 五险一金（个人缴纳部分）</span>
 缴费基数 = <span class="k">clamp</span>(工资, 基数下限, 基数上限)
@@ -606,7 +609,7 @@ footer .fine{font-size:12.5px;line-height:1.9;border-top:1px solid var(--line);p
       </div>
       <div class="note reveal">
         <b>🧮 计算口径</b>
-        <span>每项险种先各自四舍五入到分再求和（与工资条口径一致）。其他扣款（企业年金等）按税后扣减计入。</span>
+        <span>每项险种先各自四舍五入到分再求和（与工资条口径一致）。其他扣款（企业年金等）按税后扣减计入。日薪按当月实际计薪天数摊平，所以节假日多的月份日薪自动更高，月底累计正好等于月薪。</span>
       </div>
       <div class="note reveal">
         <b>📌 仅供参考</b>
@@ -921,7 +924,8 @@ footer .fine{font-size:12.5px;line-height:1.9;border-top:1px solid var(--line);p
   /* ---------------------------------------------------------------
      1. 首屏数字：按秒薪每秒跳动（模拟真实运行的界面）
      --------------------------------------------------------------- */
-  var SECOND_RATE = 0.0252;          // 秒薪（与页面展示的示例一致）
+  // 示例：税后 ¥15,764、10 月（18 个计薪日）→ 日薪 ¥875.78、秒薪 ¥0.030409
+  var SECOND_RATE = 0.030409;        // 秒薪（与页面展示的示例一致）
   var SECONDS_PER_HOUR = 3600;
 
   var els = {
@@ -935,9 +939,9 @@ footer .fine{font-size:12.5px;line-height:1.9;border-top:1px solid var(--line);p
   var COUNTDOWN_START = 4 * 3600 + 6 * 60 + 55;   // 04:06:55
 
   var state = {
-    money: 10726.25,
-    today: 351.92,
-    hour: 80.03,
+    money: 10509.33,   // 12 个完整计薪日 × 875.78
+    today: 425.26,
+    hour: 36.49,
     countdown: COUNTDOWN_START
   };
 
