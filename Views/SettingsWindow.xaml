@@ -283,10 +283,49 @@
                             <TextBox Grid.Column="1" Text="{Binding SpecialDeduction}" Width="160" HorizontalAlignment="Left"/>
                         </Grid>
 
-                        <TextBlock Text="说明：采用累计预扣法。系统假设每月工资相同，自动计算 1 月至当前月的累计，"
+                        <TextBlock Text="说明：采用累计预扣法，自动按 1 月至当前月的累计计算当月个税。"
                                    Style="{StaticResource TextSmall}" TextWrapping="Wrap" Margin="0,8,0,0"/>
-                        <TextBlock Text="得出当前月个税。月份按系统日期自动确定，跨月无需手动维护。"
+                        <TextBlock Text="月份按系统日期自动确定，跨月无需手动维护。"
                                    Style="{StaticResource TextSmall}" TextWrapping="Wrap"/>
+                    </StackPanel>
+                </Border>
+
+                <!-- 本年度各月税前收入：修正累计预扣法"假设每月工资相同"带来的偏差 -->
+                <Border Style="{StaticResource Card}" Margin="0,16,0,0"
+                        Visibility="{Binding IsMonthlyIncomeVisible, Converter={StaticResource BoolToVisibility}}">
+                    <StackPanel>
+                        <TextBlock Text="本年度各月税前收入（可选）" Style="{StaticResource TextCardTitle}" Margin="0,0,0,12"/>
+
+                        <ItemsControl ItemsSource="{Binding MonthlyIncomeRows}">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <WrapPanel/>
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Grid Margin="0,0,20,10" Width="150">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="46"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Grid.Column="0" Text="{Binding Label}"
+                                                   Style="{StaticResource TextLabel}" VerticalAlignment="Center"/>
+                                        <TextBox Grid.Column="1"
+                                                 Text="{Binding AmountText, UpdateSourceTrigger=PropertyChanged}"/>
+                                    </Grid>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+
+                        <TextBlock Text="{Binding MonthlyIncomeHint}"
+                                   Style="{StaticResource TextSmall}" TextWrapping="Wrap" Margin="0,4,0,0"/>
+                        <TextBlock Text="涨薪或某月收入有变化时填上，累计预扣才准；填工资条上计入累计预扣的税前收入（年终奖等单独计税的不算）。"
+                                   Style="{StaticResource TextSmall}" TextWrapping="Wrap" Margin="0,4,0,0"/>
+
+                        <Button Content="全部清空" Style="{StaticResource ButtonGhost}"
+                                Command="{Binding ClearMonthlyIncomesCommand}"
+                                HorizontalAlignment="Left" Padding="14,6" Margin="0,12,0,0"/>
                     </StackPanel>
                 </Border>
             </StackPanel>

@@ -7,6 +7,7 @@ namespace ShenzhenSalaryTimer.Tests;
 
 using SalaryTicker.Services;
 using SalaryTicker.Models;
+using System.Collections.Generic;
 using Xunit;
 
 public class SalaryCalculatorTests
@@ -52,7 +53,7 @@ public class SalaryCalculatorTests
     {
         var settings = CreateBaselineSettings();
         // 2026 年 9 月实际计薪 22 天（22 个工作日 − 中秋 + 国庆补班）
-        var result = SalaryCalculator.Compute(settings, payableDaysInMonth: 22, currentMonth: 9);
+        var result = SalaryCalculator.Compute(settings, payableDaysInMonth: 22, currentMonth: 9, currentYear: 2026);
 
         // 五险一金：养老 1600 + 医疗 400 + 失业 40 + 公积金 1000 = 3040
         Assert.Equal(3040m, result.InsuranceTotal);
@@ -75,7 +76,7 @@ public class SalaryCalculatorTests
     public void Compute_GrossMode_Month1_FirstBracket()
     {
         var settings = CreateBaselineSettings();
-        var result = SalaryCalculator.Compute(settings, payableDaysInMonth: 21, currentMonth: 1);
+        var result = SalaryCalculator.Compute(settings, payableDaysInMonth: 21, currentMonth: 1, currentYear: 2026);
 
         // 1月个税：累计 11960 → 3% = 358.80
         Assert.Equal(358.80m, result.MonthTax);
@@ -84,12 +85,85 @@ public class SalaryCalculatorTests
         Assert.Equal(16601.20m, result.NetMonthly);
     }
 
+    // ========== 本年度各月税前收入（修正涨薪后的累计预扣偏差） ==========
+
+    /// <summary>造一份"1 月至上月"的收入列表</summary>
+    private static List<decimal?> Incomes(int months, decimal value)
+    {
+        var list = new List<decimal?>();
+        for (var i = 0; i < months; i++) list.Add(value);
+        return list;
+    }
+
+    [Fact]
+    public void Compute_MonthlyIncomesSameAsSalary_MatchesUnfilled()
+    {
+        var settings = CreateBaselineSettings();
+        var baseline = SalaryCalculator.Compute(settings, payableDaysInMonth: 22, currentMonth: 9, currentYear: 2026);
+
+        settings.MonthlyIncomesYear = 2026;
+        settings.MonthlyIncomes = Incomes(8, 20000m);   // 与当前月薪相同
+
+        var filled = SalaryCalculator.Compute(settings, payableDaysInMonth: 22, currentMonth: 9, currentYear: 2026);
+
+        Assert.Equal(baseline.MonthTax, filled.MonthTax);
+        Assert.Equal(baseline.NetMonthly, filled.NetMonthly);
+    }
+
+    [Fact]
+    public void Compute_MonthlyIncomesFromAnotherYear_IsIgnored()
+    {
+        var settings = CreateBaselineSettings();
+        var baseline = SalaryCalculator.Compute(settings, payableDaysInMonth: 22, currentMonth: 9, currentYear: 2026);
+
+        settings.MonthlyIncomesYear = 2025;             // 去年填的，不该被当成今年的
+        settings.MonthlyIncomes = Incomes(8, 10000m);
+
+        var result = SalaryCalculator.Compute(settings, payableDaysInMonth: 22, currentMonth: 9, currentYear: 2026);
+
+        Assert.Equal(baseline.MonthTax, result.MonthTax);
+    }
+
+    [Fact]
+    public void Compute_LowerEarlierMonths_ReducesCurrentMonthTax()
+    {
+        var settings = CreateBaselineSettings();
+        var baseline = SalaryCalculator.Compute(settings, payableDaysInMonth: 22, currentMonth: 9, currentYear: 2026);
+
+        settings.MonthlyIncomesYear = 2026;
+        settings.MonthlyIncomes = Incomes(8, 10000m);   // 前 8 个月实际只有 10000
+
+        var result = SalaryCalculator.Compute(settings, payableDaysInMonth: 22, currentMonth: 9, currentYear: 2026);
+
+        // 累计被高估时个税会多算，收入填低后应当变少
+        Assert.True(result.MonthTax < baseline.MonthTax,
+            $"历史收入更低时当月个税应更少：填了 {result.MonthTax}，没填 {baseline.MonthTax}");
+    }
+
+    [Fact]
+    public void Compute_PartiallyFilledMonths_OthersFallBackToCurrentSalary()
+    {
+        var filled = CreateBaselineSettings();
+        filled.MonthlyIncomesYear = 2026;
+        filled.MonthlyIncomes = Incomes(8, 20000m);
+
+        // 只填了 1 月（值与当前月薪相同），其余留空 —— 结果应与"全填当前月薪"一致
+        var partial = CreateBaselineSettings();
+        partial.MonthlyIncomesYear = 2026;
+        partial.MonthlyIncomes = new List<decimal?> { 20000m };
+
+        var a = SalaryCalculator.Compute(filled, payableDaysInMonth: 22, currentMonth: 9, currentYear: 2026);
+        var b = SalaryCalculator.Compute(partial, payableDaysInMonth: 22, currentMonth: 9, currentYear: 2026);
+
+        Assert.Equal(a.MonthTax, b.MonthTax);
+    }
+
     [Fact]
     public void Compute_ZeroPayableDays_FallsBackToMonthlyPayDays()
     {
         // 理论上不会出现（工作日本身至少一天），但要防除零
         var settings = CreateBaselineSettings();
-        var result = SalaryCalculator.Compute(settings, payableDaysInMonth: 0, currentMonth: 9);
+        var result = SalaryCalculator.Compute(settings, payableDaysInMonth: 0, currentMonth: 9, currentYear: 2026);
 
         Assert.Equal(15764m / 21.75m, result.DailyRate);
     }
@@ -102,7 +176,7 @@ public class SalaryCalculatorTests
         settings.Shift.MonthlyPayDays = 0m;
         settings.Shift.DailyPayHours = 0m;
 
-        var result = SalaryCalculator.Compute(settings, payableDaysInMonth: 0, currentMonth: 9);
+        var result = SalaryCalculator.Compute(settings, payableDaysInMonth: 0, currentMonth: 9, currentYear: 2026);
 
         Assert.True(result.DailyRate > 0m);
         Assert.True(result.SecondRate > 0m);
@@ -123,7 +197,7 @@ public class SalaryCalculatorTests
         };
 
         // 税后模式不算个税，月份不参与计算
-        var result = SalaryCalculator.Compute(settings, payableDaysInMonth: 18, currentMonth: 1);
+        var result = SalaryCalculator.Compute(settings, payableDaysInMonth: 18, currentMonth: 1, currentYear: 2026);
 
         Assert.Equal(15000m, result.NetMonthly);
         Assert.Equal(0m, result.InsuranceTotal);
@@ -161,7 +235,7 @@ public class SalaryCalculatorTests
             }
         };
 
-        var result = SalaryCalculator.Compute(settings, payableDaysInMonth: 21, currentMonth: 12);
+        var result = SalaryCalculator.Compute(settings, payableDaysInMonth: 21, currentMonth: 12, currentYear: 2026);
         Assert.Equal(0m, result.NetMonthly);  // 税后为负，钳制到 0
     }
 }

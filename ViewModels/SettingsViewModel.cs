@@ -18,6 +18,29 @@ using System.Threading.Tasks;
 using System.Windows;
 
 /// <summary>
+/// 「本年度各月税前收入」表格的一行
+/// </summary>
+public partial class MonthlyIncomeRow : ObservableObject
+{
+    /// <summary>月份（1-12）</summary>
+    public int Month { get; init; }
+
+    /// <summary>行标签</summary>
+    public string Label => $"{Month} 月";
+
+    /// <summary>
+    /// 输入框文本。用字符串而不是 decimal? 是因为清空输入框时，WPF 把 "" 转成
+    /// decimal? 会失败、不回写源——那样"清空"就永远失效。
+    /// </summary>
+    [ObservableProperty]
+    private string _amountText = "";
+
+    /// <summary>解析出的税前收入；留空或格式不对时返回 null（＝按当前税前月薪计算）</summary>
+    public decimal? Amount
+        => decimal.TryParse(AmountText, out var value) && value > 0 ? value : null;
+}
+
+/// <summary>
 /// 设置窗口 ViewModel
 /// </summary>
 public partial class SettingsViewModel : ObservableObject
@@ -175,6 +198,29 @@ public partial class SettingsViewModel : ObservableObject
     /// <summary>专项附加扣除</summary>
     [ObservableProperty]
     private decimal _specialDeduction;
+
+    /// <summary>
+    /// 本年度各月税前收入（可选，只列 1 月到上月）。
+    /// 用于修正累计预扣法"假设每月工资相同"带来的偏差。
+    /// </summary>
+    public ObservableCollection<MonthlyIncomeRow> MonthlyIncomeRows { get; } = new();
+
+    /// <summary>是否显示「各月税前收入」卡片（1 月时没有历史月份，整张隐藏）</summary>
+    [ObservableProperty]
+    private bool _isMonthlyIncomeVisible;
+
+    /// <summary>表格底部的提示（随税前工资联动）</summary>
+    public string MonthlyIncomeHint => $"留空的月份按当前税前月薪 ¥{GrossSalary:N2} 计算";
+
+    partial void OnGrossSalaryChanged(decimal value) => OnPropertyChanged(nameof(MonthlyIncomeHint));
+
+    /// <summary>清空所有月份，恢复成"每月都等于当前月薪"</summary>
+    [RelayCommand]
+    private void ClearMonthlyIncomes()
+    {
+        foreach (var row in MonthlyIncomeRows)
+            row.AmountText = "";
+    }
 
     // ========== 班制 ==========
 
@@ -382,6 +428,7 @@ public partial class SettingsViewModel : ObservableObject
             OtherDeductions.Add(new OtherDeduction { Name = d.Name, Amount = d.Amount });
 
         SpecialDeduction = settings.SpecialDeduction;
+        LoadMonthlyIncomes(settings);
 
         WorkStartText = settings.Shift.WorkStart.ToString(@"hh\:mm");
         WorkEndText = settings.Shift.WorkEnd.ToString(@"hh\:mm");
@@ -511,6 +558,17 @@ public partial class SettingsViewModel : ObservableObject
 
         draft.SpecialDeduction = SpecialDeduction;
 
+        // 本年度各月税前收入：一个都没填就当作没启用，免得留下一份全是 null 的空数据
+        var incomes = new List<decimal?>();
+        var anyFilled = false;
+        foreach (var row in MonthlyIncomeRows)
+        {
+            incomes.Add(row.Amount);
+            if (row.Amount.HasValue) anyFilled = true;
+        }
+        draft.MonthlyIncomes = anyFilled ? incomes : new List<decimal?>();
+        draft.MonthlyIncomesYear = anyFilled ? DateTime.Now.Year : 0;
+
         // 班制
         TimeSpan.TryParse(WorkStartText, out var start);
         TimeSpan.TryParse(WorkEndText, out var end);
@@ -585,6 +643,47 @@ public partial class SettingsViewModel : ObservableObject
     /// <summary>
     /// 判断是否修改了影响计算的字段
     /// </summary>
+    /// <summary>
+    /// 装载「本年度各月税前收入」表格：只列 1 月到上月（当前月由应用实时计算）。
+    /// 存的年份不是今年就整份忽略（等同没填）。
+    /// </summary>
+    private void LoadMonthlyIncomes(AppSettings settings)
+    {
+        MonthlyIncomeRows.Clear();
+
+        var today = DateTime.Now;
+        var lastMonth = today.Month - 1;              // 只看已经过完的月份
+        var sameYear = settings.MonthlyIncomesYear == today.Year;
+        var stored = settings.MonthlyIncomes ?? new List<decimal?>();
+
+        for (var month = 1; month <= lastMonth; month++)
+        {
+            MonthlyIncomeRows.Add(new MonthlyIncomeRow
+            {
+                Month = month,
+                AmountText = sameYear && month <= stored.Count && stored[month - 1].HasValue
+                    ? stored[month - 1]!.Value.ToString("0.##")
+                    : ""
+            });
+        }
+
+        IsMonthlyIncomeVisible = MonthlyIncomeRows.Count > 0;
+    }
+
+    /// <summary>
+    /// 两份逐月收入是否一致（List 没有值相等语义，得逐个比）
+    /// </summary>
+    private static bool SameMonthlyIncomes(IReadOnlyList<decimal?>? a, IReadOnlyList<decimal?>? b)
+    {
+        if (a == null || b == null) return a == null && b == null;
+        if (a.Count != b.Count) return false;
+
+        for (var i = 0; i < a.Count; i++)
+            if (a[i] != b[i]) return false;
+
+        return true;
+    }
+
     private static bool AffectsCalculation(AppSettings a, AppSettings b)
     {
         return a.Mode != b.Mode
@@ -599,6 +698,8 @@ public partial class SettingsViewModel : ObservableObject
             || a.HousingFundBase != b.HousingFundBase || a.HousingFundRate != b.HousingFundRate
             || a.HousingFundCap != b.HousingFundCap
             || a.SpecialDeduction != b.SpecialDeduction
+            || a.MonthlyIncomesYear != b.MonthlyIncomesYear
+            || !SameMonthlyIncomes(a.MonthlyIncomes, b.MonthlyIncomes)
             || a.Shift.WorkStart != b.Shift.WorkStart || a.Shift.WorkEnd != b.Shift.WorkEnd
             || a.Shift.DailyPayHours != b.Shift.DailyPayHours
             || a.SocialSecurity.PensionRate != b.SocialSecurity.PensionRate

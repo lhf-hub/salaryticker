@@ -7,6 +7,7 @@ namespace ShenzhenSalaryTimer.Tests;
 
 using SalaryTicker.Services;
 using SalaryTicker.Models;
+using System.Collections.Generic;
 using Xunit;
 
 public class TaxCalculatorTests
@@ -82,5 +83,69 @@ public class TaxCalculatorTests
         // 累计 9960 * 3% = 298.80
         var result = TaxCalculator.ComputeMonthTax(20000, 3040, 2000, 1, taxParams);
         Assert.Equal(298.80m, result);
+    }
+
+    // ========== 逐月收入序列（修正"涨薪后按新工资回溯"的偏差） ==========
+
+    [Fact]
+    public void ComputeMonthTax_EmptySequence_ReturnsZero()
+    {
+        Assert.Equal(0m, TaxCalculator.ComputeMonthTax(new List<decimal>(), CreateDefaultTaxParams()));
+    }
+
+    [Fact]
+    public void ComputeMonthTax_SameEveryMonth_MatchesLegacyOverload()
+    {
+        var taxParams = CreateDefaultTaxParams();
+        var legacy = TaxCalculator.ComputeMonthTax(20000, 3040, 0, 4, taxParams);
+        var bySequence = TaxCalculator.ComputeMonthTax(
+            new List<decimal> { 11960m, 11960m, 11960m, 11960m }, taxParams);
+
+        Assert.Equal(legacy, bySequence);
+    }
+
+    [Fact]
+    public void ComputeMonthTax_AfterRaise_UsesActualMonthlyIncomes()
+    {
+        var taxParams = CreateDefaultTaxParams();
+        // 前 9 个月月薪 15000、10 月涨到 30000（五险一金固定 3000/月）
+        // 逐月应税 = 7000 × 9，然后 22000
+        var actual = new List<decimal>();
+        for (var i = 0; i < 9; i++) actual.Add(7000m);
+        actual.Add(22000m);
+
+        // 截至 9 月累计 63000 → 3780；截至 10 月 85000 → 5980；当月 = 2200
+        Assert.Equal(2200m, TaxCalculator.ComputeMonthTax(actual, taxParams));
+    }
+
+    [Fact]
+    public void ComputeMonthTax_AfterRaise_RetroactiveSalaryOverstatesTax()
+    {
+        var taxParams = CreateDefaultTaxParams();
+        // 同一个 10 月，若拿新工资回溯前 9 个月：累计 198000 已跳到 20% 档 → 4400，
+        // 比实际（2200）多算一倍
+        var retroactive = new List<decimal>();
+        for (var i = 0; i < 10; i++) retroactive.Add(22000m);
+
+        Assert.Equal(4400m, TaxCalculator.ComputeMonthTax(retroactive, taxParams));
+    }
+
+    [Fact]
+    public void ComputeMonthTax_RaiseWithinSameBracket_BothWaysAgree()
+    {
+        var taxParams = CreateDefaultTaxParams();
+        // 15000 → 20000 没跨档（两边都是 10%），回溯与逐月填结果相同 ——
+        // 这正是"只差几百块"体感的来源
+        var actual = new List<decimal>();
+        for (var i = 0; i < 9; i++) actual.Add(7000m);
+        actual.Add(12000m);
+
+        var retroactive = new List<decimal>();
+        for (var i = 0; i < 10; i++) retroactive.Add(12000m);
+
+        Assert.Equal(1200m, TaxCalculator.ComputeMonthTax(actual, taxParams));
+        Assert.Equal(
+            TaxCalculator.ComputeMonthTax(actual, taxParams),
+            TaxCalculator.ComputeMonthTax(retroactive, taxParams));
     }
 }

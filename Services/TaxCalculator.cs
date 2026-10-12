@@ -7,6 +7,7 @@ namespace SalaryTicker.Services;
 
 using SalaryTicker.Models;
 using System;
+using System.Collections.Generic;
 
 /// <summary>
 /// 个税计算器（累计预扣法）
@@ -14,17 +15,25 @@ using System;
 public static class TaxCalculator
 {
     /// <summary>
-    /// 计算累计应纳税所得额
+    /// 单月应纳税所得额（不足起征点按 0 计）
+    /// </summary>
+    public static decimal MonthlyTaxable(
+        decimal grossMonthly,
+        decimal insuranceMonthly,
+        decimal specialDeduction,
+        decimal basicDeduction)
+        => Math.Max(0, grossMonthly - basicDeduction - insuranceMonthly - specialDeduction);
+
+    /// <summary>
+    /// 计算累计应纳税所得额（假设每月收入相同）
     /// </summary>
     public static decimal CumulativeTaxable(
         decimal grossMonthly,
         decimal insuranceMonthly,
         decimal specialDeduction,
-        int months)
-    {
-        var monthlyTaxable = grossMonthly - 5000m - insuranceMonthly - specialDeduction;
-        return Math.Max(0, monthlyTaxable) * months;
-    }
+        int months,
+        decimal basicDeduction = 5000m)
+        => MonthlyTaxable(grossMonthly, insuranceMonthly, specialDeduction, basicDeduction) * months;
 
     /// <summary>
     /// 计算累计应纳税额
@@ -37,7 +46,36 @@ public static class TaxCalculator
     }
 
     /// <summary>
-    /// 计算当月应预扣税额
+    /// 按各月应纳税所得额计算当月应预扣税额（累计预扣法）。
+    /// <paramref name="monthlyTaxables"/> 为 1 月至当前月的逐月应纳税所得额（调用方已 clamp 到 0）。
+    ///
+    /// 逐月传入而不是"月薪 × 月份数"，是为了支持年中涨薪：拿新工资回溯前几个月会把
+    /// 累计高估，跨档时算出来的个税就比公司实际扣的多。
+    /// </summary>
+    public static decimal ComputeMonthTax(IReadOnlyList<decimal> monthlyTaxables, TaxParams taxParams)
+    {
+        if (monthlyTaxables == null || monthlyTaxables.Count == 0) return 0;
+
+        var cumulative = 0m;
+        var previousTax = 0m;
+
+        for (var i = 0; i < monthlyTaxables.Count; i++)
+        {
+            cumulative += monthlyTaxables[i];
+            var tax = CumulativeTax(cumulative, taxParams);
+
+            // 最后一项：当月个税 = 累计应纳税额 − 截至上月的累计应纳税额
+            if (i == monthlyTaxables.Count - 1)
+                return Round2(Math.Max(0, tax - previousTax));
+
+            previousTax = tax;
+        }
+
+        return 0;
+    }
+
+    /// <summary>
+    /// 计算当月应预扣税额（假设每月收入相同）
     /// </summary>
     public static decimal ComputeMonthTax(
         decimal grossMonthly,
@@ -46,19 +84,13 @@ public static class TaxCalculator
         int currentMonth,
         TaxParams taxParams)
     {
-        if (currentMonth <= 1)
-        {
-            var cumulativeTaxable = CumulativeTaxable(grossMonthly, insuranceMonthly, specialDeduction, 1);
-            return Round2(CumulativeTax(cumulativeTaxable, taxParams));
-        }
+        if (currentMonth <= 0) return 0;
 
-        var currentCumulative = CumulativeTaxable(grossMonthly, insuranceMonthly, specialDeduction, currentMonth);
-        var previousCumulative = CumulativeTaxable(grossMonthly, insuranceMonthly, specialDeduction, currentMonth - 1);
+        var monthly = MonthlyTaxable(grossMonthly, insuranceMonthly, specialDeduction, taxParams.BasicDeduction);
+        var monthlies = new decimal[currentMonth];
+        for (var i = 0; i < currentMonth; i++) monthlies[i] = monthly;
 
-        var currentTax = CumulativeTax(currentCumulative, taxParams);
-        var previousTax = CumulativeTax(previousCumulative, taxParams);
-
-        return Round2(Math.Max(0, currentTax - previousTax));
+        return ComputeMonthTax(monthlies, taxParams);
     }
 
     public static decimal Round2(decimal value)

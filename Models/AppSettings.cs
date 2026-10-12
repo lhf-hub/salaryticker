@@ -62,6 +62,20 @@ public class AppSettings
     /// <summary>专项附加扣除</summary>
     public decimal SpecialDeduction { get; set; }
 
+    /// <summary>
+    /// 本年度各月实际税前收入（可选）。下标 0 = 1 月 …… 11 = 12 月。
+    /// null 表示该月未填，按当前税前月薪计算。
+    /// 用途：累计预扣法假设每月工资相同，年中涨薪后拿新工资回溯会把累计高估、
+    /// 跨档时算出来的个税比公司实际扣的多；填上真实的历史月份即可修正。
+    /// </summary>
+    public List<decimal?> MonthlyIncomes { get; set; } = new();
+
+    /// <summary>
+    /// 上面那份数据所属年份。跨年后整份失效，避免去年填的值被当成今年的。
+    /// 0 表示从未填过。
+    /// </summary>
+    public int MonthlyIncomesYear { get; set; }
+
     // ========== 政策参数 ==========
     /// <summary>社保参数</summary>
     public SocialSecurityParams SocialSecurity { get; set; } = new();

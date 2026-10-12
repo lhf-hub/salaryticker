@@ -133,7 +133,7 @@ public sealed class SalaryEngine
             || _cachedYear != year
             || _cachedMonth != month)
         {
-            _cachedSalary = SalaryCalculator.Compute(settings, payableDaysInMonth, month);
+            _cachedSalary = SalaryCalculator.Compute(settings, payableDaysInMonth, month, year);
             _cachedSettings = settings;
             _cachedYear = year;
             _cachedMonth = month;
