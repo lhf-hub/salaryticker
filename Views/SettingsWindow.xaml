@@ -17,8 +17,22 @@
         WindowStartupLocation="CenterOwner"
         Background="{StaticResource BgPageBrush}">
 
+    <Window.Resources>
+        <!-- 数值输入框：只放行数字与一个小数点，粘贴也过滤。
+             必须定义在窗口资源里而不是 Resources/Styles.xaml —— EventSetter 的处理器
+             要在同一个 XAML 的 code-behind 里才解析得到，而 Styles.xaml 没有 code-behind。 -->
+        <Style x:Key="TextBoxNumber" TargetType="TextBox"
+               BasedOn="{StaticResource {x:Type TextBox}}">
+            <EventSetter Event="PreviewTextInput" Handler="NumberOnly_PreviewTextInput"/>
+            <EventSetter Event="DataObject.Pasting" Handler="NumberOnly_Pasting"/>
+        </Style>
+    </Window.Resources>
+
     <Grid>
         <Grid.RowDefinitions>
+            <!-- 错误提示条常驻顶部：它原先在滚动区里，滚到下面的设置页就看不见了，
+                 校验失败会表现成"点保存没反应" -->
+            <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
@@ -27,8 +41,16 @@
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
 
+        <!-- 错误提示 -->
+        <Border Grid.Row="0" Grid.Column="1"
+                Background="{StaticResource DangerSoftBrush}"
+                CornerRadius="8" Padding="12,8" Margin="24,16,24,0"
+                Visibility="{Binding IsErrorVisible, Converter={StaticResource BoolToVisibility}}">
+            <TextBlock Text="{Binding ErrorText}" Foreground="{StaticResource DangerBrush}" TextWrapping="Wrap"/>
+        </Border>
+
         <!-- ══════════ 左侧导航 ══════════ -->
-        <Border Grid.Row="0" Grid.Column="0"
+        <Border Grid.Row="1" Grid.Column="0"
                 Background="{StaticResource CardBrush}"
                 BorderBrush="{StaticResource BorderLineBrush}"
                 BorderThickness="0,0,1,0">
@@ -48,20 +70,12 @@
         </Border>
 
         <!-- ══════════ 右侧内容区 ══════════ -->
-        <ScrollViewer Grid.Row="0" Grid.Column="1" VerticalScrollBarVisibility="Auto" Padding="24">
+        <ScrollViewer Grid.Row="1" Grid.Column="1" VerticalScrollBarVisibility="Auto" Padding="24">
           <Grid>
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
-
-            <!-- 错误提示 -->
-            <Border Grid.Row="0"
-                    Background="{StaticResource DangerSoftBrush}"
-                    CornerRadius="8" Padding="12,8" Margin="0,0,0,16"
-                    Visibility="{Binding IsErrorVisible, Converter={StaticResource BoolToVisibility}}">
-                <TextBlock Text="{Binding ErrorText}" Foreground="{StaticResource DangerBrush}" TextWrapping="Wrap"/>
-            </Border>
 
             <!-- ══════ 分区 1：工资与五险一金 ══════ -->
             <StackPanel Grid.Row="1" Visibility="{Binding SelectedPageIndex, Converter={StaticResource IndexToVisibility}, ConverterParameter=0}">
@@ -82,7 +96,7 @@
                             </Grid.ColumnDefinitions>
                             <TextBlock Grid.Column="0" Text="税前月薪（元）" Style="{StaticResource TextLabel}"
                                        VerticalAlignment="Center"/>
-                            <TextBox Grid.Column="1" Text="{Binding GrossSalary, UpdateSourceTrigger=PropertyChanged}"
+                            <TextBox Style="{StaticResource TextBoxNumber}" Grid.Column="1" Text="{Binding GrossSalary, UpdateSourceTrigger=PropertyChanged}"
                                      IsEnabled="{Binding IsGrossMode}" Width="200" HorizontalAlignment="Left"/>
                         </Grid>
 
@@ -93,7 +107,7 @@
                             </Grid.ColumnDefinitions>
                             <TextBlock Grid.Column="0" Text="税后月薪（元）" Style="{StaticResource TextLabel}"
                                        VerticalAlignment="Center"/>
-                            <TextBox Grid.Column="1" Text="{Binding NetSalary, UpdateSourceTrigger=PropertyChanged}"
+                            <TextBox Style="{StaticResource TextBoxNumber}" Grid.Column="1" Text="{Binding NetSalary, UpdateSourceTrigger=PropertyChanged}"
                                      IsEnabled="{Binding IsGrossMode, Converter={StaticResource InverseBool}}"
                                      Width="200" HorizontalAlignment="Left"/>
                         </Grid>
@@ -116,9 +130,9 @@
                         </ComboBox>
                         <Grid Visibility="{Binding PensionInputModeIndex, Converter={StaticResource IndexToVisibility}, ConverterParameter=3}">
                             <TextBlock Text="基数（元）" Style="{StaticResource TextLabel}" Margin="0,0,12,0"/>
-                            <TextBox Text="{Binding PensionBase}" Width="160" HorizontalAlignment="Left" Margin="80,0,0,0"/>
+                            <TextBox Style="{StaticResource TextBoxNumber}" Text="{Binding PensionBase}" Width="160" HorizontalAlignment="Left" Margin="80,0,0,0"/>
                         </Grid>
-                        <TextBox Text="{Binding PensionAmount}" Width="160" HorizontalAlignment="Left"
+                        <TextBox Style="{StaticResource TextBoxNumber}" Text="{Binding PensionAmount}" Width="160" HorizontalAlignment="Left"
                                  Visibility="{Binding PensionInputModeIndex, Converter={StaticResource IndexToVisibility}, ConverterParameter=4}"/>
                         <TextBlock Text="{Binding PensionDetail}"
                                    Style="{StaticResource TextSmall}"
@@ -146,9 +160,9 @@
                             <ComboBoxItem Content="自定义基数"/>
                             <ComboBoxItem Content="直接填月缴额（按工资条）"/>
                         </ComboBox>
-                        <TextBox Text="{Binding MedicalBase}" Width="160" HorizontalAlignment="Left"
+                        <TextBox Style="{StaticResource TextBoxNumber}" Text="{Binding MedicalBase}" Width="160" HorizontalAlignment="Left"
                                  Visibility="{Binding MedicalInputModeIndex, Converter={StaticResource IndexToVisibility}, ConverterParameter=3}"/>
-                        <TextBox Text="{Binding MedicalAmount}" Width="160" HorizontalAlignment="Left"
+                        <TextBox Style="{StaticResource TextBoxNumber}" Text="{Binding MedicalAmount}" Width="160" HorizontalAlignment="Left"
                                  Visibility="{Binding MedicalInputModeIndex, Converter={StaticResource IndexToVisibility}, ConverterParameter=4}"/>
                         <TextBlock Text="{Binding MedicalDetail}"
                                    Style="{StaticResource TextSmall}"
@@ -171,9 +185,9 @@
                             <ComboBoxItem Content="自定义基数"/>
                             <ComboBoxItem Content="直接填月缴额（按工资条）"/>
                         </ComboBox>
-                        <TextBox Text="{Binding UnemploymentBase}" Width="160" HorizontalAlignment="Left"
+                        <TextBox Style="{StaticResource TextBoxNumber}" Text="{Binding UnemploymentBase}" Width="160" HorizontalAlignment="Left"
                                  Visibility="{Binding UnemploymentInputModeIndex, Converter={StaticResource IndexToVisibility}, ConverterParameter=3}"/>
-                        <TextBox Text="{Binding UnemploymentAmount}" Width="160" HorizontalAlignment="Left"
+                        <TextBox Style="{StaticResource TextBoxNumber}" Text="{Binding UnemploymentAmount}" Width="160" HorizontalAlignment="Left"
                                  Visibility="{Binding UnemploymentInputModeIndex, Converter={StaticResource IndexToVisibility}, ConverterParameter=4}"/>
                         <TextBlock Text="{Binding UnemploymentDetail}"
                                    Style="{StaticResource TextSmall}"
@@ -196,24 +210,24 @@
                         <StackPanel Margin="0,0,0,8"
                                     Visibility="{Binding HousingFundModeIndex, Converter={StaticResource IndexToVisibility}, ConverterParameter=0}">
                             <TextBlock Text="月缴额（元）" Style="{StaticResource TextLabel}" Margin="0,0,0,4"/>
-                            <TextBox Text="{Binding HousingFundAmount}" Width="160" HorizontalAlignment="Left"/>
+                            <TextBox Style="{StaticResource TextBoxNumber}" Text="{Binding HousingFundAmount}" Width="160" HorizontalAlignment="Left"/>
                         </StackPanel>
 
                         <StackPanel Margin="0,0,0,8"
                                     Visibility="{Binding HousingFundModeIndex, Converter={StaticResource IndexMinToVisibility}, ConverterParameter=1}">
                             <TextBlock Text="基数（元）" Style="{StaticResource TextLabel}" Margin="0,0,0,4"/>
-                            <TextBox Text="{Binding HousingFundBase}" Width="160" HorizontalAlignment="Left"/>
+                            <TextBox Style="{StaticResource TextBoxNumber}" Text="{Binding HousingFundBase}" Width="160" HorizontalAlignment="Left"/>
                         </StackPanel>
 
                         <StackPanel Margin="0,0,0,8">
                             <TextBlock Text="比例（%）" Style="{StaticResource TextLabel}" Margin="0,0,0,4"/>
-                            <TextBox Text="{Binding HousingFundRatePercent, UpdateSourceTrigger=PropertyChanged}"
+                            <TextBox Style="{StaticResource TextBoxNumber}" Text="{Binding HousingFundRatePercent, UpdateSourceTrigger=PropertyChanged}"
                                      Width="160" HorizontalAlignment="Left"/>
                         </StackPanel>
 
                         <StackPanel Visibility="{Binding HousingFundModeIndex, Converter={StaticResource IndexToVisibility}, ConverterParameter=2}">
                             <TextBlock Text="基数上限（元）" Style="{StaticResource TextLabel}" Margin="0,0,0,4"/>
-                            <TextBox Text="{Binding HousingFundCap}" Width="160" HorizontalAlignment="Left"/>
+                            <TextBox Style="{StaticResource TextBoxNumber}" Text="{Binding HousingFundCap}" Width="160" HorizontalAlignment="Left"/>
                         </StackPanel>
 
                         <TextBlock Text="{Binding HousingFundDetail}"
@@ -243,7 +257,7 @@
                                             <ColumnDefinition Width="Auto"/>
                                         </Grid.ColumnDefinitions>
                                         <TextBox Grid.Column="0" Text="{Binding Name}" Margin="0,0,8,0"/>
-                                        <TextBox Grid.Column="1" Text="{Binding Amount}" Margin="0,0,8,0"/>
+                                        <TextBox Style="{StaticResource TextBoxNumber}" Grid.Column="1" Text="{Binding Amount}" Margin="0,0,8,0"/>
                                         <Button Grid.Column="2" Content="删除" Style="{StaticResource ButtonDanger}"
                                                 Command="{Binding DataContext.RemoveOtherDeductionCommand,
                                                           RelativeSource={RelativeSource AncestorType=ItemsControl}}"
@@ -280,7 +294,7 @@
                             </Grid.ColumnDefinitions>
                             <TextBlock Grid.Column="0" Text="专项附加扣除（元/月）" Style="{StaticResource TextLabel}"
                                        VerticalAlignment="Center"/>
-                            <TextBox Grid.Column="1" Text="{Binding SpecialDeduction}" Width="160" HorizontalAlignment="Left"/>
+                            <TextBox Style="{StaticResource TextBoxNumber}" Grid.Column="1" Text="{Binding SpecialDeduction}" Width="160" HorizontalAlignment="Left"/>
                         </Grid>
 
                         <TextBlock Text="说明：采用累计预扣法，自动按 1 月至当前月的累计计算当月个税。"
@@ -311,7 +325,7 @@
                                         </Grid.ColumnDefinitions>
                                         <TextBlock Grid.Column="0" Text="{Binding Label}"
                                                    Style="{StaticResource TextLabel}" VerticalAlignment="Center"/>
-                                        <TextBox Grid.Column="1"
+                                        <TextBox Style="{StaticResource TextBoxNumber}" Grid.Column="1"
                                                  Text="{Binding AmountText, UpdateSourceTrigger=PropertyChanged}"/>
                                     </Grid>
                                 </DataTemplate>
@@ -359,8 +373,14 @@
                                 <ColumnDefinition Width="140"/>
                                 <ColumnDefinition Width="*"/>
                             </Grid.ColumnDefinitions>
-                            <TextBlock Grid.Column="0" Text="上班时间（HH:mm）" Style="{StaticResource TextLabel}" VerticalAlignment="Center"/>
-                            <TextBox Grid.Column="1" Text="{Binding WorkStartText}" Width="120" HorizontalAlignment="Left"/>
+                            <TextBlock Grid.Column="0" Text="上班时间" Style="{StaticResource TextLabel}" VerticalAlignment="Center"/>
+                            <StackPanel Grid.Column="1" Orientation="Horizontal">
+                                <ComboBox ItemsSource="{Binding Hours}" SelectedItem="{Binding WorkStartHour}"
+                                          ItemStringFormat="{}{0:D2}" Width="72"/>
+                                <TextBlock Text=":" Style="{StaticResource TextLabel}" VerticalAlignment="Center" Margin="6,0"/>
+                                <ComboBox ItemsSource="{Binding Minutes}" SelectedItem="{Binding WorkStartMinute}"
+                                          ItemStringFormat="{}{0:D2}" Width="72"/>
+                            </StackPanel>
                         </Grid>
 
                         <Grid Margin="0,0,0,8">
@@ -368,8 +388,14 @@
                                 <ColumnDefinition Width="140"/>
                                 <ColumnDefinition Width="*"/>
                             </Grid.ColumnDefinitions>
-                            <TextBlock Grid.Column="0" Text="下班时间（HH:mm）" Style="{StaticResource TextLabel}" VerticalAlignment="Center"/>
-                            <TextBox Grid.Column="1" Text="{Binding WorkEndText}" Width="120" HorizontalAlignment="Left"/>
+                            <TextBlock Grid.Column="0" Text="下班时间" Style="{StaticResource TextLabel}" VerticalAlignment="Center"/>
+                            <StackPanel Grid.Column="1" Orientation="Horizontal">
+                                <ComboBox ItemsSource="{Binding Hours}" SelectedItem="{Binding WorkEndHour}"
+                                          ItemStringFormat="{}{0:D2}" Width="72"/>
+                                <TextBlock Text=":" Style="{StaticResource TextLabel}" VerticalAlignment="Center" Margin="6,0"/>
+                                <ComboBox ItemsSource="{Binding Minutes}" SelectedItem="{Binding WorkEndMinute}"
+                                          ItemStringFormat="{}{0:D2}" Width="72"/>
+                            </StackPanel>
                         </Grid>
 
                         <Grid Margin="0,0,0,8">
@@ -377,8 +403,14 @@
                                 <ColumnDefinition Width="140"/>
                                 <ColumnDefinition Width="*"/>
                             </Grid.ColumnDefinitions>
-                            <TextBlock Grid.Column="0" Text="午休开始（HH:mm）" Style="{StaticResource TextLabel}" VerticalAlignment="Center"/>
-                            <TextBox Grid.Column="1" Text="{Binding LunchStartText}" Width="120" HorizontalAlignment="Left"/>
+                            <TextBlock Grid.Column="0" Text="午休开始" Style="{StaticResource TextLabel}" VerticalAlignment="Center"/>
+                            <StackPanel Grid.Column="1" Orientation="Horizontal">
+                                <ComboBox ItemsSource="{Binding Hours}" SelectedItem="{Binding LunchStartHour}"
+                                          ItemStringFormat="{}{0:D2}" Width="72"/>
+                                <TextBlock Text=":" Style="{StaticResource TextLabel}" VerticalAlignment="Center" Margin="6,0"/>
+                                <ComboBox ItemsSource="{Binding Minutes}" SelectedItem="{Binding LunchStartMinute}"
+                                          ItemStringFormat="{}{0:D2}" Width="72"/>
+                            </StackPanel>
                         </Grid>
 
                         <Grid Margin="0,0,0,8">
@@ -386,8 +418,14 @@
                                 <ColumnDefinition Width="140"/>
                                 <ColumnDefinition Width="*"/>
                             </Grid.ColumnDefinitions>
-                            <TextBlock Grid.Column="0" Text="午休结束（HH:mm）" Style="{StaticResource TextLabel}" VerticalAlignment="Center"/>
-                            <TextBox Grid.Column="1" Text="{Binding LunchEndText}" Width="120" HorizontalAlignment="Left"/>
+                            <TextBlock Grid.Column="0" Text="午休结束" Style="{StaticResource TextLabel}" VerticalAlignment="Center"/>
+                            <StackPanel Grid.Column="1" Orientation="Horizontal">
+                                <ComboBox ItemsSource="{Binding Hours}" SelectedItem="{Binding LunchEndHour}"
+                                          ItemStringFormat="{}{0:D2}" Width="72"/>
+                                <TextBlock Text=":" Style="{StaticResource TextLabel}" VerticalAlignment="Center" Margin="6,0"/>
+                                <ComboBox ItemsSource="{Binding Minutes}" SelectedItem="{Binding LunchEndMinute}"
+                                          ItemStringFormat="{}{0:D2}" Width="72"/>
+                            </StackPanel>
                         </Grid>
 
                         <Grid Margin="0,0,0,8">
@@ -396,7 +434,7 @@
                                 <ColumnDefinition Width="*"/>
                             </Grid.ColumnDefinitions>
                             <TextBlock Grid.Column="0" Text="日计薪小时" Style="{StaticResource TextLabel}" VerticalAlignment="Center"/>
-                            <TextBox Grid.Column="1" Text="{Binding DailyPayHours}" Width="120" HorizontalAlignment="Left"/>
+                            <TextBox Style="{StaticResource TextBoxNumber}" Grid.Column="1" Text="{Binding DailyPayHours}" Width="120" HorizontalAlignment="Left"/>
                         </Grid>
 
                         <TextBlock Text="日薪 = 税后月薪 ÷ 当月实际计薪天数（由每周工作日与节假日/补班日自动算出），月底累计正好等于税后月薪。"
@@ -503,15 +541,15 @@
                         <WrapPanel>
                             <StackPanel Margin="0,0,16,8">
                                 <TextBlock Text="比例（%）" Style="{StaticResource TextSmall}"/>
-                                <TextBox Text="{Binding PensionRatePercent}" Width="90"/>
+                                <TextBox Style="{StaticResource TextBoxNumber}" Text="{Binding PensionRatePercent}" Width="90"/>
                             </StackPanel>
                             <StackPanel Margin="0,0,16,8">
                                 <TextBlock Text="基数下限" Style="{StaticResource TextSmall}"/>
-                                <TextBox Text="{Binding PensionMin}" Width="110"/>
+                                <TextBox Style="{StaticResource TextBoxNumber}" Text="{Binding PensionMin}" Width="110"/>
                             </StackPanel>
                             <StackPanel Margin="0,0,16,8">
                                 <TextBlock Text="基数上限" Style="{StaticResource TextSmall}"/>
-                                <TextBox Text="{Binding PensionMax}" Width="110"/>
+                                <TextBox Style="{StaticResource TextBoxNumber}" Text="{Binding PensionMax}" Width="110"/>
                             </StackPanel>
                         </WrapPanel>
 
@@ -519,19 +557,19 @@
                         <WrapPanel>
                             <StackPanel Margin="0,0,16,8">
                                 <TextBlock Text="深圳一档比例（%）" Style="{StaticResource TextSmall}"/>
-                                <TextBox Text="{Binding MedicalTier1RatePercent}" Width="90"/>
+                                <TextBox Style="{StaticResource TextBoxNumber}" Text="{Binding MedicalTier1RatePercent}" Width="90"/>
                             </StackPanel>
                             <StackPanel Margin="0,0,16,8">
                                 <TextBlock Text="深圳二档比例（%）" Style="{StaticResource TextSmall}"/>
-                                <TextBox Text="{Binding MedicalTier2RatePercent}" Width="90"/>
+                                <TextBox Style="{StaticResource TextBoxNumber}" Text="{Binding MedicalTier2RatePercent}" Width="90"/>
                             </StackPanel>
                             <StackPanel Margin="0,0,16,8">
                                 <TextBlock Text="基数下限" Style="{StaticResource TextSmall}"/>
-                                <TextBox Text="{Binding MedicalMin}" Width="110"/>
+                                <TextBox Style="{StaticResource TextBoxNumber}" Text="{Binding MedicalMin}" Width="110"/>
                             </StackPanel>
                             <StackPanel Margin="0,0,16,8">
                                 <TextBlock Text="基数上限" Style="{StaticResource TextSmall}"/>
-                                <TextBox Text="{Binding MedicalMax}" Width="110"/>
+                                <TextBox Style="{StaticResource TextBoxNumber}" Text="{Binding MedicalMax}" Width="110"/>
                             </StackPanel>
                         </WrapPanel>
 
@@ -539,15 +577,15 @@
                         <WrapPanel>
                             <StackPanel Margin="0,0,16,8">
                                 <TextBlock Text="比例（%）" Style="{StaticResource TextSmall}"/>
-                                <TextBox Text="{Binding UnemploymentRatePercent}" Width="90"/>
+                                <TextBox Style="{StaticResource TextBoxNumber}" Text="{Binding UnemploymentRatePercent}" Width="90"/>
                             </StackPanel>
                             <StackPanel Margin="0,0,16,8">
                                 <TextBlock Text="基数下限" Style="{StaticResource TextSmall}"/>
-                                <TextBox Text="{Binding UnemploymentMin}" Width="110"/>
+                                <TextBox Style="{StaticResource TextBoxNumber}" Text="{Binding UnemploymentMin}" Width="110"/>
                             </StackPanel>
                             <StackPanel Margin="0,0,16,8">
                                 <TextBlock Text="基数上限" Style="{StaticResource TextSmall}"/>
-                                <TextBox Text="{Binding UnemploymentMax}" Width="110"/>
+                                <TextBox Style="{StaticResource TextBoxNumber}" Text="{Binding UnemploymentMax}" Width="110"/>
                             </StackPanel>
                         </WrapPanel>
                     </StackPanel>
@@ -591,8 +629,8 @@
                         <Separator Background="{StaticResource BorderLineBrush}" Margin="0,12"/>
 
                         <StackPanel Orientation="Horizontal">
-                            <TextBox Text="{Binding NewHolidayDate}" Width="140" Margin="0,0,8,0"
-                                     ToolTip="格式：yyyy-MM-dd"/>
+                            <DatePicker SelectedDate="{Binding NewHolidayDate}" Width="140" Margin="0,0,8,0"
+                                        ToolTip="点右侧的日历图标选择日期"/>
                             <TextBox Text="{Binding NewHolidayName}" Width="140" Margin="0,0,8,0"
                                      ToolTip="节日名称"/>
                             <Button Content="+ 添加" Style="{StaticResource ButtonPrimary}"
@@ -640,8 +678,8 @@
                         <Separator Background="{StaticResource BorderLineBrush}" Margin="0,12"/>
 
                         <StackPanel Orientation="Horizontal">
-                            <TextBox Text="{Binding NewMakeupDate}" Width="140" Margin="0,0,8,0"
-                                     ToolTip="格式：yyyy-MM-dd"/>
+                            <DatePicker SelectedDate="{Binding NewMakeupDate}" Width="140" Margin="0,0,8,0"
+                                        ToolTip="点右侧的日历图标选择日期"/>
                             <TextBox Text="{Binding NewMakeupName}" Width="140" Margin="0,0,8,0"
                                      ToolTip="补班名称"/>
                             <Button Content="+ 添加" Style="{StaticResource ButtonPrimary}"
@@ -783,7 +821,7 @@
         </ScrollViewer>
 
         <!-- ══════════ 底部按钮栏 ══════════ -->
-        <Border Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2"
+        <Border Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2"
                 Background="{StaticResource CardBrush}"
                 BorderBrush="{StaticResource BorderLineBrush}"
                 BorderThickness="0,1,0,0"

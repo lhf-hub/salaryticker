@@ -13,6 +13,7 @@ using SalaryTicker.Services;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
 using System.Windows;
@@ -228,21 +229,47 @@ public partial class SettingsViewModel : ObservableObject
     [ObservableProperty]
     private int _shiftPresetIndex;
 
-    /// <summary>上班时间文本</summary>
-    [ObservableProperty]
-    private string _workStartText = "09:00";
+    /// <summary>
+    /// 时间用「时 + 分」两个下拉，而不是手打 HH:mm。
+    /// 手打时 TimeSpan.TryParse("9") 会解析成 9 天、"25:00" 会解析成 1 天 1 小时，
+    /// 这类输入能被"成功"保存成荒谬的值；下拉从根上杜绝。
+    /// </summary>
+    public IReadOnlyList<int> Hours { get; } = Enumerable.Range(0, 24).ToList();
 
-    /// <summary>下班时间文本</summary>
-    [ObservableProperty]
-    private string _workEndText = "18:00";
+    /// <summary>分钟选项（00-59）</summary>
+    public IReadOnlyList<int> Minutes { get; } = Enumerable.Range(0, 60).ToList();
 
-    /// <summary>午休开始文本</summary>
+    /// <summary>上班时间 - 时</summary>
     [ObservableProperty]
-    private string _lunchStartText = "12:00";
+    private int _workStartHour = 9;
 
-    /// <summary>午休结束文本</summary>
+    /// <summary>上班时间 - 分</summary>
     [ObservableProperty]
-    private string _lunchEndText = "13:00";
+    private int _workStartMinute;
+
+    /// <summary>下班时间 - 时</summary>
+    [ObservableProperty]
+    private int _workEndHour = 18;
+
+    /// <summary>下班时间 - 分</summary>
+    [ObservableProperty]
+    private int _workEndMinute;
+
+    /// <summary>午休开始 - 时</summary>
+    [ObservableProperty]
+    private int _lunchStartHour = 12;
+
+    /// <summary>午休开始 - 分</summary>
+    [ObservableProperty]
+    private int _lunchStartMinute;
+
+    /// <summary>午休结束 - 时</summary>
+    [ObservableProperty]
+    private int _lunchEndHour = 13;
+
+    /// <summary>午休结束 - 分</summary>
+    [ObservableProperty]
+    private int _lunchEndMinute;
 
     /// <summary>日计薪小时</summary>
     [ObservableProperty]
@@ -307,17 +334,17 @@ public partial class SettingsViewModel : ObservableObject
     /// <summary>补班日列表（周末也上班计薪）</summary>
     public ObservableCollection<HolidayEntry> MakeupWorkDays { get; } = new();
 
-    /// <summary>新增节假日日期文本</summary>
+    /// <summary>新增节假日日期（用日历选，不存在格式错误）</summary>
     [ObservableProperty]
-    private string _newHolidayDate = "";
+    private DateTime? _newHolidayDate;
 
     /// <summary>新增节假日名称</summary>
     [ObservableProperty]
     private string _newHolidayName = "";
 
-    /// <summary>新增补班日日期文本</summary>
+    /// <summary>新增补班日日期（用日历选，不存在格式错误）</summary>
     [ObservableProperty]
-    private string _newMakeupDate = "";
+    private DateTime? _newMakeupDate;
 
     /// <summary>新增补班日名称</summary>
     [ObservableProperty]
@@ -430,12 +457,16 @@ public partial class SettingsViewModel : ObservableObject
         SpecialDeduction = settings.SpecialDeduction;
         LoadMonthlyIncomes(settings);
 
-        WorkStartText = settings.Shift.WorkStart.ToString(@"hh\:mm");
-        WorkEndText = settings.Shift.WorkEnd.ToString(@"hh\:mm");
+        WorkStartHour = settings.Shift.WorkStart.Hours;
+        WorkStartMinute = settings.Shift.WorkStart.Minutes;
+        WorkEndHour = settings.Shift.WorkEnd.Hours;
+        WorkEndMinute = settings.Shift.WorkEnd.Minutes;
         if (settings.Shift.LunchBreaks.Count > 0)
         {
-            LunchStartText = settings.Shift.LunchBreaks[0].Start.ToString(@"hh\:mm");
-            LunchEndText = settings.Shift.LunchBreaks[0].End.ToString(@"hh\:mm");
+            LunchStartHour = settings.Shift.LunchBreaks[0].Start.Hours;
+            LunchStartMinute = settings.Shift.LunchBreaks[0].Start.Minutes;
+            LunchEndHour = settings.Shift.LunchBreaks[0].End.Hours;
+            LunchEndMinute = settings.Shift.LunchBreaks[0].End.Minutes;
         }
         DailyPayHours = settings.Shift.DailyPayHours;
         AlternateWeekEnabled = settings.Shift.AlternateWeekEnabled;
@@ -485,43 +516,6 @@ public partial class SettingsViewModel : ObservableObject
     /// <summary>
     /// 校验输入
     /// </summary>
-    private bool Validate(out string error)
-    {
-        if (!TimeSpan.TryParse(WorkStartText, out var start))
-        {
-            error = "上班时间格式不正确，应为 HH:mm（如 09:00）";
-            return false;
-        }
-        if (!TimeSpan.TryParse(WorkEndText, out var end))
-        {
-            error = "下班时间格式不正确，应为 HH:mm（如 18:00）";
-            return false;
-        }
-        if (end <= start)
-        {
-            error = "下班时间必须晚于上班时间";
-            return false;
-        }
-        if (DailyPayHours <= 0)
-        {
-            error = "日计薪小时必须大于 0";
-            return false;
-        }
-        if (IsGrossMode && GrossSalary <= 0)
-        {
-            error = "税前工资必须大于 0";
-            return false;
-        }
-        if (!IsGrossMode && NetSalary <= 0)
-        {
-            error = "税后工资必须大于 0";
-            return false;
-        }
-
-        error = "";
-        return true;
-    }
-
     /// <summary>
     /// 构建草稿设置
     /// </summary>
@@ -569,14 +563,11 @@ public partial class SettingsViewModel : ObservableObject
         draft.MonthlyIncomes = anyFilled ? incomes : new List<decimal?>();
         draft.MonthlyIncomesYear = anyFilled ? DateTime.Now.Year : 0;
 
-        // 班制
-        TimeSpan.TryParse(WorkStartText, out var start);
-        TimeSpan.TryParse(WorkEndText, out var end);
-        TimeSpan.TryParse(LunchStartText, out var lunchStart);
-        TimeSpan.TryParse(LunchEndText, out var lunchEnd);
-
-        draft.Shift.WorkStart = start;
-        draft.Shift.WorkEnd = end;
+        // 班制（时/分两个下拉，构造成 TimeSpan 不可能失败）
+        draft.Shift.WorkStart = new TimeSpan(WorkStartHour, WorkStartMinute, 0);
+        draft.Shift.WorkEnd = new TimeSpan(WorkEndHour, WorkEndMinute, 0);
+        var lunchStart = new TimeSpan(LunchStartHour, LunchStartMinute, 0);
+        var lunchEnd = new TimeSpan(LunchEndHour, LunchEndMinute, 0);
         draft.Shift.LunchBreaks = new()
         {
             new LunchBreak { Start = lunchStart, End = lunchEnd }
@@ -717,14 +708,19 @@ public partial class SettingsViewModel : ObservableObject
     {
         IsErrorVisible = false;
 
-        if (!Validate(out var error))
+        // 先构建草稿再校验：这样校验就是 AppSettings 的纯函数，能脱离界面单测
+        var draft = BuildDraft();
+
+        var validation = SettingsValidator.Validate(draft);
+        if (!validation.IsValid)
         {
-            ErrorText = error;
+            ErrorText = validation.Error;
             IsErrorVisible = true;
+
+            // 直接翻到出问题的那一页，用户不用自己找是哪一页错了
+            if (validation.PageIndex >= 0) SelectedPageIndex = validation.PageIndex;
             return;
         }
-
-        var draft = BuildDraft();
 
         // 判断是否需要确认
         if (AffectsCalculation(_live, draft))
@@ -836,20 +832,20 @@ public partial class SettingsViewModel : ObservableObject
     [RelayCommand]
     private void AddHoliday()
     {
-        if (!DateOnly.TryParse(NewHolidayDate, out var date))
+        if (NewHolidayDate == null)
         {
-            ErrorText = "节假日日期格式不正确，应为 yyyy-MM-dd（如 2026-10-01）";
+            ErrorText = "请先选择节假日日期";
             IsErrorVisible = true;
             return;
         }
 
         HolidayDates.Add(new HolidayEntry
         {
-            Date = date,
+            Date = DateOnly.FromDateTime(NewHolidayDate.Value),
             Name = string.IsNullOrWhiteSpace(NewHolidayName) ? "节假日" : NewHolidayName.Trim()
         });
 
-        NewHolidayDate = "";
+        NewHolidayDate = null;
         NewHolidayName = "";
         IsErrorVisible = false;
     }
@@ -869,20 +865,20 @@ public partial class SettingsViewModel : ObservableObject
     [RelayCommand]
     private void AddMakeupDay()
     {
-        if (!DateOnly.TryParse(NewMakeupDate, out var date))
+        if (NewMakeupDate == null)
         {
-            ErrorText = "补班日日期格式不正确，应为 yyyy-MM-dd（如 2026-01-04）";
+            ErrorText = "请先选择补班日日期";
             IsErrorVisible = true;
             return;
         }
 
         MakeupWorkDays.Add(new HolidayEntry
         {
-            Date = date,
+            Date = DateOnly.FromDateTime(NewMakeupDate.Value),
             Name = string.IsNullOrWhiteSpace(NewMakeupName) ? "补班" : NewMakeupName.Trim()
         });
 
-        NewMakeupDate = "";
+        NewMakeupDate = null;
         NewMakeupName = "";
         IsErrorVisible = false;
     }
@@ -921,12 +917,16 @@ public partial class SettingsViewModel : ObservableObject
         };
 
         var shift = SettingsDefaults.Preset(preset);
-        WorkStartText = shift.WorkStart.ToString(@"hh\:mm");
-        WorkEndText = shift.WorkEnd.ToString(@"hh\:mm");
+        WorkStartHour = shift.WorkStart.Hours;
+        WorkStartMinute = shift.WorkStart.Minutes;
+        WorkEndHour = shift.WorkEnd.Hours;
+        WorkEndMinute = shift.WorkEnd.Minutes;
         if (shift.LunchBreaks.Count > 0)
         {
-            LunchStartText = shift.LunchBreaks[0].Start.ToString(@"hh\:mm");
-            LunchEndText = shift.LunchBreaks[0].End.ToString(@"hh\:mm");
+            LunchStartHour = shift.LunchBreaks[0].Start.Hours;
+            LunchStartMinute = shift.LunchBreaks[0].Start.Minutes;
+            LunchEndHour = shift.LunchBreaks[0].End.Hours;
+            LunchEndMinute = shift.LunchBreaks[0].End.Minutes;
         }
         DailyPayHours = shift.DailyPayHours;
         AlternateWeekEnabled = shift.AlternateWeekEnabled;
