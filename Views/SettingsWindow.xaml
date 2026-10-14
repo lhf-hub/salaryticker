@@ -816,6 +816,19 @@
                                    HorizontalAlignment="Right" VerticalAlignment="Center"/>
                     </Grid>
                 </Border>
+
+                <!-- 开源许可：单文件 exe 里含第三方组件，分发时必须保留其版权声明 -->
+                <Border Style="{StaticResource Card}" Margin="0,16,0,0">
+                    <StackPanel>
+                        <TextBlock Text="🔓 开源许可" Style="{StaticResource TextCardTitle}" Margin="0,0,0,8"/>
+                        <TextBlock Text="本项目基于 Apache License 2.0 开源。"
+                                   Style="{StaticResource TextLabel}" TextWrapping="Wrap"/>
+                        <TextBlock Text="包含第三方组件 CommunityToolkit.Mvvm（MIT 许可证，版权归 .NET Foundation and Contributors 所有）。"
+                                   Style="{StaticResource TextLabel}" TextWrapping="Wrap" Margin="0,8,0,0"/>
+                        <TextBlock Text="许可证全文与第三方声明见 github.com/lhf-hub/salaryticker 的 THIRD-PARTY-NOTICES.md。"
+                                   Style="{StaticResource TextSmall}" TextWrapping="Wrap" Margin="0,8,0,0"/>
+                    </StackPanel>
+                </Border>
             </StackPanel>
           </Grid>
         </ScrollViewer>

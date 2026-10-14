@@ -204,6 +204,8 @@ Copyright 2026 Lee 老师
 
 运行时依赖只有 CommunityToolkit.Mvvm 一个，MIT 许可证；其余只在构建与测试时使用，不随应用分发。
 
+CommunityToolkit.Mvvm 自身的版权声明、许可证全文，以及它内部包含的第三方代码声明（共 7 项），一并收录在 [THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md)。
+
 ---
 
 **作者**：Lee 老师 · leemail208@163.com
