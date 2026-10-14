@@ -84,6 +84,8 @@ powershell -File tools\deploy-site.ps1
 
 **日常推送**（改文档、重构等不打 tag 的提交）：`powershell -File tools\release.ps1 -NoTag`。不带 `-NoTag` 时脚本会打 tag，而 tag 不可重复 —— csproj 版本号没升就不要用不带开关的调用。
 
+⚠️ `release.ps1` 提交时用的是 `git add -A`，会连**未跟踪的临时文件**一起提交（曾经把一个一次性脚本误提交并推上去）。**调用前先 `git status` 确认工作区没有不想入库的东西**，用完的临时脚本随手删掉。
+
 **构建只发生一次，就在第 3 步 `release.ps1`** —— 它内部调 `deploy.ps1 -SkipUpload`，产出 `dist\upload\SalaryTicker-<版本>.exe`，既作为 Release 附件上传，又留给第 4 步复用。`deploy.ps1 -SkipPublish` 直接上传同一个文件、不再重新构建，**保证 GitHub 附件与自动更新下发的是同一份二进制**。
 
 `release.ps1 -NoTag`（日常推送）不会构建、也不会建 Release —— 没有 tag 就没有 Release。
