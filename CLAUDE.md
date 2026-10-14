@@ -38,7 +38,9 @@ dotnet run -- gallery           # 样式画廊（设计系统验收用）
 
 仓库级身份已固定为 `lhf-hub` / `lhf-hub@users.noreply.github.com`（noreply 地址，不泄露工作邮箱）。
 
-远程仓库 `https://github.com/lhf-hub/salaryticker` **已转为公开**（2026-10-14），以 **Apache License 2.0** 开源，全文见根目录 `LICENSE`。**仍然不使用 GitHub Release**：exe 一律从自己的服务器分发，GitHub 在国内时通时不通，不适合当分发渠道。
+远程仓库 `https://github.com/lhf-hub/salaryticker` **已转为公开**（2026-10-14），以 **Apache License 2.0** 开源，全文见根目录 `LICENSE`。
+
+每次发版会在 GitHub 建一个 **Release**，附上该版本的 exe，作为一份**异地归档**。但**它不参与分发**：应用内「检查更新」始终指向自己的服务器，exe 只从服务器下载 —— GitHub 在国内时通时不通，不适合当分发渠道。
 
 ### Commit 规范（Conventional Commits，描述用中文）
 
@@ -69,19 +71,22 @@ feat(update): 检查失败时提供「在浏览器中打开官网」兜底入口
 
 ```powershell
 # 1. 改 SalaryTicker.csproj 的 <Version>，并把本版更新日志写进 tools\release-notes.txt
-# 2. 预演（可选，只在本地提交 + 打 tag，不推送）：
+# 2. 预演（可选）：测试 + 构建 + 本地提交打 tag，不推送
 powershell -File tools\release.ps1 -SkipPush
-# 3. 测试 + 提交 + tag + 推送（打 tag 前必须 dotnet test 全绿）：
+# 3. 测试 + 构建 + 提交 + tag + 推送 + 建 GitHub Release（附 exe）
+#    —— 打 tag 前必须 dotnet test 全绿
 powershell -File tools\release.ps1
-# 4. 构建并发给自动更新通道：
-powershell -File tools\deploy.ps1
+# 4. 把同一个 exe 发给自动更新通道（不重新构建）：
+powershell -File tools\deploy.ps1 -SkipPublish
 # 5. 官网有改动时：
 powershell -File tools\deploy-site.ps1
 ```
 
 **日常推送**（改文档、重构等不打 tag 的提交）：`powershell -File tools\release.ps1 -NoTag`。不带 `-NoTag` 时脚本会打 tag，而 tag 不可重复 —— csproj 版本号没升就不要用不带开关的调用。
 
-**构建只发生一次，就在第 4 步 `deploy.ps1`。** `release.ps1` 是纯 git 操作，不产出 exe —— 仓库不挂 GitHub Release，exe 只从自己的服务器分发。
+**构建只发生一次，就在第 3 步 `release.ps1`** —— 它内部调 `deploy.ps1 -SkipUpload`，产出 `dist\upload\SalaryTicker-<版本>.exe`，既作为 Release 附件上传，又留给第 4 步复用。`deploy.ps1 -SkipPublish` 直接上传同一个文件、不再重新构建，**保证 GitHub 附件与自动更新下发的是同一份二进制**。
+
+`release.ps1 -NoTag`（日常推送）不会构建、也不会建 Release —— 没有 tag 就没有 Release。
 
 `deploy.ps1` 还会把当前版本合并进 `tools/version-history.json`（官网「历史版本」弹窗的数据源，`tools/version-history.json` 是事实来源、服务器只收一份副本）并上传为站点根目录的 `history.json`。**条目一旦写入就冻结**——已发布的版本号不重用，重复部署同一版本不会改写历史；要改只能手工编辑那个 json。合并后脚本会提示把仓库里的 `version-history.json` 一并提交（它发生在 `release.ps1` 提交之后，所以会随下一次提交进 git）。
 
@@ -89,8 +94,8 @@ powershell -File tools\deploy-site.ps1
 
 | 脚本 | 作用 | 常用开关 |
 |---|---|---|
-| `tools\release.ps1` | 代码进 GitHub（测试 + 提交 + tag + 推送） | `-NoTag` 日常推送不打 tag / `-SkipPush` 本地预演 / `-Message "<提交信息>"` |
-| `tools\deploy.ps1` | 应用进自己的服务器（exe + version.json + history.json + 软链） | `-SkipUpload` 只构建不上传 |
+| `tools\release.ps1` | 代码进 GitHub（测试 + 构建 + 提交 + tag + 推送 + Release） | `-NoTag` 日常推送不打 tag / `-SkipPush` 本地预演 / `-SkipBuild` 复用已有构建 / `-Message "<提交信息>"` |
+| `tools\deploy.ps1` | 应用进自己的服务器（exe + version.json + history.json + 软链） | `-SkipUpload` 只构建不上传 / `-SkipPublish` 复用 release.ps1 的构建 |
 | `tools\deploy-site.ps1` | 官网进自己的服务器（index.html + assets） | `-WithNginx` 同时更新 Nginx 配置 / `-NoVerify` 跳过上传后验证 |
 
 ## 五、敏感文件（已 gitignore，**绝不提交**）

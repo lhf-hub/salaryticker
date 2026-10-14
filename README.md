@@ -137,11 +137,11 @@ dotnet publish SalaryTicker.csproj -c Release -r win-x64 --self-contained true \
 notepad tools\release-notes.txt          # 1. 写本版更新日志
 notepad SalaryTicker.csproj              # 2. 改 <Version>
 
-# 发代码到 GitHub（先跑 dotnet test，全绿才提交 + 打 tag + 推送）
+# 发代码到 GitHub（测试 + 构建 + 提交 + tag + 推送 + 建 Release）
 powershell -File tools\release.ps1
 
-# 发应用到自己的服务器（构建 + 哈希 + 清单 + 上传）
-powershell -File tools\deploy.ps1
+# 发应用到自己的服务器（复用上一步构建的同一个 exe，不重新构建）
+powershell -File tools\deploy.ps1 -SkipPublish
 
 # 发官网（index.html + assets/）
 powershell -File tools\deploy-site.ps1   # 上传后会访问线上站点自动验证
@@ -149,11 +149,11 @@ powershell -File tools\deploy-site.ps1   # 上传后会访问线上站点自动�
 
 | 脚本 | 发布内容 | 常用开关 |
 |---|---|---|
-| `tools\release.ps1` | 代码进 GitHub：测试 + 提交 + tag + 推送 | `-SkipPush` 本地预演（只提交打 tag）<br>`-Message "<提交信息>"` |
-| `tools\deploy.ps1` | exe 归档 + version.json + 下载软链 | `-SkipUpload` 只构建不上传 |
+| `tools\release.ps1` | 代码进 GitHub：测试 + 构建 + 提交 + tag + 推送 + 建 Release（附 exe） | `-NoTag` 日常推送不打 tag<br>`-SkipPush` 本地预演<br>`-SkipBuild` 复用已有构建<br>`-Message "<提交信息>"` |
+| `tools\deploy.ps1` | exe 归档 + version.json + 下载软链 | `-SkipUpload` 只构建不上传<br>`-SkipPublish` 复用 release.ps1 的构建 |
 | `tools\deploy-site.ps1` | index.html + assets/ | `-WithNginx` 同时更新 nginx 配置（本地预检 + 服务器上 `nginx -t` 不通过自动回滚）<br>`-NoVerify` 跳过上传后验证 |
 
-> 远程仓库是**私有**的，且**不使用 GitHub Release** —— 它只做代码备份与历史留存，exe 一律从自己的服务器分发。`release.ps1` 因此是纯 git 操作，构建只发生一次，就在 `deploy.ps1`。首次使用需把 `tools/github.config.sample.json` 复制为 `tools/github.config.json` 并填入 PAT（该文件已 gitignore）。
+> 源码托管在 GitHub（公开，Apache-2.0），每次发版会建一个 **Release** 并附上该版本的 exe，作为异地归档。但**应用的分发不依赖它**：应用内「检查更新」始终指向自己的服务器，exe 也只从服务器下载。`release.ps1` 构建一次，`deploy.ps1 -SkipPublish` 上传同一个文件，保证两边是**同一份二进制**。首次使用需把 `tools/github.config.sample.json` 复制为 `tools/github.config.json` 并填入 PAT（该文件已 gitignore）。
 
 > 上传后验证会实际访问线上站点，并给出可操作的诊断（如「域名被 ICP 备案拦截」「HTTPS 端口不通」「nginx 根目录指错」）。
 

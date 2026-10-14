@@ -7,6 +7,8 @@
 #   3) powershell -File tools\deploy.ps1
 #
 #   Add -SkipUpload to only build locally (staging ends up in dist\upload\).
+#   Add -SkipPublish to reuse the exe already in dist\ (no rebuild) - used after
+#   tools\release.ps1 so GitHub and the auto-updater serve the same binary.
 #
 # This script publishes the APP only:
 #   version.json + history.json + download/releases/<ver>.exe
@@ -25,7 +27,8 @@
 
 param(
     [string]$ConfigPath = (Join-Path $PSScriptRoot "deploy.config.json"),
-    [switch]$SkipUpload
+    [switch]$SkipUpload,
+    [switch]$SkipPublish
 )
 
 $ErrorActionPreference = "Stop"
@@ -71,26 +74,36 @@ $version = $Matches[1].Trim()
 Write-Host "[1/6] Version: $version" -ForegroundColor Yellow
 
 # ---------------------------------------------------------------- 2. publish
-Write-Host "[2/6] Publishing (self-contained single file, 1-3 min)..." -ForegroundColor Yellow
-if (Test-Path $distDir) { Remove-Item $distDir -Recurse -Force }
-
-Push-Location $root
-try {
-    & $dotnet publish $csproj `
-        -c Release `
-        -r win-x64 `
-        --self-contained true `
-        -p:PublishSingleFile=true `
-        -p:IncludeNativeLibrariesForSelfExtract=true `
-        -p:EnableCompressionInSingleFile=true `
-        -p:DebugType=None `
-        -p:DebugSymbols=false `
-        -o $distDir
-    if ($LASTEXITCODE -ne 0) { throw "dotnet publish failed ($LASTEXITCODE)" }
-}
-finally { Pop-Location }
-
 $exePath = Join-Path $distDir $exeName
+
+if ($SkipPublish -and (Test-Path $exePath)) {
+    # Reuse the exe tools\release.ps1 already attached to the GitHub Release, so
+    # both download channels serve a byte-identical binary.
+    Write-Host "[2/6] -SkipPublish: reusing dist\$exeName (no rebuild)" -ForegroundColor DarkYellow
+} else {
+    if ($SkipPublish) {
+        Write-Host "[2/6] -SkipPublish given but dist\$exeName is missing - publishing anyway" -ForegroundColor DarkYellow
+    }
+    Write-Host "[2/6] Publishing (self-contained single file, 1-3 min)..." -ForegroundColor Yellow
+    if (Test-Path $distDir) { Remove-Item $distDir -Recurse -Force }
+
+    Push-Location $root
+    try {
+        & $dotnet publish $csproj `
+            -c Release `
+            -r win-x64 `
+            --self-contained true `
+            -p:PublishSingleFile=true `
+            -p:IncludeNativeLibrariesForSelfExtract=true `
+            -p:EnableCompressionInSingleFile=true `
+            -p:DebugType=None `
+            -p:DebugSymbols=false `
+            -o $distDir
+        if ($LASTEXITCODE -ne 0) { throw "dotnet publish failed ($LASTEXITCODE)" }
+    }
+    finally { Pop-Location }
+}
+
 if (-not (Test-Path $exePath)) { throw "Publish output not found: $exePath" }
 
 # ---------------------------------------------------------------- 3. hash
