@@ -188,6 +188,22 @@ powershell -File tools\deploy-site.ps1   # 上传后会访问线上站点自动�
 - Lee 老师倡导全行业按法休息：不恶意内卷、不形式加班。本计算器在节假日强制休息，不计算工资和加班费。
 - 摸鱼历史等所有数据只存本地，不上传；应用仅在检查新版本时 GET 一个版本清单，可在设置中关闭。
 
+## 许可
+
+本项目基于 **Apache License 2.0** 开源，许可证全文见 [LICENSE](LICENSE)。
+
+Copyright 2026 Lee 老师
+
+### 第三方组件
+
+| 组件 | 用途 | 许可证 |
+|---|---|---|
+| [CommunityToolkit.Mvvm](https://github.com/CommunityToolkit/dotnet) | MVVM 工具包（**唯一的运行时依赖**） | MIT |
+| [xUnit.net](https://xunit.net/) | 单元测试框架（仅测试工程） | Apache-2.0 |
+| [Microsoft.NET.Test.Sdk](https://github.com/microsoft/vstest) | 测试宿主（仅测试工程） | MIT |
+
+运行时依赖只有 CommunityToolkit.Mvvm 一个，MIT 许可证；其余只在构建与测试时使用，不随应用分发。
+
 ---
 
 **作者**：Lee 老师 · leemail208@163.com

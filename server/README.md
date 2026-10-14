@@ -133,12 +133,12 @@ powershell -File tools\deploy-site.ps1 -WithNginx   # 顺带更新 nginx 配置
 
 ```json
 {
-  "host": "salaryticker.leelab.com.cn",
-  "user": "admin",
+  "host": "your-server.example.com",
+  "user": "your-ssh-user",
   "port": 22,
-  "keyPath": "C:\\Users\\Administrator\\.ssh\\id_rsa",
+  "keyPath": "C:\\Users\\You\\.ssh\\id_rsa",
   "remoteDir": "/var/www/salaryticker",
-  "publicUrl": "https://salaryticker.leelab.com.cn"
+  "publicUrl": "https://your-server.example.com"
 }
 ```
 

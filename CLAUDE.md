@@ -38,7 +38,7 @@ dotnet run -- gallery           # 样式画廊（设计系统验收用）
 
 仓库级身份已固定为 `lhf-hub` / `lhf-hub@users.noreply.github.com`（noreply 地址，不泄露工作邮箱）。
 
-远程仓库为 **私有** 的 `https://github.com/lhf-hub/salaryticker`，**不使用 GitHub Release**：它只做代码的异地备份与历史留存，分发一律走自己的服务器。私有仓库的 Release 附件下载同样需要登录，本来就当不了面向国内用户的公开下载渠道。
+远程仓库 `https://github.com/lhf-hub/salaryticker` **已转为公开**（2026-10-14），以 **Apache License 2.0** 开源，全文见根目录 `LICENSE`。**仍然不使用 GitHub Release**：exe 一律从自己的服务器分发，GitHub 在国内时通时不通，不适合当分发渠道。
 
 ### Commit 规范（Conventional Commits，描述用中文）
 
@@ -81,7 +81,7 @@ powershell -File tools\deploy-site.ps1
 
 **日常推送**（改文档、重构等不打 tag 的提交）：`powershell -File tools\release.ps1 -NoTag`。不带 `-NoTag` 时脚本会打 tag，而 tag 不可重复 —— csproj 版本号没升就不要用不带开关的调用。
 
-**构建只发生一次，就在第 4 步 `deploy.ps1`。** `release.ps1` 是纯 git 操作，不产出 exe —— 仓库是私有的、不挂 GitHub Release，exe 只从自己的服务器分发。
+**构建只发生一次，就在第 4 步 `deploy.ps1`。** `release.ps1` 是纯 git 操作，不产出 exe —— 仓库不挂 GitHub Release，exe 只从自己的服务器分发。
 
 `deploy.ps1` 还会把当前版本合并进 `tools/version-history.json`（官网「历史版本」弹窗的数据源，`tools/version-history.json` 是事实来源、服务器只收一份副本）并上传为站点根目录的 `history.json`。**条目一旦写入就冻结**——已发布的版本号不重用，重复部署同一版本不会改写历史；要改只能手工编辑那个 json。合并后脚本会提示把仓库里的 `version-history.json` 一并提交（它发生在 `release.ps1` 提交之后，所以会随下一次提交进 git）。
 
@@ -99,6 +99,8 @@ powershell -File tools\deploy-site.ps1
 - `tools/github.config.json` —— GitHub PAT（从 `github.config.sample.json` 复制填写）
 
 提交前自查：`git status --porcelain` 中不应出现上述文件；`git ls-files | grep -E "deploy.config.json|github.config.json"` 应无输出。
+
+**仓库已公开，新增文件前先想一遍会不会泄露服务器信息**：真实的主机名/用户名/密钥路径只许出现在被 gitignore 的配置里，文档与示例一律用占位值（`server/README.md` 曾把真实 SSH 用户名写进示例，2026-10-14 公开前已改掉）。
 
 ## 六、编码与文件约定
 
