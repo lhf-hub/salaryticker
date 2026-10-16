@@ -116,6 +116,32 @@ function Invoke-CurlJson {
     return $respText | ConvertFrom-Json
 }
 
+function Get-GitHubRelease {
+    # Looks up a Release by tag; returns $null when there is none.
+    param([string]$Tag)
+
+    $respFile = [System.IO.Path]::GetTempFileName()
+    $curlArgs = @("-sS",
+                  "-H", "Authorization: Bearer $($cfg.token)",
+                  "-H", "Accept: application/vnd.github+json",
+                  "-H", "X-GitHub-Api-Version: 2022-11-28",
+                  "-H", "User-Agent: salaryticker-release",
+                  "--connect-timeout", "30",
+                  "-o", $respFile, "-w", "%{http_code}")
+    if ($cfg.proxy) { $curlArgs += @("-x", $cfg.proxy) }
+    $curlArgs += "https://api.github.com/repos/$slug/releases/tags/$Tag"
+
+    $status = & curl.exe @curlArgs
+    $code = "$status".Trim()
+    $respText = if (Test-Path $respFile) { Get-Content $respFile -Raw -Encoding UTF8 } else { "" }
+    Remove-Item $respFile -Force -ErrorAction SilentlyContinue
+
+    if ($code -eq "404") { return $null }
+    if ($code -notmatch '^2\d\d$') { throw "GitHub API returned HTTP $code while reading release $Tag`n$respText" }
+    if (-not $respText) { return $null }
+    return $respText | ConvertFrom-Json
+}
+
 # ---------------------------------------------------------------- 0. config
 if (-not (Test-Path $ConfigPath)) {
     throw "Config not found: $ConfigPath`nCopy github.config.sample.json to github.config.json and fill in your token."
@@ -163,9 +189,26 @@ Write-Host "[1/7] Version: $version   Tag: $tag" -ForegroundColor Yellow
 # A tag must never move. If it exists the release already happened - bump the
 # version in the csproj instead of deleting the tag.
 # Where-Object { $_ } drops empty lines so an empty result really means "none".
+# A tag normally means "already released" - but the previous run may have died
+# half way (the asset upload is the slow, flaky part). So instead of aborting on
+# a tag, look at what the REMOTE Release actually has: complete -> it really did ship;
+# missing or asset-less -> repair it. That makes the script safe to re-run.
+$repairRelease = $false
+$existingRelease = $null
 if (-not $NoTag) {
     $localTag = @(Invoke-Git @("tag", "-l", $tag)) | Where-Object { $_ }
-    if ($localTag) { throw "Tag $tag already exists locally. Bump <Version> in SalaryTicker.csproj, or use -NoTag to push without cutting a release." }
+    if ($localTag) {
+        $existingRelease = Get-GitHubRelease -Tag $tag
+        if ($existingRelease -and @($existingRelease.assets).Count -gt 0) {
+            throw "Tag $tag already exists and its Release already has an asset. Bump <Version> in SalaryTicker.csproj."
+        }
+        $repairRelease = $true
+        if ($existingRelease) {
+            Write-Host "[2/7] Tag $tag exists but its Release has no asset - will upload the missing one" -ForegroundColor DarkYellow
+        } else {
+            Write-Host "[2/7] Tag $tag exists but there is no Release for it - will create it" -ForegroundColor DarkYellow
+        }
+    }
 }
 
 $branch = @(Invoke-Git @("rev-parse", "--abbrev-ref", "HEAD")) | Where-Object { $_ } | Select-Object -First 1
@@ -212,8 +255,10 @@ if (-not $NoTag -and -not (Test-Path $assetPath)) {
     throw "Build artifact not found: $assetPath`nRun 'powershell -File tools\deploy.ps1 -SkipUpload' first, or drop -SkipBuild."
 }
 
-# ---------------------------------------------------------------- 4. commit
-if ($dirty) {
+# ---------------------------------------------------------------- 5. commit
+if ($repairRelease) {
+    Write-Host "[5/7] Repairing an existing release - nothing to commit" -ForegroundColor DarkYellow
+} elseif ($dirty) {
     if (-not $Message) {
         Write-Host ""
         Write-Host "Enter the commit message (Conventional Commits)." -ForegroundColor Yellow
@@ -233,6 +278,8 @@ if ($dirty) {
 # Annotated tag: carries author and date, and 'git describe' can use it.
 if ($NoTag) {
     Write-Host "[6/7] -NoTag: no version tag (everyday push)" -ForegroundColor DarkYellow
+} elseif ($repairRelease) {
+    Write-Host "[6/7] $tag is already tagged - leaving it in place" -ForegroundColor DarkYellow
 } else {
     Invoke-Git @("tag", "-a", $tag, "-m", "SalaryTicker $tag") | Out-Null
     Write-Host "[6/7] Tagged $tag" -ForegroundColor Yellow
@@ -278,15 +325,35 @@ if ($NoTag) {
     } | ConvertTo-Json -Depth 4
     [System.IO.File]::WriteAllText($bodyFile, $body, (New-Object System.Text.UTF8Encoding($false)))
 
-    Write-Host "      Creating GitHub Release $tag ..." -ForegroundColor Yellow
-    $release = Invoke-CurlJson -Url "https://api.github.com/repos/$slug/releases" `
-                               -BodyFile $bodyFile `
-                               -ContentType "application/json; charset=utf-8"
+    if ($existingRelease) {
+        # Repairing a Release whose asset never made it. Creating it again would
+        # 422 on the duplicate tag, so reuse it and upload only the missing file.
+        $release = $existingRelease
+        Write-Host "      Reusing the existing Release" -ForegroundColor DarkYellow
+    } else {
+        Write-Host "      Creating GitHub Release $tag ..." -ForegroundColor Yellow
+        $release = Invoke-CurlJson -Url "https://api.github.com/repos/$slug/releases" `
+                                   -BodyFile $bodyFile `
+                                   -ContentType "application/json; charset=utf-8"
+    }
     Remove-Item $bodyFile -Force -ErrorAction SilentlyContinue
 
+    # Uploading a large file through the proxy occasionally stalls outright (curl
+    # reports a schannel send timeout having sent 0 bytes). A retry on a fresh
+    # connection is enough - one network hiccup must not fail the whole release.
     Write-Host "      Uploading $assetName ..." -ForegroundColor Yellow
     $uploadUrl = "https://uploads.github.com/repos/$slug/releases/$($release.id)/assets?name=$assetName"
-    Invoke-CurlJson -Url $uploadUrl -BodyFile $assetPath -ContentType "application/octet-stream" | Out-Null
+    $uploaded = $false
+    for ($attempt = 1; $attempt -le 3 -and -not $uploaded; $attempt++) {
+        try {
+            Invoke-CurlJson -Url $uploadUrl -BodyFile $assetPath -ContentType "application/octet-stream" | Out-Null
+            $uploaded = $true
+        } catch {
+            if ($attempt -eq 3) { throw }
+            Write-Host "      attempt $attempt failed - retrying in 10s ..." -ForegroundColor DarkYellow
+            Start-Sleep -Seconds 10
+        }
+    }
     Write-Host "      $($release.html_url)" -ForegroundColor Cyan
 }
 
