@@ -73,6 +73,11 @@ public sealed class SalaryEngine
             : 0;
         monthProgress = Math.Clamp(monthProgress, 0, 1);
 
+        // 本月剩余工作日（不含今天）：今天算"正在上的这一天"，不该计入"还剩"。
+        // 这样数字从早到晚不变，只在跨过午夜时减一；今天若不是计薪日则整天不变。
+        var todayIsPayable = WorkTimeCalculator.IsPayableDay(today, settings.Shift, holidays, makeupWorkDays);
+        var remainingWorkDays = Math.Max(0, payableDaysInMonth - backfillDays - (todayIsPayable ? 1 : 0));
+
         return new SalarySnapshot
         {
             Now = now,
@@ -85,7 +90,8 @@ public sealed class SalaryEngine
             SecondRate = salary.SecondRate,
             NetMonthly = salary.NetMonthly,
             Countdown = dayInfo.Countdown,
-            MonthProgress = monthProgress
+            MonthProgress = monthProgress,
+            RemainingWorkDays = remainingWorkDays
         };
     }
 

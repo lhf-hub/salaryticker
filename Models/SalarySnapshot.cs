@@ -44,4 +44,11 @@ public record SalarySnapshot
 
     /// <summary>本月进度（0-1）</summary>
     public double MonthProgress { get; init; }
+
+    /// <summary>
+    /// 本月剩余的工作日数（**不含今天**）。
+    /// 今天算"正在上的这一天"而不是"还剩的一天"，所以这个数从早到晚不变，
+    /// 只在跨过午夜时减一。
+    /// </summary>
+    public int RemainingWorkDays { get; init; }
 }

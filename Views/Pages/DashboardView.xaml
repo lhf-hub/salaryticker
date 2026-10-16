@@ -47,12 +47,25 @@
                                  Minimum="0" Maximum="1"
                                  Height="10" Margin="0,0,0,8"/>
                     <Grid Margin="0,0,0,14">
-                        <TextBlock Text="本月进度" Style="{StaticResource TextSmall}"/>
-                        <TextBlock Text="{Binding MonthProgressText}"
-                                   Style="{StaticResource TextSmall}"
-                                   HorizontalAlignment="Right"
-                                   FontWeight="SemiBold"
-                                   Foreground="{StaticResource TextPrimaryBrush}"/>
+                        <TextBlock Text="本月进度" Style="{StaticResource TextSmall}"
+                                   VerticalAlignment="Center"/>
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                            <!-- 剩余工作日：日程信息，刻意用珊瑚橘而不是金额薄荷绿 -->
+                            <Border Background="{StaticResource PrimarySoftBrush}"
+                                    CornerRadius="999"
+                                    Padding="9,3"
+                                    Margin="0,0,10,0"
+                                    VerticalAlignment="Center">
+                                <TextBlock Text="{Binding RemainingWorkDaysText}"
+                                           FontSize="11.5"
+                                           Foreground="{StaticResource PrimaryBrush}"/>
+                            </Border>
+                            <TextBlock Text="{Binding MonthProgressText}"
+                                       Style="{StaticResource TextSmall}"
+                                       FontWeight="SemiBold"
+                                       Foreground="{StaticResource TextPrimaryBrush}"
+                                       VerticalAlignment="Center"/>
+                        </StackPanel>
                     </Grid>
 
                     <!-- 计算摘要：圆角小胶囊 -->

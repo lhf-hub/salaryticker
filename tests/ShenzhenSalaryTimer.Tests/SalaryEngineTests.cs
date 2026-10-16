@@ -295,4 +295,114 @@ public class SalaryEngineTests
         Assert.NotNull(snapshot.Countdown);
         Assert.Equal(new TimeSpan(1, 0, 0), snapshot.Countdown.Value); // 距离18:00还有1小时
     }
+
+    // ========== 本月剩余工作日 ==========
+
+    // 测试用的班制是周一至周五 8:00-17:30；节假日被清空、补班日保留默认的 2026 年表，
+    // 其中 1/4（周日）是元旦补班。所以 2026 年 1 月的计薪天数 = 22 个工作日 + 1 天补班。
+    private const int Jan2026PayableDays = 23;
+
+    private static HashSet<DateOnly> DatesOf(List<HolidayEntry> entries)
+    {
+        var set = new HashSet<DateOnly>();
+        foreach (var e in entries) set.Add(e.Date);
+        return set;
+    }
+
+    [Fact]
+    public void ComputeSnapshot_RemainingWorkDays_ExcludesToday()
+    {
+        var settings = CreateTestSettings();
+        var t = new FakeTimeProvider(CreateLocalTime(2026, 1, 15, 10, 0, 0)); // 周四
+
+        // 1/1、1/2、1/4（补班）、1/5~1/9、1/12~1/14 —— 已过 11 个计薪日
+        Assert.Equal(Jan2026PayableDays, WorkTimeCalculator.GetPayableDaysInMonth(
+            2026, 1, settings.Shift, DatesOf(settings.HolidayDates), DatesOf(settings.MakeupWorkDays)));
+
+        var snapshot = new SalaryEngine(t).ComputeSnapshot(t.GetLocalNow(), settings);
+
+        // 23 - 11 已过 - 1 今天 = 11（今天算"正在上的这一天"，不算"还剩的一天"）
+        Assert.Equal(11, snapshot.RemainingWorkDays);
+    }
+
+    [Fact]
+    public void ComputeSnapshot_RemainingWorkDays_SameThroughoutTheDay()
+    {
+        // 上班前、午休中、下班后取到的剩余工作日必须一致 ——
+        // 否则会在上班期间"不知不觉少一天"
+        var settings = CreateTestSettings();
+        var expected = -1;
+
+        foreach (var hour in new[] { 8, 12, 19 })
+        {
+            var t = new FakeTimeProvider(CreateLocalTime(2026, 1, 15, hour, 30, 0));
+            var snapshot = new SalaryEngine(t).ComputeSnapshot(t.GetLocalNow(), settings);
+
+            if (expected < 0) expected = snapshot.RemainingWorkDays;
+            Assert.Equal(expected, snapshot.RemainingWorkDays);
+        }
+
+        Assert.Equal(11, expected);
+    }
+
+    [Fact]
+    public void ComputeSnapshot_RemainingWorkDays_DecrementsNextDay()
+    {
+        var settings = CreateTestSettings();
+
+        var wed = new FakeTimeProvider(CreateLocalTime(2026, 1, 14, 10, 0, 0)); // 周三
+        var thu = new FakeTimeProvider(CreateLocalTime(2026, 1, 15, 10, 0, 0)); // 周四
+
+        var before = new SalaryEngine(wed).ComputeSnapshot(wed.GetLocalNow(), settings);
+        var after = new SalaryEngine(thu).ComputeSnapshot(thu.GetLocalNow(), settings);
+
+        Assert.Equal(before.RemainingWorkDays - 1, after.RemainingWorkDays);
+    }
+
+    [Fact]
+    public void ComputeSnapshot_RemainingWorkDays_OnWeekend_DoesNotSubtractToday()
+    {
+        var settings = CreateTestSettings();
+        var t = new FakeTimeProvider(CreateLocalTime(2026, 1, 10, 10, 0, 0)); // 周六，不计薪
+
+        var snapshot = new SalaryEngine(t).ComputeSnapshot(t.GetLocalNow(), settings);
+
+        // 已过 8 个（1/1、1/2、1/4 补班、1/5~1/9）；今天不计薪，所以不减那一个 1
+        Assert.Equal(Jan2026PayableDays - 8, snapshot.RemainingWorkDays);
+    }
+
+    [Fact]
+    public void ComputeSnapshot_RemainingWorkDays_MakeupDayCountsAsWorkday()
+    {
+        var settings = CreateTestSettings();
+        var t = new FakeTimeProvider(CreateLocalTime(2026, 1, 4, 10, 0, 0)); // 周日，但是元旦补班
+
+        var snapshot = new SalaryEngine(t).ComputeSnapshot(t.GetLocalNow(), settings);
+
+        Assert.Equal(WorkStatus.Earning, snapshot.Status);
+        // 已过 2 个（1/1、1/2）；今天是补班日，按计薪日算，减那一个 1
+        Assert.Equal(Jan2026PayableDays - 3, snapshot.RemainingWorkDays);
+    }
+
+    [Fact]
+    public void ComputeSnapshot_RemainingWorkDays_ZeroOnLastPayableDay()
+    {
+        var settings = CreateTestSettings();
+        var t = new FakeTimeProvider(CreateLocalTime(2026, 1, 30, 19, 0, 0)); // 周五，本月最后一个计薪日
+
+        var snapshot = new SalaryEngine(t).ComputeSnapshot(t.GetLocalNow(), settings);
+
+        Assert.Equal(0, snapshot.RemainingWorkDays);
+    }
+
+    [Fact]
+    public void ComputeSnapshot_RemainingWorkDays_StaysZeroAfterMonthEnd()
+    {
+        var settings = CreateTestSettings();
+        var t = new FakeTimeProvider(CreateLocalTime(2026, 1, 31, 10, 0, 0)); // 周六，本月已走完
+
+        var snapshot = new SalaryEngine(t).ComputeSnapshot(t.GetLocalNow(), settings);
+
+        Assert.Equal(0, snapshot.RemainingWorkDays);
+    }
 }

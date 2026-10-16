@@ -44,6 +44,10 @@ public partial class MainViewModel : ObservableObject
     [ObservableProperty]
     private string _monthProgressText = "0%";
 
+    /// <summary>本月剩余工作日文本（不含今天；走完时给一句收尾话）</summary>
+    [ObservableProperty]
+    private string _remainingWorkDaysText = "";
+
     // ========== 状态显示 ==========
 
     /// <summary>状态文案</summary>
@@ -220,6 +224,9 @@ public partial class MainViewModel : ObservableObject
         HourEarnedText = $"¥{snapshot.HourEarned:N2}";
         MonthProgress = snapshot.MonthProgress;
         MonthProgressText = $"{snapshot.MonthProgress * 100:N1}%";
+        RemainingWorkDaysText = snapshot.RemainingWorkDays > 0
+            ? $"还剩 {snapshot.RemainingWorkDays} 个工作日"
+            : "本月的工作日已走完";
 
         Status = snapshot.Status;
         StatusText = GetStatusText(snapshot.Status, snapshot.IsMuyu);
