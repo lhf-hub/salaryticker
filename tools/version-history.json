@@ -1,6 +1,13 @@
 {
     "versions":  [
                      {
+                         "version":  "1.1.9",
+                         "publishedAt":  "2026-10-16",
+                         "size":  71824017,
+                         "archive":  "SalaryTicker-1.1.9.exe",
+                         "releaseNotes":  "1. 剩余工作日一目了然：「本月进度」旁常驻本月还剩几个工作日（不含今天）\n2. 关于页补充开源许可与第三方组件声明"
+                     },
+                     {
                          "version":  "1.1.8",
                          "publishedAt":  "2026-10-13",
                          "size":  71823249,
