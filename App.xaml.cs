@@ -7,6 +7,7 @@ using System.Threading;
 using System.Windows;
 using SalaryTicker.Dialogs;
 using SalaryTicker.Services;
+using SalaryTicker.ViewModels;
 using SalaryTicker.Views;
 
 namespace SalaryTicker;
@@ -72,6 +73,13 @@ public partial class App : Application
         if (e.Args.Contains("main"))
         {
             ShowSingleWindow(new MainWindow());
+            return;
+        }
+        if (e.Args.Contains("history"))
+        {
+            var main = new MainWindow();
+            main.Loaded += (_, _) => (main.DataContext as MainViewModel)?.ShowHistoryCommand.Execute(null);
+            ShowSingleWindow(main);
             return;
         }
         if (e.Args.Contains("settings"))

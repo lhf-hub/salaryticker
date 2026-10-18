@@ -158,22 +158,20 @@ public partial class MuyuHistoryViewModel : ObservableObject
     private static string GenerateFunnyText(int count, decimal cost)
     {
         if (count == 0)
-            return "今天还没摸鱼，是个好员工！💼";
+            return "今天还没有摸鱼记录。";
 
-        // 按金额换算成真实可买到的东西（约 ¥15~20 一杯奶茶、¥25 一份下午茶、¥30~50 一顿午饭）
+        // 按金额换算成真实购买力，不编造夸张数据。
         var tail = cost switch
         {
-            < 5m   => "一杯水的钱，但也是你的 💧",
-            < 15m  => "够买瓶饮料了 🥤",
-            < 30m  => "相当于老板请你喝了杯奶茶 🧋",
-            < 60m  => "够买一份下午茶了 🍰",
-            < 120m => "够一顿午饭了 🍜",
-            _      => "可以请同事吃顿饭了 🍽️"
+            < 5m   => "大约是一瓶水的钱。",
+            < 15m  => "够买一瓶饮料。",
+            < 30m  => "大约是一杯奶茶的钱。",
+            < 60m  => "够买一份下午茶。",
+            < 120m => "够一顿午饭。",
+            _      => "可以请同事吃顿饭。"
         };
 
-        var fame = count >= 6 ? " 摸鱼界的劳模非你莫属！🏆" : "";
-
-        return $"今天你已经摸鱼 {count} 次，白赚 ¥{cost:N2}，{tail}{fame}";
+        return $"今天摸鱼 {count} 次，白赚 ¥{cost:N2}，{tail}";
     }
 
     /// <summary>
