@@ -15,6 +15,7 @@ using System.Runtime.InteropServices;
 public class MouseHelper {
     [DllImport("user32.dll")] public static extern bool SetCursorPos(int x, int y);
     [DllImport("user32.dll")] public static extern void mouse_event(uint f, uint dx, uint dy, uint d, int e);
+    [DllImport("user32.dll")] public static extern bool SetProcessDPIAware();
     public static void Click(int x, int y) {
         SetCursorPos(x, y);
         System.Threading.Thread.Sleep(200);
@@ -24,6 +25,8 @@ public class MouseHelper {
     }
 }
 '@
+
+[MouseHelper]::SetProcessDPIAware() | Out-Null
 
 if ($Action -eq "click") {
     [MouseHelper]::Click($X, $Y)

@@ -55,6 +55,13 @@
 - 截图：`D:\Data\Coding\demo\_ui-baseline\slice-main.png`。
 - 待用户签字后，再铺设置页、弹窗、迷你窗与官网。
 
+## 设置页切片（2026-10-18）
+
+- `SettingsWindow` 用局部覆盖切到 B：卡片、标题、正文、按钮、左侧导航、TextBox、ComboBox、CheckBox、RadioButton。只影响设置窗口，不改全局样式。
+- 关于页删除 emoji 标题与「写在最后」励志卡，免责只留一次；启动页文案改为「每次启动显示使用提示」；版本号改用墨色（不再用金额绿）。
+- 左侧导航去掉 emoji，选中项用 1px 墨色左边线 + 浅底，不再用胶囊。
+- 已知未迁移：政策页 2 个 `DatePicker` 及其日历弹层（下一轮补）。
+
 ## Phase 0 基线
 
 - `dotnet build`：通过。
