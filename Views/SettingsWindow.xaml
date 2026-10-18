@@ -13,7 +13,7 @@
         mc:Ignorable="d"
         Title="设置 - SalaryTicker"
         Width="960" Height="720"
-        MinWidth="820" MinHeight="600"
+        MinWidth="820" MinHeight="480"
         WindowStartupLocation="CenterOwner"
         Background="{StaticResource BgPageBrush}">
 

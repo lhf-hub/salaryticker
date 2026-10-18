@@ -21,8 +21,6 @@ public partial class MainWindow : Window
     {
         InitializeComponent();
 
-        FitToScreen();
-
         _viewModel = new MainViewModel();
         DataContext = _viewModel;
 
@@ -42,15 +40,7 @@ public partial class MainWindow : Window
     /// </summary>
     private void FitToScreen()
     {
-        var work = SystemParameters.WorkArea;
-
-        // 留出一点屏幕边距，视觉更舒服
-        Width = Math.Min(Width, work.Width - 40);
-        Height = Math.Min(Height, work.Height - 40);
-
-        // 居中显示
-        Left = work.Left + (work.Width - Width) / 2;
-        Top = work.Top + (work.Height - Height) / 2;
+        WindowFit.Fit(this);
     }
 
     /// <summary>
@@ -58,6 +48,7 @@ public partial class MainWindow : Window
     /// </summary>
     private void OnLoaded(object sender, RoutedEventArgs e)
     {
+        FitToScreen();
         _viewModel.Start();
 
         // 异步检查更新：不阻塞启动，失败静默（内部已 try/catch）

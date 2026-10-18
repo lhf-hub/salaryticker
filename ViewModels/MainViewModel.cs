@@ -48,11 +48,26 @@ public partial class MainViewModel : ObservableObject
     [ObservableProperty]
     private string _remainingWorkDaysText = "";
 
+    /// <summary>月份上下文（如「2026 年 10 月」）</summary>
+    [ObservableProperty]
+    private string _monthContextText = "";
+
+    /// <summary>计薪天数上下文（如「18 个计薪日」）</summary>
+    [ObservableProperty]
+    private string _payDaysContextText = "";
+
+    /// <summary>本月进度刻度（每格一个计薪日）</summary>
+    public ObservableCollection<PayDayTick> PayDayTicks { get; } = new();
+
     // ========== 状态显示 ==========
 
     /// <summary>状态文案</summary>
     [ObservableProperty]
     private string _statusText = "正在加载…";
+
+    /// <summary>状态短文案（台账行使用，不带 emoji/口号）</summary>
+    [ObservableProperty]
+    private string _statusShortText = "";
 
     /// <summary>倒计时文本</summary>
     [ObservableProperty]
@@ -69,6 +84,18 @@ public partial class MainViewModel : ObservableObject
     /// <summary>工资计算摘要（如 "税后 ¥15,764.00 · 日薪 ¥724.78"）</summary>
     [ObservableProperty]
     private string _salarySummary = "";
+
+    /// <summary>税后月薪文本（台账行）</summary>
+    [ObservableProperty]
+    private string _afterTaxMonthlyText = "¥0.00";
+
+    /// <summary>日薪文本（台账行）</summary>
+    [ObservableProperty]
+    private string _dailyRateText = "¥0.00";
+
+    /// <summary>秒薪文本（台账行）</summary>
+    [ObservableProperty]
+    private string _secondRateText = "¥0.0000";
 
     // ========== 动画与页面切换 ==========
 
@@ -118,9 +145,13 @@ public partial class MainViewModel : ObservableObject
     [ObservableProperty]
     private bool _isMuyuEnabled;
 
-    /// <summary>工作状态变化时同步摸鱼按钮可用性（单一数据源，不依赖 ApplySnapshot 的调用顺序）</summary>
+    /// <summary>工作状态变化时同步摸鱼按钮可用性与禁用说明（单一数据源，不依赖 ApplySnapshot 的调用顺序）</summary>
     partial void OnStatusChanged(WorkStatus value)
-        => IsMuyuEnabled = value == WorkStatus.Earning;
+    {
+        IsMuyuEnabled = value == WorkStatus.Earning;
+        OnPropertyChanged(nameof(MuyuDisabledHint));
+        OnPropertyChanged(nameof(MuyuDisabledShortHint));
+    }
 
     /// <summary>不可摸鱼时展示的说明文案</summary>
     public string MuyuDisabledHint => Status switch
@@ -131,9 +162,25 @@ public partial class MainViewModel : ObservableObject
         _ => "还没到上班时间，先忙点自己的事吧 ☕"
     };
 
+    /// <summary>不可摸鱼时的短说明（台账行使用，不带 emoji）</summary>
+    public string MuyuDisabledShortHint => Status switch
+    {
+        WorkStatus.LunchBreak => "午休时间不算摸鱼，这是你应得的休息。",
+        WorkStatus.OffWork => "已经下班，这段时间属于你。",
+        WorkStatus.ForcedRest => "今天休息，不计工资，也没有摸鱼。",
+        _ => "还没到上班时间，先忙自己的事。"
+    };
+
+    /// <summary>摸鱼中的短状态（台账行使用，不带 emoji）</summary>
+    [ObservableProperty]
+    private string _muyuStatusShortText = "";
+
     /// <summary>状态变化时一并刷新禁用文案</summary>
     partial void OnIsMuyuEnabledChanged(bool value)
-        => OnPropertyChanged(nameof(MuyuDisabledHint));
+    {
+        OnPropertyChanged(nameof(MuyuDisabledHint));
+        OnPropertyChanged(nameof(MuyuDisabledShortHint));
+    }
 
     // ========== 依赖 ==========
 
@@ -224,16 +271,21 @@ public partial class MainViewModel : ObservableObject
         HourEarnedText = $"¥{snapshot.HourEarned:N2}";
         MonthProgress = snapshot.MonthProgress;
         MonthProgressText = $"{snapshot.MonthProgress * 100:N1}%";
-        RemainingWorkDaysText = snapshot.RemainingWorkDays > 0
-            ? $"还剩 {snapshot.RemainingWorkDays} 个工作日"
-            : "本月的工作日已走完";
+        RemainingWorkDaysText = $"{snapshot.RemainingWorkDays} 天";
+        MonthContextText = $"{snapshot.Now.Year} 年 {snapshot.Now.Month} 月";
+        PayDaysContextText = $"{snapshot.PayableDaysInMonth} 个计薪日";
+        UpdatePayDayTicks(snapshot);
 
         Status = snapshot.Status;
         StatusText = GetStatusText(snapshot.Status, snapshot.IsMuyu);
+        StatusShortText = GetStatusShortText(snapshot.Status, snapshot.IsMuyu);
         UpdateCountdown(snapshot);
 
         // 「本月日薪」按当月实际计薪天数摊平，和上面的「本月已赚」同一口径
         SalarySummary = $"税后 ¥{snapshot.NetMonthly:N2} · 本月日薪 ¥{snapshot.DailyRate:N2} · 秒薪 ¥{snapshot.SecondRate:N4}";
+        AfterTaxMonthlyText = $"¥{snapshot.NetMonthly:N2}";
+        DailyRateText = $"¥{snapshot.DailyRate:N2}";
+        SecondRateText = $"¥{snapshot.SecondRate:N4}";
 
         // 挂机时也要能收到新版本提示
         MaybeCheckUpdatePeriodically(snapshot.Now);
@@ -276,6 +328,44 @@ public partial class MainViewModel : ObservableObject
     }
 
     /// <summary>
+    /// 状态短文案（台账行使用，去掉 emoji 与口号）
+    /// </summary>
+    private static string GetStatusShortText(WorkStatus status, bool isMuyu)
+    {
+        if (isMuyu && status == WorkStatus.Earning)
+            return "摸鱼中";
+
+        return status switch
+        {
+            WorkStatus.NotStarted => "未上班",
+            WorkStatus.Earning => "工作中",
+            WorkStatus.LunchBreak => "午休",
+            WorkStatus.OffWork => "已下班",
+            WorkStatus.ForcedRest => "强制休息",
+            _ => ""
+        };
+    }
+
+    /// <summary>
+    /// 更新本月进度刻度。格数 = 当月计薪天数；只在已填格数变化时重建集合，
+    /// 避免每秒都触发 18 次 UI 更新。
+    /// </summary>
+    private void UpdatePayDayTicks(SalarySnapshot snapshot)
+    {
+        var total = snapshot.PayableDaysInMonth;
+        var filled = total > 0
+            ? Math.Clamp((int)Math.Floor(snapshot.MonthProgress * total), 0, total)
+            : 0;
+
+        if (PayDayTicks.Count == total && PayDayTicks.Count(t => t.IsFilled) == filled)
+            return;
+
+        PayDayTicks.Clear();
+        for (var i = 0; i < total; i++)
+            PayDayTicks.Add(new PayDayTick(i < filled));
+    }
+
+    /// <summary>
     /// 更新倒计时
     /// </summary>
     private void UpdateCountdown(SalarySnapshot snapshot)
@@ -287,7 +377,7 @@ public partial class MainViewModel : ObservableObject
             return;
         }
 
-        CountdownLabel = snapshot.Status == WorkStatus.NotStarted ? "距离上班" : "距离下班";
+        CountdownLabel = snapshot.Status == WorkStatus.NotStarted ? "距上班" : "距下班";
         CountdownText = CountdownFormatter.Format(snapshot.Countdown.Value);
     }
 
@@ -326,6 +416,7 @@ public partial class MainViewModel : ObservableObject
 
             IsMuyuRunning = true;
             MuyuStatusText = $"🐟 {update.Session.Label} 中 · {button.ElapsedText} · 白赚 {button.CostText}";
+            MuyuStatusShortText = $"{update.Session.Label}中，{button.ElapsedText}，白赚 {button.CostText}";
         });
     }
 
@@ -345,6 +436,7 @@ public partial class MainViewModel : ObservableObject
             }
             IsMuyuRunning = false;
             MuyuStatusText = "";
+            MuyuStatusShortText = "";
         });
     }
 

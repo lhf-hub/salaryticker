@@ -12,6 +12,8 @@
                 <ResourceDictionary Source="Resources/Styles.xaml"/>
                 <ResourceDictionary Source="Resources/Controls.xaml"/>
                 <ResourceDictionary Source="Resources/Icons.xaml"/>
+                <!-- 实验：B 流水台账主题（只加 key，旧界面不受影响） -->
+                <ResourceDictionary Source="Resources/BTheme.xaml"/>
             </ResourceDictionary.MergedDictionaries>
 
             <!-- 全局转换器 -->

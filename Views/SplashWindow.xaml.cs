@@ -21,7 +21,7 @@ public partial class SplashWindow : Window
     {
         InitializeComponent();
 
-        FitToScreen();
+        Loaded += (_, _) => FitToScreen();
 
         ViewModel = (SplashViewModel)DataContext;
     }
@@ -31,12 +31,6 @@ public partial class SplashWindow : Window
     /// </summary>
     private void FitToScreen()
     {
-        var work = SystemParameters.WorkArea;
-
-        Width = Math.Min(Width, work.Width - 40);
-        Height = Math.Min(Height, work.Height - 40);
-
-        Left = work.Left + (work.Width - Width) / 2;
-        Top = work.Top + (work.Height - Height) / 2;
+        WindowFit.Fit(this);
     }
 }

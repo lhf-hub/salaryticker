@@ -40,10 +40,20 @@
 ## WPF 保真 spike（2026-10-18）
 
 - B 方向可行：Segoe UI + `Typography.NumeralAlignment="Tabular"` 在 24px 样本下宽度差 **0.00 px**（`1111111111` vs `0000000000`）。
-- **本机实际 DPI = 125%**（PixelsPerDip 1.25，屏幕 1536×864），不是之前假设的 100%。`tools/capwin.ps1` 已改为 DPI 感知，后续截图是全分辨率；Phase 0 的旧基线截图是在未声明 DPI 感知时采集的（虚拟坐标），对比时以新截图为准。
+- **本机实际 DPI = 125%**（PixelsPerDip 1.25；物理屏幕 1920×1080，工作区 1920×1020，逻辑 1536×816），不是之前假设的 100%。`tools/capwin.ps1` 已改为 DPI 感知，后续截图是全分辨率；Phase 0 的旧基线截图是在未声明 DPI 感知时采集的（虚拟坐标），对比时以新截图为准。
 - 1 DIP 规则线可渲染；focus ring 采用「Style 包 Control.Template」的写法，静态样张已验证；真实键盘焦点仍需在 Phase 2 用 Tab 实测。
 - 1100×640 的 spike 在 125% 下仍超出逻辑工作区（约 691 DIP 高），说明 **FitToScreen / 降低最小高度是 Phase 2 的硬前置**。
 - spike 窗口：`Views/DesignSpikeWindow.xaml`，启动 `dotnet run -- spike`；截图 `D:\Data\Coding\demo\_ui-baseline\spike.png`。
+
+## Dashboard 纵向切片（2026-10-18）
+
+- 主窗壳层 + Dashboard 已切到 B：去掉卡片堆叠、渐变、emoji 装饰，改为台账行、双线总额、进度刻度、状态点。
+- 新增 `Resources/BTheme.xaml`（只加 key，旧界面不受影响）；`MainWindow` 与 `DashboardView` 使用 BTheme。
+- 进度刻度：`SalarySnapshot.PayableDaysInMonth` + `MainViewModel.PayDayTicks`；格数 = 当月计薪天数，已填格数按进度向下取整。
+- 文案：新增 `StatusShortText`、`MuyuStatusShortText`、`MuyuDisabledShortHint`；倒计时统一为「距上班/距下班」；`RemainingWorkDaysText` 改为「N 天」。
+- `WindowFit`：按显示器工作区 ÷ 实际缩放限制窗口。主窗在 125% 下为 1180×768 DIPs（1475×960 物理），完整落在屏幕内；已接入 Main/Settings/Splash/Gallery。
+- 截图：`D:\Data\Coding\demo\_ui-baseline\slice-main.png`。
+- 待用户签字后，再铺设置页、弹窗、迷你窗与官网。
 
 ## Phase 0 基线
 

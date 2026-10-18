@@ -15,9 +15,9 @@
         mc:Ignorable="d"
         Title="SalaryTicker - 实时计算器"
         Width="1180" Height="880"
-        MinWidth="900" MinHeight="600"
+        MinWidth="900" MinHeight="480"
         WindowStartupLocation="CenterScreen"
-        Background="{StaticResource BgPageBrush}">
+        Background="{StaticResource BPaperBrush}">
 
     <Grid>
         <Grid.RowDefinitions>
@@ -28,10 +28,10 @@
 
         <!-- ══════════ 顶部工具栏 ══════════ -->
         <Border Grid.Row="0"
-                Background="{StaticResource CardBrush}"
-                BorderBrush="{StaticResource BorderLineBrush}"
+                Background="{StaticResource BPaperBrush}"
+                BorderBrush="{StaticResource BRuleBrush}"
                 BorderThickness="0,0,0,1"
-                Padding="24,14">
+                Padding="28,12">
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto"/>
@@ -39,50 +39,70 @@
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
 
-                <!-- 左侧：Logo -->
+                <!-- 左侧：品牌与状态 -->
                 <StackPanel Grid.Column="0" Orientation="Horizontal">
-                    <Border Width="36" Height="36" CornerRadius="12"
-                            Background="{StaticResource PrimarySoftBrush}">
-                        <TextBlock Text="💰" FontSize="19"
+                    <Border Width="28" Height="28" CornerRadius="2"
+                            Background="{StaticResource BInkBrush}"
+                            VerticalAlignment="Center">
+                        <TextBlock Text="¥" FontSize="14" FontWeight="Bold"
+                                   Foreground="{StaticResource BPaperBrush}"
                                    HorizontalAlignment="Center" VerticalAlignment="Center"/>
                     </Border>
-                    <TextBlock Text="SalaryTicker" FontSize="19" FontWeight="Bold"
-                               Foreground="{StaticResource TextPrimaryBrush}"
-                               VerticalAlignment="Center" Margin="10,0,0,0"/>
-                    <Border Background="{StaticResource MoneySoftBrush}"
-                            CornerRadius="999" Padding="10,4" Margin="10,0,0,0"
-                            VerticalAlignment="Center">
-                        <TextBlock Text="实时计算中" FontSize="11"
-                                   Foreground="{StaticResource MoneyBrush}"/>
-                    </Border>
+                    <TextBlock Text="SalaryTicker" FontSize="17" FontWeight="SemiBold"
+                               Foreground="{StaticResource BInkBrush}"
+                               VerticalAlignment="Center" Margin="9,0,0,0"/>
+                    <TextBlock Text="实时计算器" FontSize="11"
+                               Foreground="{StaticResource BMutedBrush}"
+                               VerticalAlignment="Center" Margin="8,2,0,0"/>
+                    <StackPanel Orientation="Horizontal" Margin="18,0,0,0" VerticalAlignment="Center">
+                        <Ellipse Style="{StaticResource BStatusDotStyle}" Margin="0,0,6,0"/>
+                        <TextBlock Text="{Binding StatusShortText}"
+                                   FontSize="12"
+                                   Foreground="{StaticResource BInkBrush}"
+                                   VerticalAlignment="Center"/>
+                    </StackPanel>
                 </StackPanel>
 
                 <!-- 右侧：功能按钮 -->
                 <StackPanel Grid.Column="2" Orientation="Horizontal">
-                    <Button Style="{StaticResource ButtonGhost}"
+                    <Button Style="{StaticResource BTopButtonStyle}"
                             Command="{Binding ShowHistoryCommand}"
-                            Margin="0,0,8,0" Padding="16,8">
+                            Margin="0,0,2,0">
                         <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="🐟" FontSize="14" VerticalAlignment="Center"/>
-                            <TextBlock Text="摸鱼统计" Margin="7,0,0,0" VerticalAlignment="Center"/>
+                            <Path Data="{StaticResource IconHistory}"
+                                  Fill="{StaticResource BMutedBrush}"
+                                  Width="16" Height="16" Stretch="Uniform"
+                                  VerticalAlignment="Center"/>
+                            <TextBlock Text="摸鱼统计" FontSize="13"
+                                       Foreground="{StaticResource BInkBrush}"
+                                       Margin="6,0,0,0" VerticalAlignment="Center"/>
                         </StackPanel>
                     </Button>
 
-                    <Button Style="{StaticResource ButtonGhost}"
+                    <Button Style="{StaticResource BTopButtonStyle}"
                             Command="{Binding ToggleMiniWindowCommand}"
-                            Margin="0,0,8,0" Padding="16,8">
+                            Margin="0,0,2,0">
                         <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="🪟" FontSize="14" VerticalAlignment="Center"/>
-                            <TextBlock Text="迷你窗" Margin="7,0,0,0" VerticalAlignment="Center"/>
+                            <Path Data="{StaticResource IconMiniWindow}"
+                                  Fill="{StaticResource BMutedBrush}"
+                                  Width="16" Height="16" Stretch="Uniform"
+                                  VerticalAlignment="Center"/>
+                            <TextBlock Text="迷你窗" FontSize="13"
+                                       Foreground="{StaticResource BInkBrush}"
+                                       Margin="6,0,0,0" VerticalAlignment="Center"/>
                         </StackPanel>
                     </Button>
 
-                    <Button Style="{StaticResource ButtonGhost}"
-                            Command="{Binding OpenSettingsCommand}"
-                            Padding="16,8">
+                    <Button Style="{StaticResource BTopButtonStyle}"
+                            Command="{Binding OpenSettingsCommand}">
                         <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="⚙️" FontSize="14" VerticalAlignment="Center"/>
-                            <TextBlock Text="设置" Margin="7,0,0,0" VerticalAlignment="Center"/>
+                            <Path Data="{StaticResource IconSettings}"
+                                  Fill="{StaticResource BMutedBrush}"
+                                  Width="16" Height="16" Stretch="Uniform"
+                                  VerticalAlignment="Center"/>
+                            <TextBlock Text="设置" FontSize="13"
+                                       Foreground="{StaticResource BInkBrush}"
+                                       Margin="6,0,0,0" VerticalAlignment="Center"/>
                         </StackPanel>
                     </Button>
                 </StackPanel>

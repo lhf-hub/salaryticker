@@ -1,7 +1,7 @@
 <!-- ============================================================================
      文件名：DashboardView.xaml
-     功能描述：主仪表盘（本月已赚大数字 + 今日/小时 + 倒计时 + 摸鱼按钮）
-     暖阳浅色 · 简约 Q 感：白卡片、大圆角、薄荷绿金额、蜜桃橙摸鱼
+     功能描述：B 流水台账方向的 Dashboard 纵向切片
+     结构：月份上下文 → 总额双线 → 本月台账 → 今日 → 状态 → 摸鱼 → 免责
      ============================================================================ -->
 <UserControl x:Class="SalaryTicker.Views.Pages.DashboardView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
@@ -12,228 +12,245 @@
              d:DataContext="{d:DesignInstance Type=vm:MainViewModel}"
              mc:Ignorable="d">
 
-    <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="24,20,24,20">
+    <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="32,18,32,10">
         <StackPanel>
 
-            <!-- ══════════ 大卡片：本月已赚 ══════════ -->
-            <Border Style="{StaticResource Card}" Padding="28,24" Margin="0,0,0,14">
-                <StackPanel>
-                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                        <TextBlock Text="🌱" FontSize="15" VerticalAlignment="Center"/>
-                        <TextBlock Text="本月已赚" Style="{StaticResource TextLabel}"
-                                   Margin="7,0,0,0" VerticalAlignment="Center" FontSize="14"/>
-                    </StackPanel>
+            <!-- 月份上下文 -->
+            <DockPanel LastChildFill="False">
+                <TextBlock DockPanel.Dock="Left"
+                           Text="{Binding MonthContextText}"
+                           Style="{StaticResource BLabelStyle}"/>
+                <TextBlock DockPanel.Dock="Right"
+                           Text="{Binding PayDaysContextText}"
+                           Style="{StaticResource BLabelStyle}"/>
+            </DockPanel>
 
-                    <!-- 大数字：薄荷绿 + 每秒脉冲变亮 -->
-                    <TextBlock x:Name="MonthEarnedBlock"
-                               Text="{Binding MonthEarnedText}"
-                               Style="{StaticResource NumberHuge}"
-                               Margin="0,10,0,14"
-                               HorizontalAlignment="Center">
-                        <TextBlock.Triggers>
-                            <EventTrigger RoutedEvent="Binding.TargetUpdated">
-                                <BeginStoryboard>
-                                    <Storyboard>
-                                        <ColorAnimation Storyboard.TargetProperty="(TextBlock.Foreground).(SolidColorBrush.Color)"
-                                                        To="#34D399" Duration="0:0:0.09" AutoReverse="True"/>
-                                    </Storyboard>
-                                </BeginStoryboard>
-                            </EventTrigger>
-                        </TextBlock.Triggers>
-                    </TextBlock>
+            <!-- 总额 -->
+            <DockPanel LastChildFill="False" Margin="0,14,0,0">
+                <TextBlock DockPanel.Dock="Left"
+                           Text="本月已赚"
+                           FontSize="14"
+                           Foreground="{StaticResource BMutedBrush}"
+                           VerticalAlignment="Bottom"
+                           Margin="0,0,0,7"/>
+                <TextBlock DockPanel.Dock="Right"
+                           Text="{Binding MonthEarnedText}"
+                           Style="{StaticResource BHeroAmountStyle}"/>
+            </DockPanel>
 
-                    <!-- 本月进度 -->
-                    <ProgressBar Value="{Binding MonthProgress, Mode=OneWay}"
-                                 Minimum="0" Maximum="1"
-                                 Height="10" Margin="0,0,0,8"/>
-                    <Grid Margin="0,0,0,14">
-                        <TextBlock Text="本月进度" Style="{StaticResource TextSmall}"
-                                   VerticalAlignment="Center"/>
-                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                            <!-- 剩余工作日：日程信息，刻意用珊瑚橘而不是金额薄荷绿 -->
-                            <Border Background="{StaticResource PrimarySoftBrush}"
-                                    CornerRadius="999"
-                                    Padding="9,3"
-                                    Margin="0,0,10,0"
-                                    VerticalAlignment="Center">
-                                <TextBlock Text="{Binding RemainingWorkDaysText}"
-                                           FontSize="11.5"
-                                           Foreground="{StaticResource PrimaryBrush}"/>
-                            </Border>
-                            <TextBlock Text="{Binding MonthProgressText}"
-                                       Style="{StaticResource TextSmall}"
-                                       FontWeight="SemiBold"
-                                       Foreground="{StaticResource TextPrimaryBrush}"
-                                       VerticalAlignment="Center"/>
-                        </StackPanel>
-                    </Grid>
+            <!-- 双线收总额 -->
+            <StackPanel Margin="0,12,0,0">
+                <Border Height="1" Background="{StaticResource BInkBrush}"/>
+                <Border Height="1" Background="{StaticResource BInkBrush}" Margin="0,4,0,0"/>
+            </StackPanel>
 
-                    <!-- 计算摘要：圆角小胶囊 -->
-                    <Border Background="{StaticResource BgSubtleBrush}"
-                            CornerRadius="999"
-                            Padding="16,8"
-                            HorizontalAlignment="Center">
-                        <TextBlock Text="{Binding SalarySummary}"
-                                   Style="{StaticResource TextSmall}"
-                                   Foreground="{StaticResource TextSecondaryBrush}"/>
-                    </Border>
-                </StackPanel>
-            </Border>
+            <!-- 本月台账 -->
+            <StackPanel Margin="0,10,0,0">
+                <TextBlock Text="本月" Style="{StaticResource BSectionTitleStyle}"/>
 
-            <!-- ══════════ 两个中卡片：今日已赚 | 当前小时已赚 ══════════ -->
-            <Grid Margin="0,0,0,14">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="14"/>
-                    <ColumnDefinition Width="*"/>
-                </Grid.ColumnDefinitions>
-
-                <Border Grid.Column="0" Style="{StaticResource Card}" Padding="24,18">
-                    <StackPanel>
-                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                            <TextBlock Text="☀️" FontSize="14" VerticalAlignment="Center"/>
-                            <TextBlock Text="今日已赚" Style="{StaticResource TextLabel}"
-                                       Margin="6,0,0,0" VerticalAlignment="Center"/>
-                        </StackPanel>
-                        <TextBlock Text="{Binding TodayEarnedText}"
-                                   Style="{StaticResource NumberLarge}"
-                                   Margin="0,8,0,0"
-                                   Foreground="{StaticResource MoneyBrush}"
-                                   HorizontalAlignment="Center"/>
-                    </StackPanel>
-                </Border>
-
-                <Border Grid.Column="2" Style="{StaticResource Card}" Padding="24,18">
-                    <StackPanel>
-                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                            <TextBlock Text="⏱️" FontSize="14" VerticalAlignment="Center"/>
-                            <TextBlock Text="当前小时已赚" Style="{StaticResource TextLabel}"
-                                       Margin="6,0,0,0" VerticalAlignment="Center"/>
-                        </StackPanel>
-                        <TextBlock Text="{Binding HourEarnedText}"
-                                   Style="{StaticResource NumberMedium}"
-                                   Margin="0,10,0,0"
-                                   Foreground="{StaticResource MoneyBrush}"
-                                   HorizontalAlignment="Center"/>
-                    </StackPanel>
-                </Border>
-            </Grid>
-
-            <!-- ══════════ 状态 + 倒计时 ══════════ -->
-            <Border Style="{StaticResource Card}" Padding="24,18" Margin="0,0,0,14">
-                <Grid>
+                <Grid MinHeight="30">
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto"/>
                         <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
-
-                    <!-- 倒计时 -->
-                    <StackPanel Grid.Column="0" MinWidth="150">
-                        <TextBlock Text="{Binding CountdownLabel}" Style="{StaticResource TextSmall}"/>
-                        <TextBlock Text="{Binding CountdownText}"
-                                   FontFamily="{StaticResource FontFamilyNumber}"
-                                   FontSize="30" FontWeight="Bold"
-                                   Foreground="{StaticResource PrimaryBrush}"
-                                   Margin="0,4,0,0"/>
+                    <TextBlock Text="本月进度" Style="{StaticResource BRowLabelStyle}"/>
+                    <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                        <ItemsControl ItemsSource="{Binding PayDayTicks}" Width="220" VerticalAlignment="Center">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <UniformGrid Rows="1"/>
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Border Height="4" Margin="1,0">
+                                        <Border.Style>
+                                            <Style TargetType="Border">
+                                                <Setter Property="Background" Value="{StaticResource BRuleBrush}"/>
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding IsFilled}" Value="True">
+                                                        <Setter Property="Background" Value="{StaticResource BGreenBrush}"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Border.Style>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                        <TextBlock Text="{Binding MonthProgressText}"
+                                   Style="{StaticResource BRowValueStyle}"
+                                   Margin="12,0,0,0"/>
                     </StackPanel>
-
-                    <!-- 状态文案 -->
-                    <Border Grid.Column="1"
-                            Background="{StaticResource MoneySoftBrush}"
-                            CornerRadius="999"
-                            Padding="20,12"
-                            HorizontalAlignment="Right"
-                            VerticalAlignment="Center">
-                        <TextBlock Text="{Binding StatusText}"
-                                   FontSize="15"
-                                   FontWeight="SemiBold"
-                                   Foreground="{StaticResource MoneyBrush}"/>
-                    </Border>
                 </Grid>
-            </Border>
 
-            <!-- ══════════ 摸鱼区 ══════════ -->
-            <Border Style="{StaticResource Card}" Padding="24,18"
-                    Visibility="{Binding IsMuyuVisible, Converter={StaticResource BoolToVisibility}}">
-                <StackPanel>
-                    <StackPanel Orientation="Horizontal" Margin="0,0,0,14">
-                        <TextBlock Text="🐟" FontSize="15" VerticalAlignment="Center"/>
-                        <TextBlock Text="摸鱼一下" Style="{StaticResource TextLabel}"
-                                   Margin="7,0,0,0" VerticalAlignment="Center" FontSize="14"/>
-                        <TextBlock Text="工资照常涨，只是看看花了老板多少钱"
-                                   Style="{StaticResource TextSmall}"
-                                   Margin="10,0,0,0" VerticalAlignment="Center"/>
-                    </StackPanel>
+                <Grid MinHeight="30" Margin="0,2,0,0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Text="还剩工作日" Style="{StaticResource BRowLabelStyle}"/>
+                    <TextBlock Grid.Column="1" Text="{Binding RemainingWorkDaysText}" Style="{StaticResource BRowValueStyle}"/>
+                </Grid>
 
-                    <!-- 摸鱼状态气泡 -->
-                    <Border Background="{StaticResource WarnSoftBrush}"
-                            CornerRadius="16"
-                            Padding="16,10"
-                            Margin="0,0,0,14"
-                            Visibility="{Binding IsMuyuRunning, Converter={StaticResource BoolToVisibility}}">
-                        <TextBlock Text="{Binding MuyuStatusText}"
-                                   Foreground="#8A5A2B"
-                                   FontSize="14"
-                                   FontWeight="SemiBold"/>
-                    </Border>
+                <Grid MinHeight="30" Margin="0,2,0,0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Text="税后月薪" Style="{StaticResource BRowLabelStyle}"/>
+                    <TextBlock Grid.Column="1" Text="{Binding AfterTaxMonthlyText}" Style="{StaticResource BRowValueStyle}"/>
+                </Grid>
 
-                    <!-- 非工作时段禁用提示：这段时间本来就归你 -->
-                    <Border Background="{StaticResource InfoSoftBrush}"
-                            CornerRadius="16"
-                            Padding="16,10"
-                            Margin="0,0,0,14"
-                            Visibility="{Binding IsMuyuEnabled, Converter={StaticResource InverseBoolToVisibility}}">
-                        <TextBlock Text="{Binding MuyuDisabledHint}"
-                                   Foreground="{StaticResource InfoBrush}"
+                <Grid MinHeight="30" Margin="0,2,0,0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Text="日薪" Style="{StaticResource BRowLabelStyle}"/>
+                    <TextBlock Grid.Column="1" Text="{Binding DailyRateText}" Style="{StaticResource BRowValueStyle}"/>
+                </Grid>
+
+                <Grid MinHeight="30" Margin="0,2,0,0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Text="秒薪" Style="{StaticResource BRowLabelStyle}"/>
+                    <TextBlock Grid.Column="1" Text="{Binding SecondRateText}" Style="{StaticResource BRowValueStyle}"/>
+                </Grid>
+            </StackPanel>
+
+            <Border Height="1" Background="{StaticResource BRuleBrush}" Margin="0,8,0,0"/>
+
+            <!-- 今日 -->
+            <StackPanel Margin="0,8,0,0">
+                <TextBlock Text="今日" Style="{StaticResource BSectionTitleStyle}"/>
+                <Grid MinHeight="30" Margin="0,2,0,0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Text="今日已赚" Style="{StaticResource BRowLabelStyle}"/>
+                    <TextBlock Grid.Column="1" Text="{Binding TodayEarnedText}" Style="{StaticResource BRowValueStyle}"/>
+                </Grid>
+                <Grid MinHeight="30" Margin="0,2,0,0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Text="当前小时已赚" Style="{StaticResource BRowLabelStyle}"/>
+                    <TextBlock Grid.Column="1" Text="{Binding HourEarnedText}" Style="{StaticResource BRowValueStyle}"/>
+                </Grid>
+            </StackPanel>
+
+            <Border Height="1" Background="{StaticResource BRuleBrush}" Margin="0,8,0,0"/>
+
+            <!-- 状态 -->
+            <StackPanel Margin="0,8,0,0">
+                <TextBlock Text="状态" Style="{StaticResource BSectionTitleStyle}"/>
+                <Grid MinHeight="30" Margin="0,2,0,0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Text="工作状态" Style="{StaticResource BRowLabelStyle}"/>
+                    <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                        <Ellipse Style="{StaticResource BStatusDotStyle}" Margin="0,0,7,0"/>
+                        <TextBlock Text="{Binding StatusShortText}"
                                    FontSize="14"
                                    FontWeight="SemiBold"
-                                   TextWrapping="Wrap"/>
-                    </Border>
+                                   Foreground="{StaticResource BInkBrush}"
+                                   VerticalAlignment="Center"/>
+                    </StackPanel>
+                </Grid>
+                <Grid MinHeight="30" Margin="0,2,0,0">
+                    <Grid.Style>
+                        <Style TargetType="Grid">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding CountdownText}" Value="">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Grid.Style>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Text="{Binding CountdownLabel}" Style="{StaticResource BRowLabelStyle}"/>
+                    <TextBlock Grid.Column="1"
+                               Text="{Binding CountdownText}"
+                               Style="{StaticResource BRowValueStyle}"
+                               FontSize="18"/>
+                </Grid>
+            </StackPanel>
 
-                    <!-- 摸鱼按钮（蜜桃橙胶囊；非工作时段禁用） -->
-                    <ItemsControl ItemsSource="{Binding MuyuButtons}">
-                        <ItemsControl.ItemsPanel>
-                            <ItemsPanelTemplate>
-                                <WrapPanel/>
-                            </ItemsPanelTemplate>
-                        </ItemsControl.ItemsPanel>
-                        <ItemsControl.ItemTemplate>
-                            <DataTemplate>
-                                <Button Style="{StaticResource ButtonMuyu}"
-                                        IsEnabled="{Binding DataContext.IsMuyuEnabled,
-                                                    RelativeSource={RelativeSource AncestorType=ItemsControl}}"
-                                        Command="{Binding DataContext.MuyuClickCommand,
-                                                  RelativeSource={RelativeSource AncestorType=ItemsControl}}"
-                                        CommandParameter="{Binding}"
-                                        Margin="0,0,12,10">
-                                    <StackPanel Orientation="Horizontal">
-                                        <TextBlock Text="{Binding DisplayText}" FontSize="15" VerticalAlignment="Center"/>
-                                        <Border Background="#33FFFFFF"
-                                                CornerRadius="999"
-                                                Padding="8,3"
-                                                Margin="10,0,0,0"
-                                                VerticalAlignment="Center"
-                                                Visibility="{Binding IsRunning, Converter={StaticResource BoolToVisibility}}">
-                                            <TextBlock FontSize="12" Foreground="#8A5A2B">
-                                                <Run Text="{Binding ElapsedText, Mode=OneWay}"/>
-                                                <Run Text=" · "/>
-                                                <Run Text="{Binding CostText, Mode=OneWay}"/>
-                                            </TextBlock>
-                                        </Border>
-                                    </StackPanel>
-                                </Button>
-                            </DataTemplate>
-                        </ItemsControl.ItemTemplate>
-                    </ItemsControl>
-                </StackPanel>
-            </Border>
+            <!-- 摸鱼 -->
+            <StackPanel Margin="0,8,0,0"
+                        Visibility="{Binding IsMuyuVisible, Converter={StaticResource BoolToVisibility}}">
+                <Border Height="1" Background="{StaticResource BRuleBrush}" Margin="0,0,0,8"/>
+                <TextBlock Text="摸鱼" Style="{StaticResource BSectionTitleStyle}"/>
 
-            <!-- ══════════ 底部提示 ══════════ -->
-            <TextBlock Text="Lee 老师倡导按法休息：不恶意内卷、不形式加班，节假日系统强制休息，不计工资与加班费。结果仅供参考，以实际工资条为准。"
-                       Style="{StaticResource TextSmall}"
+                <TextBlock Text="{Binding MuyuStatusShortText}"
+                           FontSize="12"
+                           Foreground="{StaticResource BWarnBrush}"
+                           Margin="0,2,0,6"
+                           TextWrapping="Wrap"
+                           Visibility="{Binding IsMuyuRunning, Converter={StaticResource BoolToVisibility}}"/>
+
+                <TextBlock Text="{Binding MuyuDisabledShortHint}"
+                           FontSize="12"
+                           Foreground="{StaticResource BMutedBrush}"
+                           Margin="0,2,0,6"
+                           TextWrapping="Wrap"
+                           Visibility="{Binding IsMuyuEnabled, Converter={StaticResource InverseBoolToVisibility}}"/>
+
+                <ItemsControl ItemsSource="{Binding MuyuButtons}" Margin="0,4,0,0">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <WrapPanel/>
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Button Style="{StaticResource BMuyuButtonStyle}"
+                                    IsEnabled="{Binding DataContext.IsMuyuEnabled,
+                                                RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                    Command="{Binding DataContext.MuyuClickCommand,
+                                              RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                    CommandParameter="{Binding}">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="{Binding DisplayText}"
+                                               FontSize="13"
+                                               Foreground="{StaticResource BInkBrush}"
+                                               VerticalAlignment="Center"/>
+                                    <TextBlock Text="{Binding ElapsedText}"
+                                               Margin="8,0,0,0"
+                                               FontSize="11"
+                                               Foreground="{StaticResource BMutedBrush}"
+                                               VerticalAlignment="Center"
+                                               Visibility="{Binding IsRunning, Converter={StaticResource BoolToVisibility}}"/>
+                                    <TextBlock Text="{Binding CostText}"
+                                               Margin="6,0,0,0"
+                                               FontSize="11"
+                                               Foreground="{StaticResource BMutedBrush}"
+                                               VerticalAlignment="Center"
+                                               Visibility="{Binding IsRunning, Converter={StaticResource BoolToVisibility}}"/>
+                                </StackPanel>
+                            </Button>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </StackPanel>
+
+            <!-- 免责 -->
+            <Border Height="1" Background="{StaticResource BRuleBrush}" Margin="0,12,0,0"/>
+            <TextBlock Text="节假日不计工资与加班费。计算结果仅供参考，以实际工资条为准。"
+                       FontSize="11"
+                       Foreground="{StaticResource BMutedBrush}"
                        TextWrapping="Wrap"
-                       TextAlignment="Center"
-                       Margin="0,4,0,0"/>
+                       Margin="0,8,0,0"/>
 
         </StackPanel>
     </ScrollViewer>

@@ -91,6 +91,7 @@ public sealed class SalaryEngine
             NetMonthly = salary.NetMonthly,
             Countdown = dayInfo.Countdown,
             MonthProgress = monthProgress,
+            PayableDaysInMonth = payableDaysInMonth,
             RemainingWorkDays = remainingWorkDays
         };
     }

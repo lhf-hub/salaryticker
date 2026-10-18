@@ -25,6 +25,7 @@ public partial class SettingsWindow : Window
     public SettingsWindow(UpdateViewModel? updateViewModel = null)
     {
         InitializeComponent();
+        Loaded += (_, _) => WindowFit.Fit(this);
 
         _viewModel = new SettingsViewModel(updateViewModel);
         DataContext = _viewModel;

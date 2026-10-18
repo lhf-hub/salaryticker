@@ -12,5 +12,6 @@ public partial class StyleGalleryWindow : Window
     public StyleGalleryWindow()
     {
         InitializeComponent();
+        Loaded += (_, _) => WindowFit.Fit(this);
     }
 }
