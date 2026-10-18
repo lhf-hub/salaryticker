@@ -1,6 +1,6 @@
 <!-- ============================================================================
      文件名：ConfirmDialog.xaml
-     功能描述：深色自定义确认对话框（替代 Win32 MessageBox）
+     功能描述：轻量自定义确认对话框（B 流水台账风格）
      ============================================================================ -->
 <Window x:Class="SalaryTicker.Dialogs.ConfirmDialog"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
@@ -15,6 +15,74 @@
         ResizeMode="NoResize"
         ShowInTaskbar="False">
 
+    <Window.Resources>
+        <Style x:Key="DialogButtonBase" TargetType="Button">
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="Padding" Value="18,8"/>
+            <Setter Property="FocusVisualStyle" Value="{StaticResource BFocusVisual}"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="4"
+                                Padding="{TemplateBinding Padding}"
+                                SnapsToDevicePixels="True">
+                            <TextBlock Text="{TemplateBinding Content}"
+                                       Foreground="{TemplateBinding Foreground}"
+                                       FontSize="{TemplateBinding FontSize}"
+                                       HorizontalAlignment="Center"
+                                       VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter Property="Opacity" Value="0.55"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="ButtonGhost" TargetType="Button" BasedOn="{StaticResource DialogButtonBase}">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderBrush" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Foreground" Value="{StaticResource BMutedBrush}"/>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="{StaticResource BHoverBrush}"/>
+                    <Setter Property="Foreground" Value="{StaticResource BInkBrush}"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <Style x:Key="ButtonPrimary" TargetType="Button" BasedOn="{StaticResource DialogButtonBase}">
+            <Setter Property="Background" Value="{StaticResource BInkBrush}"/>
+            <Setter Property="BorderBrush" Value="{StaticResource BInkBrush}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Foreground" Value="{StaticResource BPaperBrush}"/>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#2E3A35"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <Style x:Key="ButtonDanger" TargetType="Button" BasedOn="{StaticResource DialogButtonBase}">
+            <Setter Property="Background" Value="{StaticResource BRedBrush}"/>
+            <Setter Property="BorderBrush" Value="{StaticResource BRedBrush}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Foreground" Value="{StaticResource BPaperBrush}"/>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#8F3A2E"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+    </Window.Resources>
+
     <Window.Triggers>
         <EventTrigger RoutedEvent="Window.Loaded">
             <BeginStoryboard>
@@ -26,14 +94,14 @@
         </EventTrigger>
     </Window.Triggers>
 
-    <Border Background="{StaticResource CardBrush}"
-            CornerRadius="{StaticResource RadiusCard}"
-            BorderBrush="{StaticResource BorderLineBrush}"
+    <Border Background="{StaticResource BWhiteBrush}"
+            CornerRadius="4"
+            BorderBrush="{StaticResource BControlBrush}"
             BorderThickness="1"
             Margin="12">
         <Border.Effect>
-            <DropShadowEffect Color="{StaticResource ShadowColor}"
-                              BlurRadius="24" ShadowDepth="6" Opacity="0.5"/>
+            <DropShadowEffect Color="#1F2724"
+                              BlurRadius="24" ShadowDepth="6" Opacity="0.24"/>
         </Border.Effect>
 
         <Grid Margin="24">
@@ -43,33 +111,33 @@
                 <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
 
-            <!-- 标题 -->
             <TextBlock Grid.Row="0"
                        x:Name="TitleText"
                        Text="确认操作"
-                       Style="{StaticResource TextCardTitle}"
-                       Margin="0,0,0,12"/>
+                       FontSize="15"
+                       FontWeight="SemiBold"
+                       Foreground="{StaticResource BInkBrush}"
+                       Margin="0,0,0,10"/>
 
-            <!-- 内容 -->
             <TextBlock Grid.Row="1"
                        x:Name="MessageText"
                        Text=""
-                       Style="{StaticResource TextLabel}"
+                       FontSize="13"
+                       Foreground="{StaticResource BMutedBrush}"
                        TextWrapping="Wrap"
-                       Margin="0,0,0,24"/>
+                       Margin="0,0,0,20"/>
 
-            <!-- 按钮 -->
             <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right">
                 <Button Content="取消"
                         Style="{StaticResource ButtonGhost}"
                         Click="Cancel_Click"
-                        Padding="20,8"
-                        Margin="0,0,12,0"/>
+                        IsCancel="True"
+                        Margin="0,0,10,0"/>
                 <Button Content="确定"
                         x:Name="OkButton"
                         Style="{StaticResource ButtonPrimary}"
                         Click="Ok_Click"
-                        Padding="20,8"/>
+                        IsDefault="True"/>
             </StackPanel>
         </Grid>
     </Border>

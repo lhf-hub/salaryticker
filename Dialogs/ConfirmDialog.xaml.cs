@@ -16,6 +16,7 @@ public partial class ConfirmDialog : Window
     internal ConfirmDialog()
     {
         InitializeComponent();
+        Loaded += (_, _) => OkButton.Focus();
     }
 
     /// <summary>

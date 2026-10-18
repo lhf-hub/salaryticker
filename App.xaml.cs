@@ -65,6 +65,15 @@ public partial class App : Application
             ShowSingleWindow(new DesignSpikeWindow());
             return;
         }
+        if (e.Args.Contains("confirm"))
+        {
+            ConfirmDialog.Show(null,
+                "确定要清空所有摸鱼历史记录吗？此操作不可恢复。",
+                "清空摸鱼历史",
+                isDanger: true);
+            Shutdown();
+            return;
+        }
         if (e.Args.Contains("gallery"))
         {
             ShowSingleWindow(new StyleGalleryWindow());
@@ -89,7 +98,10 @@ public partial class App : Application
         }
         if (e.Args.Contains("mini"))
         {
-            ShowSingleWindow(new MiniWindow());
+            // 截图/目检时启动 ticker 并提供满不透明度，模拟真实使用状态。
+            AppServices.Ticker.Start();
+            AppServices.Ticker.RefreshNow();
+            ShowSingleWindow(new MiniWindow { Opacity = 1.0 });
             return;
         }
         if (e.Args.Contains("splash"))

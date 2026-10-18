@@ -1,6 +1,6 @@
 <!-- ============================================================================
      文件名：SplashWindow.xaml
-     功能描述：启动温馨提示页（暖阳浅色 · 无边框圆角卡片 · 淡入淡出）
+     功能描述：启动提示页（B 流水台账：一张纸、三段说明、一个开始按钮）
      ============================================================================ -->
 <Window x:Class="SalaryTicker.Views.SplashWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
@@ -8,7 +8,7 @@
         Icon="/Assets/SalaryTicker.ico"
         xmlns:vm="clr-namespace:SalaryTicker.ViewModels"
         Title="SalaryTicker - 实时计算器"
-        Width="880" Height="820"
+        Width="880" Height="460"
         WindowStartupLocation="CenterScreen"
         WindowStyle="None"
         AllowsTransparency="True"
@@ -19,7 +19,44 @@
         <vm:SplashViewModel/>
     </Window.DataContext>
 
-    <!-- 淡入动画 -->
+    <Window.Resources>
+        <Style TargetType="CheckBox" BasedOn="{StaticResource BCheckBoxStyle}"/>
+
+        <Style x:Key="SplashPrimary" TargetType="Button">
+            <Setter Property="Background" Value="{StaticResource BInkBrush}"/>
+            <Setter Property="Foreground" Value="{StaticResource BPaperBrush}"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="Padding" Value="24,12"/>
+            <Setter Property="FocusVisualStyle" Value="{StaticResource BFocusVisual}"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding Background}"
+                                BorderThickness="1"
+                                CornerRadius="4"
+                                Padding="{TemplateBinding Padding}"
+                                SnapsToDevicePixels="True">
+                            <TextBlock Text="{TemplateBinding Content}"
+                                       Foreground="{TemplateBinding Foreground}"
+                                       FontSize="{TemplateBinding FontSize}"
+                                       HorizontalAlignment="Center"
+                                       VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="#2E3A35"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter Property="Opacity" Value="0.55"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Window.Resources>
+
     <Window.Triggers>
         <EventTrigger RoutedEvent="Window.Loaded">
             <BeginStoryboard>
@@ -31,113 +68,73 @@
         </EventTrigger>
     </Window.Triggers>
 
-    <Border Background="{StaticResource BgPageBrush}"
-            CornerRadius="28"
-            BorderBrush="{StaticResource BorderLineBrush}"
+    <Border Background="{StaticResource BWhiteBrush}"
+            CornerRadius="4"
+            BorderBrush="{StaticResource BControlBrush}"
             BorderThickness="1"
             Margin="18">
         <Border.Effect>
-            <DropShadowEffect Color="{StaticResource ShadowColor}"
-                              BlurRadius="40" ShadowDepth="8" Opacity="0.18"/>
+            <DropShadowEffect Color="#1F2724"
+                              BlurRadius="32" ShadowDepth="8" Opacity="0.18"/>
         </Border.Effect>
 
-        <Grid Margin="32,26,32,24">
+        <Grid Margin="40,32,40,28">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="*"/>
                 <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
 
-            <!-- ══════ 标题 ══════ -->
-            <StackPanel Grid.Row="0" HorizontalAlignment="Center" Margin="0,0,0,16">
-                <TextBlock FontSize="32" HorizontalAlignment="Center" Margin="0,0,0,4">💰</TextBlock>
-                <TextBlock Text="欢迎使用 SalaryTicker"
-                           FontSize="24" FontWeight="Bold"
-                           Foreground="{StaticResource TextPrimaryBrush}"
-                           HorizontalAlignment="Center"/>
-                <TextBlock Text="实时计算器 · 看着钱一秒一秒涨"
-                           FontSize="13"
-                           Foreground="{StaticResource TextSecondaryBrush}"
-                           HorizontalAlignment="Center"
-                           Margin="0,5,0,0"/>
+            <!-- 品牌 -->
+            <StackPanel Grid.Row="0">
+                <StackPanel Orientation="Horizontal">
+                    <Border Width="30" Height="30" CornerRadius="2"
+                            Background="{StaticResource BInkBrush}"
+                            VerticalAlignment="Center">
+                        <TextBlock Text="¥" FontSize="15" FontWeight="Bold"
+                                   Foreground="{StaticResource BPaperBrush}"
+                                   HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    </Border>
+                    <TextBlock Text="SalaryTicker" FontSize="24" FontWeight="SemiBold"
+                               Foreground="{StaticResource BInkBrush}"
+                               Margin="10,0,0,0" VerticalAlignment="Center"/>
+                    <TextBlock Text="实时计算器" FontSize="12"
+                               Foreground="{StaticResource BMutedBrush}"
+                               Margin="10,4,0,0" VerticalAlignment="Center"/>
+                </StackPanel>
+                <Border Height="1" Background="{StaticResource BRuleBrush}" Margin="0,20,0,0"/>
             </StackPanel>
 
-            <!-- ══════ 内容区 ══════ -->
-            <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
-                <StackPanel>
+            <!-- 三段说明 -->
+            <StackPanel Grid.Row="1" Margin="0,20,0,0">
+                <TextBlock Text="使用说明" Style="{StaticResource BSectionTitleStyle}"/>
+                <TextBlock Text="内置深圳社保、公积金与个税参数；其他城市可在「设置 → 政策参数」中调整。"
+                           FontSize="13"
+                           Foreground="{StaticResource BMutedBrush}"
+                           TextWrapping="Wrap"
+                           Margin="0,8,0,0"/>
+                <TextBlock Text="应用不上传数据。开启更新检查后，启动时只请求版本清单；下载只在你点「立即更新」后发生。"
+                           FontSize="13"
+                           Foreground="{StaticResource BMutedBrush}"
+                           TextWrapping="Wrap"
+                           Margin="0,10,0,0"/>
+                <TextBlock Text="计算结果仅供参考，以实际工资条为准。"
+                           FontSize="13"
+                           Foreground="{StaticResource BMutedBrush}"
+                           TextWrapping="Wrap"
+                           Margin="0,10,0,0"/>
+            </StackPanel>
 
-                    <!-- 🧭 关于参数（内置深圳参数，其他城市可自调） -->
-                    <Border Style="{StaticResource Card}" Padding="16,14" Margin="0,0,0,10">
-                        <StackPanel>
-                            <TextBlock Text="🧭  关于参数" Style="{StaticResource TextCardTitle}" Margin="0,0,0,10"/>
-                            <TextBlock Style="{StaticResource TextLabel}" TextWrapping="Wrap" LineHeight="21">
-                                <Run Text="本工具内置深圳市的社保、公积金、个税参数。"/>
-                                <LineBreak/>
-                                <Run Text="其他城市可在「设置 → 政策参数」中按当地政策自行调整。"/>
-                                <LineBreak/>
-                                <Run Text="有疑问或建议，欢迎联系 Lee 老师："/>
-                                <LineBreak/>
-                                <Run Text="leemail208@163.com" FontWeight="SemiBold" Foreground="{StaticResource PrimaryBrush}"/>
-                            </TextBlock>
-                        </StackPanel>
-                    </Border>
-
-                    <!-- 🔧 参数可配置 -->
-                    <Border Style="{StaticResource Card}" Padding="16,14" Margin="0,0,0,10">
-                        <StackPanel>
-                            <TextBlock Text="🔧  参数可配置" Style="{StaticResource TextCardTitle}" Margin="0,0,0,10"/>
-                            <TextBlock Style="{StaticResource TextLabel}" TextWrapping="Wrap" LineHeight="21">
-                                <Run Text="社保基数上下限、公积金比例、个税税率等参数已做成可配置项，"/>
-                                <LineBreak/>
-                                <Run Text="政策调整后可在设置中手动更新。"/>
-                            </TextBlock>
-                        </StackPanel>
-                    </Border>
-
-                    <!-- 📌 计算结果仅供参考 -->
-                    <Border Style="{StaticResource Card}" Padding="16,14" Margin="0,0,0,10">
-                        <StackPanel>
-                            <TextBlock Text="📌  计算结果仅供参考" Style="{StaticResource TextCardTitle}" Margin="0,0,0,10"/>
-                            <TextBlock Style="{StaticResource TextLabel}" TextWrapping="Wrap" LineHeight="21">
-                                <Run Text="计算结果仅供参考，以实际工资条为准。"/>
-                                <LineBreak/>
-                                <Run Text="愿你的付出都有回响，休息也理直气壮。"/>
-                            </TextBlock>
-                        </StackPanel>
-                    </Border>
-
-                    <!-- 💚 写在最后（收尾，放在最末） -->
-                    <Border Style="{StaticResource Card}" Padding="16,14" Margin="0,0,0,10">
-                        <StackPanel>
-                            <TextBlock Text="💚  写在最后" Style="{StaticResource TextCardTitle}" Margin="0,0,0,10"/>
-                            <TextBlock Style="{StaticResource TextLabel}" TextWrapping="Wrap" LineHeight="21">
-                                <Run Text="希望每一个努力生活的人，都能被好好对待。"/>
-                                <LineBreak/>
-                                <Run Text="Lee 老师倡导全行业按法休息，不恶意内卷、不形式加班。"/>
-                                <LineBreak/>
-                                <Run Text="这个计算器也会在节假日强制休息，不计算工资和加班费。"/>
-                            </TextBlock>
-                        </StackPanel>
-                    </Border>
-
-                    <!-- 下次不再显示 -->
-                    <CheckBox Content="下次不再显示"
-                              IsChecked="{Binding DontShowAgain}"
-                              Margin="4,10,0,4"/>
-
-                </StackPanel>
-            </ScrollViewer>
-
-            <!-- ══════ 确认按钮 ══════ -->
-            <Button Grid.Row="2"
-                    Content="我已知晓，开始使用  →"
-                    Style="{StaticResource ButtonPrimary}"
-                    Command="{Binding ConfirmCommand}"
-                    HorizontalAlignment="Stretch"
-                    Margin="0,20,0,0"
-                    Padding="24,14"
-                    FontSize="16"/>
-
+            <!-- 确认区 -->
+            <StackPanel Grid.Row="2">
+                <CheckBox Content="下次不再显示"
+                          IsChecked="{Binding DontShowAgain}"
+                          Margin="0,0,0,14"/>
+                <Button Content="开始使用"
+                        Style="{StaticResource SplashPrimary}"
+                        Command="{Binding ConfirmCommand}"
+                        HorizontalAlignment="Stretch"/>
+            </StackPanel>
         </Grid>
     </Border>
 </Window>

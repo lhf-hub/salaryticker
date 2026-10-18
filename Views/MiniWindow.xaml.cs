@@ -90,12 +90,12 @@ public partial class MiniWindow : Window
     {
         _lastSnapshot = snapshot;
 
-        // 标题与金额都跟着当前指标走（图标与主界面卡片保持一致）
+        // 标题与金额都跟着当前指标走。
         MetricText.Text = _metric switch
         {
-            MiniMetric.Today => "☀️ 今日已赚",
-            MiniMetric.Hour => "⏱️ 当前小时已赚",
-            _ => "💰 本月已赚"
+            MiniMetric.Today => "今日已赚",
+            MiniMetric.Hour => "当前小时已赚",
+            _ => "本月已赚"
         };
 
         var amount = _metric switch
@@ -110,21 +110,21 @@ public partial class MiniWindow : Window
     }
 
     /// <summary>
-    /// 状态行：状态文案，有倒计时时追加「· 距下班 02:15:30」
+    /// 状态行：状态文案；有倒计时时用两个空格分隔。
     /// </summary>
     private static string BuildStatusLine(SalarySnapshot snapshot)
     {
         var status = snapshot.Status switch
         {
-            WorkStatus.Earning => "赚钱中 💪",
-            WorkStatus.LunchBreak => "午休中 😴",
-            WorkStatus.OffWork => "已下班 👋",
-            WorkStatus.ForcedRest => "强制休息 🌴",
-            _ => "未开工 ☕"
+            WorkStatus.Earning => "工作中",
+            WorkStatus.LunchBreak => "午休",
+            WorkStatus.OffWork => "已下班",
+            WorkStatus.ForcedRest => "强制休息",
+            _ => "未上班"
         };
 
         var countdown = CountdownFormatter.GetShortText(snapshot.Countdown, snapshot.Status);
-        return countdown.Length == 0 ? status : $"{status} · {countdown}";
+        return countdown.Length == 0 ? status : $"{status}  {countdown}";
     }
 
     /// <summary>
