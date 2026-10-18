@@ -24,51 +24,51 @@
                 <WrapPanel Margin="0,0,0,16">
                     <StackPanel Width="130" Margin="8" HorizontalAlignment="Left">
                         <Border Height="56" CornerRadius="8" Background="{DynamicResource PrimaryBrush}"/>
-                        <TextBlock Text="PrimaryBrush (#22C55E)" Style="{StaticResource TextSmall}" Margin="0,4,0,0" TextWrapping="Wrap"/>
+                        <TextBlock Text="PrimaryBrush (#E07A5F)" Style="{StaticResource TextSmall}" Margin="0,4,0,0" TextWrapping="Wrap"/>
                     </StackPanel>
                     <StackPanel Width="130" Margin="8" HorizontalAlignment="Left">
                         <Border Height="56" CornerRadius="8" Background="{DynamicResource PrimaryBrightBrush}"/>
-                        <TextBlock Text="PrimaryBrightBrush" Style="{StaticResource TextSmall}" Margin="0,4,0,0" TextWrapping="Wrap"/>
+                        <TextBlock Text="PrimaryBrightBrush (#EE8A6D)" Style="{StaticResource TextSmall}" Margin="0,4,0,0" TextWrapping="Wrap"/>
                     </StackPanel>
                     <StackPanel Width="130" Margin="8" HorizontalAlignment="Left">
                         <Border Height="56" CornerRadius="8" Background="{DynamicResource InfoBrush}"/>
-                        <TextBlock Text="InfoBrush (#38BDF8)" Style="{StaticResource TextSmall}" Margin="0,4,0,0" TextWrapping="Wrap"/>
+                        <TextBlock Text="InfoBrush (#5B8DB8)" Style="{StaticResource TextSmall}" Margin="0,4,0,0" TextWrapping="Wrap"/>
                     </StackPanel>
                     <StackPanel Width="130" Margin="8" HorizontalAlignment="Left">
                         <Border Height="56" CornerRadius="8" Background="{DynamicResource WarnBrush}"/>
-                        <TextBlock Text="WarnBrush (#F59E0B)" Style="{StaticResource TextSmall}" Margin="0,4,0,0" TextWrapping="Wrap"/>
+                        <TextBlock Text="WarnBrush (#F4A261)" Style="{StaticResource TextSmall}" Margin="0,4,0,0" TextWrapping="Wrap"/>
                     </StackPanel>
                     <StackPanel Width="130" Margin="8" HorizontalAlignment="Left">
                         <Border Height="56" CornerRadius="8" Background="{DynamicResource DangerBrush}"/>
-                        <TextBlock Text="DangerBrush (#EF4444)" Style="{StaticResource TextSmall}" Margin="0,4,0,0" TextWrapping="Wrap"/>
+                        <TextBlock Text="DangerBrush (#E76F51)" Style="{StaticResource TextSmall}" Margin="0,4,0,0" TextWrapping="Wrap"/>
                     </StackPanel>
                     <StackPanel Width="130" Margin="8" HorizontalAlignment="Left">
                         <Border Height="56" CornerRadius="8" Background="{DynamicResource BgPageBrush}" BorderBrush="{DynamicResource BorderLineBrush}" BorderThickness="1"/>
-                        <TextBlock Text="BgPageBrush (#0B1220)" Style="{StaticResource TextSmall}" Margin="0,4,0,0" TextWrapping="Wrap"/>
+                        <TextBlock Text="BgPageBrush (#FAF7F2)" Style="{StaticResource TextSmall}" Margin="0,4,0,0" TextWrapping="Wrap"/>
                     </StackPanel>
                     <StackPanel Width="130" Margin="8" HorizontalAlignment="Left">
                         <Border Height="56" CornerRadius="8" Background="{DynamicResource CardBrush}" BorderBrush="{DynamicResource BorderLineBrush}" BorderThickness="1"/>
-                        <TextBlock Text="CardBrush (#111C2E)" Style="{StaticResource TextSmall}" Margin="0,4,0,0" TextWrapping="Wrap"/>
+                        <TextBlock Text="CardBrush (#FFFFFF)" Style="{StaticResource TextSmall}" Margin="0,4,0,0" TextWrapping="Wrap"/>
                     </StackPanel>
                     <StackPanel Width="130" Margin="8" HorizontalAlignment="Left">
                         <Border Height="56" CornerRadius="8" Background="{DynamicResource CardHoverBrush}"/>
-                        <TextBlock Text="CardHoverBrush (#16243A)" Style="{StaticResource TextSmall}" Margin="0,4,0,0" TextWrapping="Wrap"/>
+                        <TextBlock Text="CardHoverBrush (#FFFBF7)" Style="{StaticResource TextSmall}" Margin="0,4,0,0" TextWrapping="Wrap"/>
                     </StackPanel>
                     <StackPanel Width="130" Margin="8" HorizontalAlignment="Left">
                         <Border Height="56" CornerRadius="8" Background="{DynamicResource TextPrimaryBrush}"/>
-                        <TextBlock Text="TextPrimaryBrush (#E2E8F0)" Style="{StaticResource TextSmall}" Margin="0,4,0,0" TextWrapping="Wrap"/>
+                        <TextBlock Text="TextPrimaryBrush (#2D2A26)" Style="{StaticResource TextSmall}" Margin="0,4,0,0" TextWrapping="Wrap"/>
                     </StackPanel>
                     <StackPanel Width="130" Margin="8" HorizontalAlignment="Left">
                         <Border Height="56" CornerRadius="8" Background="{DynamicResource TextSecondaryBrush}"/>
-                        <TextBlock Text="TextSecondaryBrush (#94A3B8)" Style="{StaticResource TextSmall}" Margin="0,4,0,0" TextWrapping="Wrap"/>
+                        <TextBlock Text="TextSecondaryBrush (#7D7469)" Style="{StaticResource TextSmall}" Margin="0,4,0,0" TextWrapping="Wrap"/>
                     </StackPanel>
                     <StackPanel Width="130" Margin="8" HorizontalAlignment="Left">
                         <Border Height="56" CornerRadius="8" Background="{DynamicResource InputBgBrush}"/>
-                        <TextBlock Text="InputBgBrush (#0E1A2E)" Style="{StaticResource TextSmall}" Margin="0,4,0,0" TextWrapping="Wrap"/>
+                        <TextBlock Text="InputBgBrush (#FFFFFF)" Style="{StaticResource TextSmall}" Margin="0,4,0,0" TextWrapping="Wrap"/>
                     </StackPanel>
                     <StackPanel Width="130" Margin="8" HorizontalAlignment="Left">
                         <Border Height="56" CornerRadius="8" Background="{DynamicResource ProgressGradientBrush}"/>
-                        <TextBlock Text="ProgressGradientBrush" Style="{StaticResource TextSmall}" Margin="0,4,0,0" TextWrapping="Wrap"/>
+                        <TextBlock Text="ProgressGradientBrush (蜜桃橙 → 薄荷绿)" Style="{StaticResource TextSmall}" Margin="0,4,0,0" TextWrapping="Wrap"/>
                     </StackPanel>
                 </WrapPanel>
 
@@ -96,7 +96,7 @@
 
                 <!-- ③ 按钮样式 -->
                 <TextBlock Text="③ 按钮" Style="{StaticResource TextPageTitle}" Margin="0,24,0,16"/>
-                <WrapPanel Margin="0,0,0,{SpaceCard}">
+                <WrapPanel Margin="0,0,0,16">
                     <!-- 默认按钮 -->
                     <Button Content="默认 Button" Margin="8" Padding="16,8"/>
                     <!-- 主按钮 -->
@@ -127,11 +127,6 @@
                         <TextBox Margin="0,0,0,8" Width="300"
                                  Foreground="{DynamicResource TextDisabledBrush}"
                                  Text="此处显示占位提示文字...">
-                            <TextBox.Resources>
-                                <Style TargetType="Border" BasedOn="{StaticResource {x:Type TextBox}}">
-                                    <Setter Property="Background" Value="{DynamicResource InputBgBrush}"/>
-                                </Style>
-                            </TextBox.Resources>
                         </TextBox>
                         <Separator Margin="0,8" Opacity="0.3"/>
                         <!-- ComboBox -->
@@ -141,7 +136,7 @@
                             <ComboBoxItem Content="二档进医保"/>
                             <ComboBoxItem Content="不进医保"/>
                         </ComboBox>
-                        <TextBlock Text="工作时间制选择：" Style="{StaticResource TextLabel}" Margin="0,{SpaceInner},0,4"/>
+                        <TextBlock Text="工作时间制选择：" Style="{StaticResource TextLabel}" Margin="0,8,0,4"/>
                         <ComboBox Margin="0,0,0,8" Width="240">
                             <ComboBoxItem Content="五天八小时双休"/>
                             <ComboBoxItem Content="五天八小时大小周"/>
@@ -149,12 +144,12 @@
                         </ComboBox>
                         <Separator Margin="0,8" Opacity="0.3"/>
                         <!-- CheckBox -->
-                        <CheckBox Content="勾选状态 Checked" IsChecked="True" Margin="0,{SpaceInner},0,4"
+                        <CheckBox Content="勾选状态 Checked" IsChecked="True" Margin="0,8,0,4"
                                  />
                         <CheckBox Content="未勾选状态 Unchecked" IsChecked="False" Margin="0,0,0,4"
                                  />
                         <!-- RadioButton -->
-                        <RadioButton Content="单选 A" IsChecked="True" Margin="0,{SpaceInner},0,4"
+                        <RadioButton Content="单选 A" IsChecked="True" Margin="0,8,0,4"
                                     />
                         <RadioButton Content="单选 B" Margin="0,0,0,4"
                                     />
@@ -183,7 +178,7 @@
 
                 <!-- ⑥ 卡片容器 -->
                 <TextBlock Text="⑥ 卡片容器" Style="{StaticResource TextPageTitle}" Margin="0,24,0,16"/>
-                <WrapPanel Margin="0,0,0,{SpaceCard}">
+                <WrapPanel Margin="0,0,0,16">
                     <Border Style="{StaticResource Card}" Width="400" Margin="8">
                         <StackPanel>
                             <TextBlock Text="示例卡片 A" Style="{StaticResource TextCardTitle}" Margin="0,0,0,8"/>
@@ -356,19 +351,19 @@
                     </StackPanel>
                     <StackPanel Margin="0,8,0,0">
                         <TextBlock Text="PageMargin = 24" Style="{StaticResource TextSmall}" Margin="0,2"/>
-                        <TextBlock Text="CardPadding = 20" Style="{StaticResource TextSmall}" Margin="0,2"/>
+                        <TextBlock Text="CardPadding = 24" Style="{StaticResource TextSmall}" Margin="0,2"/>
                         <TextBlock Text="InnerSpace = 8" Style="{StaticResource TextSmall}" Margin="0,2"/>
                     </StackPanel>
 
                     <!-- 圆角参考 -->
                     <TextBlock Text="圆角" Style="{StaticResource TextLabel}" Margin="0,16,0,8"/>
                     <StackPanel>
-                        <Border Background="{DynamicResource CardHoverBrush}" BorderBrush="{DynamicResource BorderLineBrush}" BorderThickness="1" CornerRadius="16" Width="60" Height="40" Margin="0,2"/>
-                        <TextBlock Text="RadiusCard = 16" Style="{StaticResource TextSmall}" Margin="0,2"/>
-                        <Border Background="{DynamicResource CardHoverBrush}" BorderBrush="{DynamicResource BorderLineBrush}" BorderThickness="1" CornerRadius="12" Width="60" Height="40" Margin="0,2"/>
-                        <TextBlock Text="RadiusButton = 12" Style="{StaticResource TextSmall}" Margin="0,2"/>
-                        <Border Background="{DynamicResource CardHoverBrush}" BorderBrush="{DynamicResource BorderLineBrush}" BorderThickness="1" CornerRadius="8" Width="60" Height="40" Margin="0,2"/>
-                        <TextBlock Text="RadiusInput = 8" Style="{StaticResource TextSmall}" Margin="0,2"/>
+                        <Border Background="{DynamicResource CardHoverBrush}" BorderBrush="{DynamicResource BorderLineBrush}" BorderThickness="1" CornerRadius="24" Width="60" Height="40" Margin="0,2"/>
+                        <TextBlock Text="RadiusCard = 24" Style="{StaticResource TextSmall}" Margin="0,2"/>
+                        <Border Background="{DynamicResource CardHoverBrush}" BorderBrush="{DynamicResource BorderLineBrush}" BorderThickness="1" CornerRadius="999" Width="60" Height="40" Margin="0,2"/>
+                        <TextBlock Text="RadiusButton = 999" Style="{StaticResource TextSmall}" Margin="0,2"/>
+                        <Border Background="{DynamicResource CardHoverBrush}" BorderBrush="{DynamicResource BorderLineBrush}" BorderThickness="1" CornerRadius="14" Width="60" Height="40" Margin="0,2"/>
+                        <TextBlock Text="RadiusInput = 14" Style="{StaticResource TextSmall}" Margin="0,2"/>
                     </StackPanel>
 
                 </StackPanel>

@@ -61,3 +61,7 @@ Thumbs.db
 ehthumbs.db
 Desktop.ini
 .DS_Store
+
+# Local agent/skill artifacts (must never be swept into a release commit)
+.claude/
+node_modules/

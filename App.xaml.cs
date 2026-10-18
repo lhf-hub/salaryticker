@@ -5,6 +5,7 @@
 
 using System.Threading;
 using System.Windows;
+using SalaryTicker.Dialogs;
 using SalaryTicker.Services;
 using SalaryTicker.Views;
 
@@ -23,20 +24,27 @@ public partial class App : Application
 
     protected override void OnStartup(StartupEventArgs e)
     {
-        // 单实例保护
-        _instanceMutex = new Mutex(true, "SalaryTicker_SingleInstance", out bool createdNew);
-        _ownsMutex = createdNew;
+        // smoke：构造并测量全部窗口，用于捕获 build/test 看不见的 XAML 运行时错误。
+        // 它不显示窗口、不启动计时器，也不参与单实例保护。
+        bool isSmoke = e.Args.Contains("smoke");
 
-        if (!createdNew)
+        if (!isSmoke)
         {
-            // 未抢到互斥体：本进程并不持有它，不能调用 ReleaseMutex（否则抛 ApplicationException）
-            _instanceMutex.Dispose();
-            _instanceMutex = null;
+            // 单实例保护
+            _instanceMutex = new Mutex(true, "SalaryTicker_SingleInstance", out bool createdNew);
+            _ownsMutex = createdNew;
 
-            MessageBox.Show("SalaryTicker 实时计算器已在运行中，请勿重复打开。", "提示",
-                MessageBoxButton.OK, MessageBoxImage.Information);
-            Shutdown();
-            return;
+            if (!createdNew)
+            {
+                // 未抢到互斥体：本进程并不持有它，不能调用 ReleaseMutex（否则抛 ApplicationException）
+                _instanceMutex.Dispose();
+                _instanceMutex = null;
+
+                MessageBox.Show("SalaryTicker 实时计算器已在运行中，请勿重复打开。", "提示",
+                    MessageBoxButton.OK, MessageBoxImage.Information);
+                Shutdown();
+                return;
+            }
         }
 
         base.OnStartup(e);
@@ -44,12 +52,36 @@ public partial class App : Application
         // 装配服务
         AppServices.Initialize();
 
-        // 命令行参数 gallery：打开样式画廊窗口（设计系统验收用）
+        if (isSmoke)
+        {
+            RunSmokeTest();
+            return;
+        }
+
+        // 开发/验收用单窗口模式：只打开指定窗口，便于截图与目检。
         if (e.Args.Contains("gallery"))
         {
-            var gallery = new StyleGalleryWindow();
-            gallery.Closed += (_, _) => Shutdown();
-            gallery.Show();
+            ShowSingleWindow(new StyleGalleryWindow());
+            return;
+        }
+        if (e.Args.Contains("main"))
+        {
+            ShowSingleWindow(new MainWindow());
+            return;
+        }
+        if (e.Args.Contains("settings"))
+        {
+            ShowSingleWindow(new SettingsWindow());
+            return;
+        }
+        if (e.Args.Contains("mini"))
+        {
+            ShowSingleWindow(new MiniWindow());
+            return;
+        }
+        if (e.Args.Contains("splash"))
+        {
+            ShowSingleWindow(new SplashWindow());
             return;
         }
 
@@ -77,6 +109,62 @@ public partial class App : Application
         {
             OpenMainWindow();
         }
+    }
+
+    /// <summary>
+    /// 只显示一个窗口（开发/验收用），关闭后退出应用。
+    /// </summary>
+    private void ShowSingleWindow(Window window)
+    {
+        window.Closed += (_, _) => Shutdown();
+        window.Show();
+    }
+
+    /// <summary>
+    /// 构造并测量全部窗口。任何 XamlParseException / 缺失资源 / 无效模板都会在这里暴露。
+    /// 不显示窗口，因此不会触发 Loaded（计时器/更新检查不会启动）。
+    /// </summary>
+    private void RunSmokeTest()
+    {
+        var failures = new List<string>();
+
+        void Check(string name, Func<Window> factory)
+        {
+            try
+            {
+                var window = factory();
+                window.ApplyTemplate();
+                window.Measure(new Size(1200, 900));
+                window.Arrange(new Rect(0, 0, 1200, 900));
+                window.UpdateLayout();
+                Console.WriteLine($"[smoke] {name}: OK");
+            }
+            catch (Exception ex)
+            {
+                failures.Add($"{name}: {ex.GetType().Name}: {ex.Message}");
+                Console.Error.WriteLine($"[smoke] {name}: FAIL");
+                Console.Error.WriteLine(ex);
+            }
+        }
+
+        Check("MainWindow", () => new MainWindow());
+        Check("SettingsWindow", () => new SettingsWindow());
+        Check("SplashWindow", () => new SplashWindow());
+        Check("MiniWindow", () => new MiniWindow());
+        Check("ConfirmDialog", () => new ConfirmDialog());
+        Check("StyleGalleryWindow", () => new StyleGalleryWindow());
+
+        if (failures.Count > 0)
+        {
+            Console.Error.WriteLine($"[smoke] FAILED: {failures.Count} window(s)");
+            foreach (var failure in failures)
+                Console.Error.WriteLine("  " + failure);
+            Shutdown(1);
+            return;
+        }
+
+        Console.WriteLine("[smoke] all windows OK");
+        Shutdown(0);
     }
 
     /// <summary>

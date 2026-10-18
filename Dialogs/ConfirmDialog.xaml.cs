@@ -13,7 +13,7 @@ namespace SalaryTicker.Dialogs;
 /// </summary>
 public partial class ConfirmDialog : Window
 {
-    private ConfirmDialog()
+    internal ConfirmDialog()
     {
         InitializeComponent();
     }
