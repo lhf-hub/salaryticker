@@ -26,6 +26,7 @@ public class WinCap
     [DllImport("user32.dll")] public static extern bool PrintWindow(IntPtr hWnd, IntPtr hdcBlt, uint nFlags);
     [DllImport("user32.dll")] public static extern bool SetForegroundWindow(IntPtr hWnd);
     [DllImport("user32.dll")] public static extern bool ShowWindow(IntPtr hWnd, int nCmdShow);
+    [DllImport("user32.dll")] public static extern bool SetProcessDPIAware();
 
     public struct RECT { public int Left; public int Top; public int Right; public int Bottom; }
 
@@ -86,6 +87,7 @@ public class WinCap
 "@
 
 Add-Type -TypeDefinition $signature -Language CSharp -ReferencedAssemblies System.Drawing
+[WinCap]::SetProcessDPIAware() | Out-Null
 
 if ($ProcessId -gt 0) {
     $p = Get-Process -Id $ProcessId -ErrorAction SilentlyContinue

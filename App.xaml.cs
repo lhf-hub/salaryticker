@@ -59,6 +59,11 @@ public partial class App : Application
         }
 
         // 开发/验收用单窗口模式：只打开指定窗口，便于截图与目检。
+        if (e.Args.Contains("spike"))
+        {
+            ShowSingleWindow(new DesignSpikeWindow());
+            return;
+        }
         if (e.Args.Contains("gallery"))
         {
             ShowSingleWindow(new StyleGalleryWindow());
@@ -153,6 +158,7 @@ public partial class App : Application
         Check("MiniWindow", () => new MiniWindow());
         Check("ConfirmDialog", () => new ConfirmDialog());
         Check("StyleGalleryWindow", () => new StyleGalleryWindow());
+        Check("DesignSpikeWindow", () => new DesignSpikeWindow());
 
         if (failures.Count > 0)
         {

@@ -28,6 +28,23 @@
 说明：`npx impeccable install` 的引擎下载被网络拦截，改用 GitHub codeload zip 解压后复制 `.claude/skills/impeccable`；首次运行 launcher 仍可能尝试下载引擎，失败时直接读 `SKILL.md` 与 `reference/`。
 未安装项目级 hook；仓库不提交 `.claude/`。
 
+## 方向选择（2026-10-18）
+
+用户选定 **B 流水台账** 作为主方向。
+
+- 方向板：`docs/ui-refresh/directions.html`（A/B/C 三版完整 Dashboard + 迷你窗 + 组件）。
+- 截图：`D:\Data\Coding\demo\_ui-baseline\direction-{a,b,c}.png`。
+- B 的核心：中性纸、标签在左 / 金额在右、双线收总额、key-value 行、Segoe UI 等宽数字；绿色只做单一强调，红色只做负数/错误；不做假工资条家具。
+- 下一步：WPF 保真 spike（Segoe UI 等宽数字、1px 线、focus、DPI），通过后再做 Dashboard 纵向切片。
+
+## WPF 保真 spike（2026-10-18）
+
+- B 方向可行：Segoe UI + `Typography.NumeralAlignment="Tabular"` 在 24px 样本下宽度差 **0.00 px**（`1111111111` vs `0000000000`）。
+- **本机实际 DPI = 125%**（PixelsPerDip 1.25，屏幕 1536×864），不是之前假设的 100%。`tools/capwin.ps1` 已改为 DPI 感知，后续截图是全分辨率；Phase 0 的旧基线截图是在未声明 DPI 感知时采集的（虚拟坐标），对比时以新截图为准。
+- 1 DIP 规则线可渲染；focus ring 采用「Style 包 Control.Template」的写法，静态样张已验证；真实键盘焦点仍需在 Phase 2 用 Tab 实测。
+- 1100×640 的 spike 在 125% 下仍超出逻辑工作区（约 691 DIP 高），说明 **FitToScreen / 降低最小高度是 Phase 2 的硬前置**。
+- spike 窗口：`Views/DesignSpikeWindow.xaml`，启动 `dotnet run -- spike`；截图 `D:\Data\Coding\demo\_ui-baseline\spike.png`。
+
 ## Phase 0 基线
 
 - `dotnet build`：通过。
