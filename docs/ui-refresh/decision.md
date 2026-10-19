@@ -109,6 +109,14 @@
 - 截图：`github-hero.png` / `github-full.png` / `github-history.png` / `github-coffee.png` / `github-mobile.png`（`D:\Data\Coding\demo\_ui-baseline\`）。
 - 应用不变；测试 231 全绿；未部署。
 
+## 官网暖色高级版（2026-10-19）
+
+- 用户认为 GitHub 暗色「太重」，要求保留 GitHub 的结构、回到正式环境的暖色。最终版：奶油 `#FAF7F2` 底、暖白卡片、珊瑚/琥珀单束氛围光、薄荷绿金额与深绿主操作。
+- GitHub 结构保留：版本 mono pill、分段事实条、深色代码窗（红黄绿点 + `salary-rules.ts`）、非对称 bento、大标题中量字重、绿色 CTA、真实应用截图为主角。
+- 页面节奏：暖色 hero + 单束光；功能 bento（珊瑚/暖白/浅米）；「怎么算的」深色代码窗 + 暖色说明；摸鱼暖色渐变面板；隐私/安装/FAQ/更新日志/支持为暖白卡片；页脚暖灰。
+- 截图：`warm-hero.png` / `warm-full.png` / `warm-history.png` / `warm-coffee.png` / `warm-mobile.png`。
+- 应用不变；测试 231 全绿；未部署。
+
 ## Phase 0 基线
 
 - `dotnet build`：通过。
