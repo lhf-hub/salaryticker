@@ -135,6 +135,14 @@
 - 截图：`color-hero.png` / `color-full.png` / `color-features-crop.png` / `color-support-crop.png` / `color-history.png` / `color-mobile.png`。
 - 应用不变；测试 231 全绿；未部署。
 
+## 官网色彩再加强（2026-10-19）
+
+- 卡片与章节淡彩底再加深一档；bento 顶部加同色 2px 细线；H2 下加四色渐变短线；首屏多色洗底与产品窗光晕加强；facts 三段各带淡彩底；muyu 面板加强；页脚渐变线加粗到 3px；捐献按钮深珊瑚。
+- 正文 `--muted` 加深到 `#665C52`，保证在加深后的淡彩底上仍达 AA；修复 `var(--mono)` → `var(--font-mono)`，等宽层真正生效。
+- 字体层级、圆角、密度不变。
+- 截图：`strong-hero.png` / `strong-full.png` / `strong-features-crop.png` / `strong-support-crop.png` / `strong-mobile.png`。
+- 应用不变；测试 231 全绿；未部署。
+
 ## Phase 0 基线
 
 - `dotnet build`：通过。
