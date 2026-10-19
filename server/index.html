@@ -56,8 +56,9 @@ body{
   -webkit-font-smoothing:antialiased;
   overflow-x:hidden;
   background:
-    radial-gradient(920px 520px at 50% -120px, rgba(0,113,227,.12), transparent 62%),
-    radial-gradient(700px 420px at 88% 18%, rgba(255,159,10,.07), transparent 60%),
+    radial-gradient(860px 540px at 10% -12%, rgba(0,113,227,.20), transparent 62%),
+    radial-gradient(720px 460px at 92% 0%, rgba(255,159,10,.14), transparent 60%),
+    radial-gradient(900px 620px at 50% 24%, rgba(0,180,200,.07), transparent 66%),
     var(--bg);
 }
 ::selection{background:var(--blue);color:#fff}
@@ -91,24 +92,27 @@ b{font-weight:650}
 
 /* ---------- 导航 ---------- */
 .nav{
-  position:sticky;top:0;z-index:60;
-  background:rgba(255,255,255,.58);
-  -webkit-backdrop-filter:blur(22px) saturate(180%);
-  backdrop-filter:blur(22px) saturate(180%);
-  border-bottom:1px solid rgba(0,0,0,.06);
+  position:sticky;top:12px;z-index:60;
+  width:calc(100% - 32px);max-width:1080px;margin:12px auto 0;
+  border-radius:20px;
+  background:rgba(255,255,255,.86);
+  -webkit-backdrop-filter:blur(26px) saturate(190%);
+  backdrop-filter:blur(26px) saturate(190%);
+  border:1px solid rgba(255,255,255,.82);
+  box-shadow:0 12px 40px rgba(0,0,0,.09);
 }
 @supports not ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))){
   .nav{background:rgba(255,255,255,.96)}
 }
 .nav-inner{
-  max-width:var(--maxw);margin:0 auto;padding:10px 24px;
-  display:flex;align-items:center;gap:20px;flex-wrap:wrap;
+  max-width:none;margin:0;padding:8px 16px;
+  display:flex;align-items:center;gap:18px;flex-wrap:wrap;
 }
 .brand{display:flex;align-items:center;gap:9px;font-weight:650;font-size:15px;color:var(--ink)}
 .brand img{width:26px;height:26px;border-radius:7px;display:block}
 .nav-links{display:flex;gap:6px;margin-left:auto}
 .nav-links a{
-  color:var(--muted);font-size:12.5px;padding:6px 9px;border-radius:8px;
+  color:#5E5E63;font-size:12.5px;padding:6px 9px;border-radius:8px;
   white-space:nowrap;
 }
 .nav-links a:hover{color:var(--ink);background:rgba(0,0,0,.04);text-decoration:none}
@@ -149,19 +153,29 @@ b{font-weight:650}
 .link{font-size:14px;font-weight:500}
 
 /* ---------- 首屏 ---------- */
-.hero{padding:86px 0 64px;text-align:center}
+.hero{padding:100px 0 50px;text-align:center}
 .hero h1{
-  font-size:clamp(40px,6vw,76px);
-  font-weight:700;letter-spacing:-.035em;line-height:1.04;
-  margin:0 auto 18px;max-width:900px;
+  font-size:clamp(44px,6.4vw,88px);
+  font-weight:700;letter-spacing:-.04em;line-height:1.02;
+  margin:0 auto 20px;max-width:980px;
 }
 .hero-break{display:none}
 .hero .lead{
-  font-size:clamp(17px,1.8vw,21px);color:var(--ink);
-  max-width:640px;margin:0 auto;line-height:1.55;
+  font-size:clamp(18px,1.9vw,22px);color:var(--ink);
+  max-width:660px;margin:0 auto;line-height:1.55;
 }
 .hero .lead-sub{display:block;margin-top:10px;font-size:13px;color:var(--muted);line-height:1.7}
-.cta-row{display:flex;flex-wrap:wrap;gap:18px;justify-content:center;align-items:center;margin-top:26px}
+.cta-dock{
+  display:inline-flex;align-items:center;gap:4px;margin-top:28px;
+  padding:6px;border-radius:980px;
+  background:rgba(255,255,255,.5);
+  -webkit-backdrop-filter:blur(22px) saturate(180%);
+  backdrop-filter:blur(22px) saturate(180%);
+  border:1px solid rgba(255,255,255,.82);
+  box-shadow:0 14px 44px rgba(0,0,0,.10);
+}
+.cta-dock .btn{padding:11px 22px}
+.dock-link{padding:8px 14px;font-size:13.5px;font-weight:500;color:var(--link)}
 .cta-note{margin-top:12px;font-size:12px;color:var(--muted)}
 .facts{list-style:none;display:flex;flex-wrap:wrap;justify-content:center;gap:8px;margin:24px 0 0;padding:0}
 .facts li{
@@ -173,52 +187,84 @@ b{font-weight:650}
 .facts svg{width:14px;height:14px;flex-shrink:0;color:var(--blue)}
 
 /* ---------- 首屏设备 ---------- */
-.device{position:relative;max-width:1000px;margin:52px auto 0;padding-bottom:26px}
+.device{position:relative;max-width:1040px;margin:60px auto 0;padding-bottom:26px;animation:hero-rise .95s cubic-bezier(.2,.7,.2,1) .12s both}
 .device::before{
-  content:"";position:absolute;left:8%;right:8%;top:4%;height:70%;
-  background:radial-gradient(closest-side, rgba(0,113,227,.22), rgba(0,113,227,0) 72%);
-  filter:blur(50px);z-index:0;
+  content:"";position:absolute;left:6%;right:6%;top:2%;height:72%;
+  background:radial-gradient(closest-side, rgba(0,113,227,.30), rgba(0,113,227,0) 72%);
+  filter:blur(64px);z-index:0;
 }
 .device-frame{
   position:relative;z-index:1;
   background:rgba(255,255,255,.46);
-  -webkit-backdrop-filter:blur(22px) saturate(170%);
-  backdrop-filter:blur(22px) saturate(170%);
-  border:1px solid rgba(255,255,255,.86);
-  border-radius:30px;padding:10px;
-  box-shadow:0 40px 110px rgba(0,0,0,.16), inset 0 1px 0 rgba(255,255,255,.9);
+  -webkit-backdrop-filter:blur(24px) saturate(180%);
+  backdrop-filter:blur(24px) saturate(180%);
+  border:1px solid rgba(255,255,255,.88);
+  border-radius:34px;padding:12px;
+  box-shadow:0 50px 140px rgba(0,0,0,.22), inset 0 1px 0 rgba(255,255,255,.95);
 }
-.device-frame img{display:block;width:100%;height:auto;border-radius:21px;border:1px solid rgba(0,0,0,.06)}
+.device-frame::after{
+  content:"";position:absolute;inset:0;border-radius:34px;pointer-events:none;
+  background:linear-gradient(130deg, rgba(255,255,255,.22), transparent 26%, transparent 74%, rgba(255,255,255,.10));
+}
+.device-frame img{display:block;width:100%;height:auto;border-radius:23px;border:1px solid rgba(0,0,0,.06)}
 .device-caption{margin-top:16px;text-align:center;font-size:12px;color:var(--muted)}
 .device-mini{
-  position:absolute;right:22px;bottom:-14px;z-index:2;width:218px;
-  filter:drop-shadow(0 22px 32px rgba(0,0,0,.2));
+  position:absolute;right:26px;bottom:-18px;z-index:2;width:230px;
+  filter:drop-shadow(0 26px 36px rgba(0,0,0,.22));
+  animation:mini-float 7s ease-in-out infinite;
 }
+.hero-copy{animation:hero-rise .8s cubic-bezier(.2,.7,.2,1) both}
+@keyframes hero-rise{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:none}}
+@keyframes mini-float{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
 .device-mini img{display:block;width:100%;height:auto}
 
 /* ---------- 区块头 ---------- */
-section{padding:92px 0}
-.sec-head{text-align:center;max-width:760px;margin:0 auto 42px}
-.sec-head h2{font-size:clamp(30px,4vw,48px);font-weight:700;letter-spacing:-.03em;margin-bottom:12px}
-.sec-head p{font-size:16px;color:var(--muted);line-height:1.7}
+section{padding:100px 0}
+.sec-head{text-align:center;max-width:780px;margin:0 auto 46px}
+.sec-head h2{font-size:clamp(34px,4.4vw,54px);font-weight:700;letter-spacing:-.03em;margin-bottom:13px}
+.sec-head p{font-size:17px;color:var(--muted);line-height:1.7}
 
 /* ---------- 功能 bento ---------- */
-.bento{display:grid;grid-template-columns:repeat(6,1fr);gap:18px}
+.bento{display:grid;grid-template-columns:repeat(6,1fr);gap:20px}
 .card{
-  border-radius:var(--radius);
+  border-radius:28px;
   background:rgba(255,255,255,.74);
   border:1px solid rgba(255,255,255,.9);
   box-shadow:var(--shadow-soft);
-  padding:26px;
+  padding:28px;
   -webkit-backdrop-filter:blur(18px) saturate(160%);
   backdrop-filter:blur(18px) saturate(160%);
   position:relative;overflow:hidden;
 }
+.card::after{
+  content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;
+  background:linear-gradient(135deg, rgba(255,255,255,.34), transparent 28%);
+}
+.card.dark{
+  background:linear-gradient(150deg,#121722,#090B10 70%);
+  color:#F5F5F7;
+  border-color:rgba(255,255,255,.12);
+  box-shadow:0 30px 80px rgba(0,0,0,.24);
+}
+.card.dark::before{
+  content:"";position:absolute;right:-18%;top:-42%;width:72%;height:120%;
+  background:radial-gradient(closest-side, rgba(0,113,227,.34), transparent 70%);
+  filter:blur(34px);pointer-events:none;
+}
+.card.dark::after{background:linear-gradient(135deg, rgba(255,255,255,.12), transparent 30%)}
+.card.dark h3{color:#F5F5F7}
+.card.dark p,.card.dark li{color:#A1A1A6}
+.card.dark .icon-tile{background:rgba(0,113,227,.2);color:#7CC0FF}
+.card.dark .readout{background:rgba(255,255,255,.06);border-color:rgba(255,255,255,.12);box-shadow:none}
+.card.dark .readout .label{color:#A1A1A6}
+.card.dark .readout .big{color:#F5F5F7}
+.card.dark .readout-row{border-color:rgba(255,255,255,.1);color:#A1A1A6}
+.card.dark .readout-row b{color:#F5F5F7}
 .card.span-4{grid-column:span 4}
 .card.span-2{grid-column:span 2}
 .card.span-3{grid-column:span 3}
 .card.blue{background:linear-gradient(145deg, rgba(0,113,227,.11), rgba(255,255,255,.82) 62%)}
-.card.warm{background:linear-gradient(145deg, rgba(255,159,10,.13), rgba(255,255,255,.84) 62%)}
+.card.warm{background:linear-gradient(145deg, rgba(255,159,10,.22), rgba(255,255,255,.86) 60%)}
 .card.gray{background:linear-gradient(145deg, rgba(0,0,0,.035), rgba(255,255,255,.8) 58%)}
 .icon-tile{
   width:38px;height:38px;border-radius:12px;
@@ -248,6 +294,26 @@ section{padding:92px 0}
 .muyu-chips{display:flex;flex-wrap:wrap;gap:7px;margin-top:13px}
 .muyu-chips span{font-size:12px;padding:6px 10px;border-radius:980px;background:rgba(255,255,255,.7);border:1px solid rgba(0,0,0,.06)}
 
+/* ---------- 深色对比带 ---------- */
+.dark-band{
+  background:
+    radial-gradient(720px 420px at 28% 0%, rgba(0,113,227,.20), transparent 66%),
+    #0A0A0D;
+  color:#F5F5F7;
+  margin:36px 16px;border-radius:44px;padding:88px 0;
+  box-shadow:0 40px 110px rgba(0,0,0,.18);
+}
+.dark-band .sec-head h2{color:#F5F5F7}
+.dark-band .sec-head p{color:#A1A1A6}
+.dark-band .panel{background:rgba(255,255,255,.055);border-color:rgba(255,255,255,.12);box-shadow:0 30px 80px rgba(0,0,0,.4)}
+.dark-band .formula{background:rgba(255,255,255,.045);border-color:rgba(255,255,255,.08);color:#F5F5F7}
+.dark-band .formula .c{color:#8E8E93}
+.dark-band .formula .k{color:#6CB6FF}
+.dark-band .formula .v{color:#fff}
+.dark-band .note{border-color:rgba(255,255,255,.1)}
+.dark-band .note b{color:#F5F5F7}
+.dark-band .note span{color:#A1A1A6}
+
 /* ---------- 怎么算的 ---------- */
 .panel{
   max-width:1020px;margin:0 auto;border-radius:var(--radius-lg);
@@ -276,7 +342,7 @@ section{padding:92px 0}
 /* ---------- 摸鱼 ---------- */
 .muyu-panel{
   max-width:1020px;margin:0 auto;border-radius:var(--radius-lg);
-  background:linear-gradient(140deg, rgba(255,159,10,.16), rgba(255,255,255,.72) 55%, rgba(0,113,227,.08));
+  background:linear-gradient(140deg, rgba(255,159,10,.24), rgba(255,255,255,.68) 46%, rgba(0,113,227,.12));
   border:1px solid rgba(255,255,255,.9);
   box-shadow:var(--shadow);
   padding:38px;
@@ -431,11 +497,14 @@ footer .fine{margin-top:22px;padding-top:16px;border-top:1px solid rgba(0,0,0,.0
   .device-mini{position:static;width:200px;margin:18px auto 0;filter:drop-shadow(0 14px 20px rgba(0,0,0,.16))}
   .device{padding-bottom:0}
   section{padding:64px 0}
+  .dark-band{margin:24px 10px;border-radius:30px;padding:64px 0}
 }
 @media (max-width:860px){
+  .nav{width:calc(100% - 16px);top:8px;margin:8px auto 0;border-radius:16px}
   .nav-links{display:none}
   .nav-mobile{display:block}
   .nav-dl{display:none}
+  .nav-mobile-links{left:8px;right:8px}
   .hero h1{font-size:clamp(36px,10vw,54px)}
   .hero-break{display:inline}
   .muyu-panel{padding:26px}
@@ -451,6 +520,7 @@ footer .fine{margin-top:22px;padding-top:16px;border-top:1px solid rgba(0,0,0,.0
 }
 @media (prefers-reduced-motion:reduce){
   html{scroll-behavior:auto}
+  .hero-copy,.device,.device-mini{animation:none}
 }
 </style>
 </head>
@@ -492,17 +562,18 @@ footer .fine{margin-top:22px;padding-top:16px;border-top:1px solid rgba(0,0,0,.0
 
 <header class="hero" id="top">
   <div class="wrap">
+    <div class="hero-copy">
     <h1>谋生有度，<br class="hero-break">生活有光。</h1>
     <p class="lead">
       把月薪拆成看得见的每一秒。
       <span class="lead-sub">SalaryTicker 是一个工资实时计算器，内置深圳参数，其他城市可自行调整。</span>
     </p>
 
-    <div class="cta-row">
+    <div class="cta-dock">
       <a class="btn" id="dl-main" href="download/SalaryTicker.exe" download>
         下载 Windows 版 <small id="dl-ver" style="display:none"></small>
       </a>
-      <a class="link" href="#features">先看看它能做什么</a>
+      <a class="dock-link" href="#features">先看看它能做什么</a>
     </div>
     <p class="cta-note" id="dl-note">Windows 10 / 11，64 位，免安装绿色版</p>
 
@@ -520,6 +591,7 @@ footer .fine{margin-top:22px;padding-top:16px;border-top:1px solid rgba(0,0,0,.0
         节假日强制休息，不计薪
       </li>
     </ul>
+    </div>
 
     <div class="device">
       <div class="device-frame">
@@ -550,7 +622,7 @@ footer .fine{margin-top:22px;padding-top:16px;border-top:1px solid rgba(0,0,0,.0
     </div>
 
     <div class="bento">
-      <div class="card span-4 blue card-wide">
+      <div class="card span-4 dark card-wide">
         <div>
           <div class="icon-tile">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 19V11M10 19V5M16 19v-7M22 19H2"/></svg>
@@ -625,7 +697,7 @@ footer .fine{margin-top:22px;padding-top:16px;border-top:1px solid rgba(0,0,0,.0
 </section>
 
 <!-- ═══════════ 怎么算的 ═══════════ -->
-<section id="how">
+<section id="how" class="dark-band">
   <div class="wrap">
     <div class="sec-head">
       <h2>它是怎么算的</h2>

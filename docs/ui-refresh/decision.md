@@ -94,6 +94,13 @@
 - 截图：`apple-hero.png` / `apple-full.png` / `apple-modal-*.png` / `apple-mobile*.png`（在 `D:\Data\Coding\demo\_ui-baseline\`）；本地 staged 预览，**未部署**。
 - 若官网方向认可，再评估是否把这套浅色玻璃语言迁到 WPF；WPF 的真毛玻璃需要 DWM Acrylic/Mica，迁移成本另计。
 
+## 官网 Apple 风加大力度（2026-10-19）
+
+- 用户反馈第一版 Apple 风「再大胆一点」后追加：悬浮玻璃导航（非全宽、圆角胶囊）、玻璃 CTA Dock、首屏字号加到 88px、应用窗口更大且加发光/玻璃高光、功能区加入一张深色 bento 卡、「怎么算的」改为深色圆角对比带、摸鱼区暖色渐变加强、首屏淡入与迷你窗缓慢浮动。
+- 导航玻璃从 .55 提高到 .86，导航链接用更深的 `#5E5E63`，避免滑过深色带时对比度掉到 AA 以下；文字链接仍用 `#0066CC`。
+- 动效尊重 `prefers-reduced-motion`；截图 `apple-bold-hero.png` / `apple-bold-full.png` / `apple-bold-history.png` / `apple-bold-mobile.png`。
+- 应用侧仍未改动；测试 231 全绿；未部署。
+
 ## Phase 0 基线
 
 - `dotnet build`：通过。
