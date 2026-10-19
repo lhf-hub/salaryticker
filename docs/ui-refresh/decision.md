@@ -117,6 +117,16 @@
 - 截图：`warm-hero.png` / `warm-full.png` / `warm-history.png` / `warm-coffee.png` / `warm-mobile.png`。
 - 应用不变；测试 231 全绿；未部署。
 
+## 官网字体层级与圆角（2026-10-19）
+
+- 用户反馈：密度可以，但棱角不够圆润；全文统一字体太丑，需要明确的字体层级。
+- 三层字体：**展示衬线** `Noto Serif SC`（H1/H2、品牌字、摸鱼引语）＋ **无衬线正文** `Noto Sans SC / 微软雅黑 / PingFang`＋ **等宽** `Cascadia Mono/Consolas`（版本、代码、readout 数据、步骤号、章节小标签）。
+- 展示体自托管子集：`server/assets/noto-serif-sc-display.woff2`（257 KB，覆盖当前静态页面 660 个字符），许可见 `OFL-NotoSerifSC.txt`；标题改动后需用 fontTools 重新生成子集。
+- 圆角：按钮/胶囊 980px，卡片 22px，代码窗 18px，弹窗 22px，迷你窗截图 14px，FAQ/更新日志/支持 22px；与正式环境的圆润感对齐。
+- 章节增加 mono 小标签（features / how it works / muyu / privacy / install / faq / changelog / support）+ 彩色小点，和衬线 H2、无衬线正文形成三层。
+- 截图：`type-hero.png` / `type-full.png` / `type-features-crop.png` / `type-how-crop.png` / `type-history.png` / `type-mobile.png`。
+- 应用不变；测试 231 全绿；未部署。
+
 ## Phase 0 基线
 
 - `dotnet build`：通过。

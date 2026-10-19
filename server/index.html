@@ -9,6 +9,7 @@
 <meta name="theme-color" content="#FAF7F2">
 <link rel="icon" href="assets/favicon.ico" sizes="any">
 <link rel="apple-touch-icon" href="assets/app-icon.png">
+<link rel="preload" href="assets/noto-serif-sc-display.woff2" as="font" type="font/woff2" crossorigin>
 
 <meta property="og:type" content="website">
 <meta property="og:title" content="SalaryTicker 实时计算器 · 看着工资一秒一秒地涨">
@@ -48,8 +49,17 @@
   --code-fg:#F5EFE6;
   --link:#0F6B57;
   --maxw:1120px;
-  --font:-apple-system,BlinkMacSystemFont,"Segoe UI Variable Display","Segoe UI","Microsoft YaHei UI","PingFang SC","Helvetica Neue",sans-serif;
-  --mono:"SF Mono","Cascadia Mono",Consolas,"Liberation Mono",monospace;
+  --font-display:"Salary Display","Noto Serif SC","Source Han Serif SC","Songti SC","SimSun",serif;
+  --font-body:"Noto Sans SC","Microsoft YaHei UI","PingFang SC","Segoe UI","Helvetica Neue",sans-serif;
+  --font-mono:"SF Mono","Cascadia Mono",Consolas,"Liberation Mono",monospace;
+}
+
+/* Display font subset covers the current static page characters; regenerate if headings change. */
+@font-face{
+  font-family:"Salary Display";
+  src:url("assets/noto-serif-sc-display.woff2") format("woff2");
+  font-weight:400 700;
+  font-display:swap;
 }
 
 *{box-sizing:border-box}
@@ -63,7 +73,7 @@ body{
   margin:0;
   background:var(--bg);
   color:var(--ink);
-  font-family:var(--font);
+  font-family:var(--font-body);
   font-size:15.5px;
   line-height:1.7;
   -webkit-font-smoothing:antialiased;
@@ -71,7 +81,8 @@ body{
 }
 ::selection{background:var(--coral);color:var(--ink-strong)}
 :focus-visible{outline:2px solid var(--green-strong);outline-offset:3px}
-h1,h2,h3{line-height:1.15;margin:0;font-weight:500;letter-spacing:-.03em}
+h1,h2{line-height:1.15;margin:0;font-family:var(--font-display);font-weight:500;letter-spacing:-.02em}
+h3{line-height:1.3;margin:0;font-family:var(--font-body);font-weight:600;letter-spacing:-.015em}
 p{margin:0}
 a{color:var(--link);text-decoration:none}
 a:hover{text-decoration:underline;text-underline-offset:3px}
@@ -100,18 +111,18 @@ b{font-weight:600}
   max-width:var(--maxw);margin:0 auto;padding:11px 24px;
   display:flex;align-items:center;gap:20px;flex-wrap:wrap;
 }
-.brand{display:flex;align-items:center;gap:9px;font-weight:600;font-size:15px;color:var(--ink)}
+.brand{display:flex;align-items:center;gap:9px;font-family:var(--font-display);font-weight:600;font-size:16px;color:var(--ink)}
 .brand img{width:24px;height:24px;border-radius:6px;display:block}
 .nav-links{display:flex;gap:4px;margin-left:auto}
 .nav-links a{
-  color:var(--muted);font-size:12.5px;padding:6px 9px;border-radius:6px;
+  color:var(--muted);font-size:12.5px;padding:6px 11px;border-radius:980px;
   white-space:nowrap;
 }
 .nav-links a:hover{color:var(--ink);background:var(--coral-soft);text-decoration:none}
 .nav-mobile{display:none;margin-left:auto}
 .nav-mobile summary{
   cursor:pointer;list-style:none;font-size:13px;color:var(--ink);
-  padding:7px 12px;border-radius:6px;background:var(--surface);
+  padding:7px 14px;border-radius:980px;background:var(--surface);
   border:1px solid var(--border);
 }
 .nav-mobile summary::-webkit-details-marker{display:none}
@@ -119,7 +130,7 @@ b{font-weight:600}
 .nav-mobile[open] summary::after{content:" ↑"}
 .nav-mobile-links{
   position:absolute;left:12px;right:12px;top:calc(100% + 6px);
-  background:var(--surface);border:1px solid var(--border);border-radius:10px;
+  background:var(--surface);border:1px solid var(--border);border-radius:20px;
   box-shadow:0 16px 48px rgba(60,40,25,.16);padding:5px 14px 9px;
 }
 .nav-mobile-links a{display:block;padding:10px 2px;border-top:1px solid var(--border);font-size:14px;color:var(--ink);text-decoration:none}
@@ -129,13 +140,13 @@ b{font-weight:600}
 .btn{
   display:inline-flex;align-items:center;justify-content:center;gap:7px;
   background:var(--green-strong);color:#FFFCF7;border:1px solid var(--green-strong);
-  border-radius:6px;padding:11px 20px;
+  border-radius:980px;padding:12px 24px;
   font-family:inherit;font-size:14px;font-weight:600;
   cursor:pointer;text-decoration:none;
-  box-shadow:0 6px 18px rgba(23,105,79,.18);
+  box-shadow:0 8px 22px rgba(23,105,79,.16);
 }
 .btn:hover{background:var(--green-hover);border-color:var(--green-hover);text-decoration:none}
-.btn small{font-weight:400;font-size:12px;opacity:.82}
+.btn small{font-family:var(--font-mono);font-weight:400;font-size:12px;opacity:.82}
 .btn.ghost{background:var(--surface);color:var(--ink);border-color:var(--border);box-shadow:none}
 .btn.ghost:hover{background:var(--bg-soft);border-color:var(--border-strong)}
 .nav-dl{margin-left:2px;padding:6px 14px;font-size:12.5px;box-shadow:none}
@@ -211,16 +222,16 @@ b{font-weight:600}
   position:relative;z-index:1;
   background:var(--surface);
   border:1px solid var(--border);
-  border-radius:14px;padding:8px;
+  border-radius:22px;padding:10px;
   box-shadow:0 40px 120px rgba(90,60,40,.18), 0 14px 36px rgba(90,60,40,.10);
 }
-.device-frame img{display:block;width:100%;height:auto;border-radius:8px;border:1px solid rgba(45,42,38,.06)}
+.device-frame img{display:block;width:100%;height:auto;border-radius:14px;border:1px solid rgba(45,42,38,.06)}
 .device-mini{
   position:absolute;right:24px;bottom:-18px;z-index:2;width:220px;
   filter:drop-shadow(0 22px 34px rgba(90,60,40,.28));
   animation:mini-float 7s ease-in-out infinite;
 }
-.device-mini img{display:block;width:100%;height:auto}
+.device-mini img{display:block;width:100%;height:auto;border-radius:14px}
 .device-caption{margin-top:16px;text-align:center;font-size:11.5px;color:var(--muted);font-family:var(--mono)}
 .hero-copy{animation:hero-rise .8s cubic-bezier(.2,.7,.2,1) both}
 @keyframes hero-rise{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:none}}
@@ -229,6 +240,17 @@ b{font-weight:600}
 /* ---------- 区块 ---------- */
 section{padding:88px 0}
 #how,#privacy,#faq,#support{background:var(--bg-band)}
+.sec-label{
+  display:inline-flex;align-items:center;gap:7px;
+  font-family:var(--font-mono);font-size:10.5px;letter-spacing:.10em;
+  color:var(--muted);margin-bottom:10px;text-transform:lowercase;
+}
+.sec-label i{width:5px;height:5px;border-radius:50%;background:var(--green)}
+#how .sec-label i{background:var(--coral)}
+#muyu .sec-label i{background:var(--amber)}
+#install .sec-label i{background:var(--coral)}
+#changelog .sec-label i{background:var(--amber)}
+#support .sec-label i{background:var(--coral)}
 .sec-head{text-align:center;max-width:780px;margin:0 auto 42px}
 .sec-head h2{font-size:clamp(30px,3.6vw,40px);font-weight:500;letter-spacing:-.035em;margin-bottom:12px;color:var(--ink-strong)}
 .sec-head p{font-size:16px;color:var(--muted);line-height:1.75}
@@ -237,7 +259,7 @@ section{padding:88px 0}
 .bento{display:grid;grid-template-columns:repeat(6,1fr);gap:16px}
 .card{
   position:relative;overflow:hidden;
-  border-radius:14px;
+  border-radius:22px;
   background:var(--surface);
   border:1px solid var(--border);
   padding:24px;
@@ -261,7 +283,7 @@ section{padding:88px 0}
 }
 .card.gray{background:var(--bg-soft)}
 .icon-tile{
-  width:36px;height:36px;border-radius:8px;
+  width:36px;height:36px;border-radius:12px;
   display:flex;align-items:center;justify-content:center;
   margin-bottom:14px;border:1px solid rgba(224,122,95,.30);
   background:var(--coral-soft);color:var(--coral-strong);
@@ -274,7 +296,7 @@ section{padding:88px 0}
 .bento .card:nth-child(6) .icon-tile{border-color:rgba(224,122,95,.30);background:var(--coral-soft);color:var(--coral-strong)}
 .card-wide{display:grid;grid-template-columns:1.1fr .9fr;gap:22px;align-items:center}
 .readout{
-  border-radius:10px;padding:14px 16px;
+  border-radius:14px;padding:14px 16px;
   background:var(--surface-raised);border:1px solid var(--border);
 }
 .readout .label{font-size:10.5px;color:var(--muted);font-family:var(--mono)}
@@ -290,7 +312,7 @@ section{padding:88px 0}
 /* ---------- 怎么算的：代码窗口 ---------- */
 .how-grid{display:grid;grid-template-columns:1.15fr .85fr;gap:30px;align-items:start}
 .code-window{
-  border:1px solid #3A322A;border-radius:12px;overflow:hidden;
+  border:1px solid #3A322A;border-radius:18px;overflow:hidden;
   background:var(--code);
   box-shadow:0 26px 64px rgba(60,40,25,.22);
 }
@@ -319,7 +341,7 @@ section{padding:88px 0}
 
 /* ---------- 摸鱼 ---------- */
 .muyu-panel{
-  max-width:1040px;margin:0 auto;border-radius:16px;
+  max-width:1040px;margin:0 auto;border-radius:24px;
   background:
     radial-gradient(640px 320px at 12% 0%, rgba(224,122,95,.22), transparent 68%),
     radial-gradient(520px 260px at 92% 100%, rgba(244,162,97,.18), transparent 70%),
@@ -332,7 +354,8 @@ section{padding:88px 0}
 .muyu-panel p{font-size:14.5px;color:var(--muted);max-width:760px;line-height:1.8}
 .muyu-panel .quotes{display:flex;flex-wrap:wrap;gap:9px;margin-top:17px}
 .muyu-panel .quotes div{
-  font-size:12.5px;color:var(--ink);padding:9px 13px;border-radius:8px;
+  font-family:var(--font-display);font-weight:500;
+  font-size:13.5px;color:var(--ink);padding:10px 15px;border-radius:14px;
   background:rgba(255,252,247,.8);border:1px solid rgba(239,205,185,.8);
 }
 .muyu-actions{display:flex;flex-wrap:wrap;gap:7px;margin-top:17px}
@@ -347,7 +370,7 @@ section{padding:88px 0}
 /* ---------- 安装 ---------- */
 .steps{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
 .step{
-  border-radius:12px;padding:24px;
+  border-radius:20px;padding:24px;
   background:var(--surface);border:1px solid var(--border);
   box-shadow:0 10px 30px rgba(90,60,40,.05);
 }
@@ -355,7 +378,7 @@ section{padding:88px 0}
 .step h3{font-size:17px;font-weight:600;margin:7px 0 8px;color:var(--ink-strong)}
 .step p{font-size:13px;color:var(--muted);line-height:1.8}
 .warn{
-  margin-top:18px;border-radius:12px;padding:20px 22px;
+  margin-top:18px;border-radius:20px;padding:20px 22px;
   background:var(--amber-soft);
   border:1px solid #EFD2A8;
 }
@@ -367,7 +390,7 @@ section{padding:88px 0}
 
 /* ---------- FAQ ---------- */
 .faq-panel{
-  max-width:900px;margin:0 auto;border-radius:12px;padding:4px 22px;
+  max-width:900px;margin:0 auto;border-radius:22px;padding:4px 22px;
   background:var(--surface);border:1px solid var(--border);
   box-shadow:0 12px 34px rgba(90,60,40,.05);
 }
@@ -385,7 +408,7 @@ details .body p + p{margin-top:8px}
 
 /* ---------- 更新日志 ---------- */
 .changelog{
-  max-width:900px;margin:0 auto;border-radius:12px;padding:24px;
+  max-width:900px;margin:0 auto;border-radius:22px;padding:24px;
   background:var(--surface);border:1px solid var(--border);
   box-shadow:0 12px 34px rgba(90,60,40,.05);
 }
@@ -393,7 +416,7 @@ details .body p + p{margin-top:8px}
 .changelog .ver b{font-family:var(--mono);font-size:20px;color:var(--green);font-weight:600}
 .changelog .ver span{font-size:12px;color:var(--muted);font-family:var(--mono)}
 .changelog .notes{
-  background:var(--bg-soft);border:1px solid var(--border);border-radius:8px;padding:13px 15px;
+  background:var(--bg-soft);border:1px solid var(--border);border-radius:12px;padding:13px 15px;
   font-size:13px;color:var(--ink);white-space:pre-wrap;word-break:break-word;
 }
 .changelog .hash{font-family:var(--mono);font-size:10.5px;color:var(--muted);word-break:break-all;margin-top:11px}
@@ -426,16 +449,16 @@ details .body p + p{margin-top:8px}
 .modal.open{display:flex}
 .modal-box{
   position:relative;background:var(--surface);
-  border:1px solid var(--border);border-radius:12px;
+  border:1px solid var(--border);border-radius:22px;
   padding:26px;max-width:430px;width:100%;
   box-shadow:0 30px 90px rgba(60,40,25,.28);
 }
 .modal-box h3{font-size:17px;font-weight:600;color:var(--ink-strong);margin-bottom:6px;padding-right:32px}
 .modal-box p{font-size:12.5px;color:var(--muted);line-height:1.7}
-.modal-box img{display:block;width:100%;max-width:250px;height:auto;margin:15px auto 0;border-radius:8px;border:1px solid var(--border)}
+.modal-box img{display:block;width:100%;max-width:250px;height:auto;margin:15px auto 0;border-radius:12px;border:1px solid var(--border)}
 .modal-close{
   position:absolute;top:12px;right:12px;width:30px;height:30px;
-  border:1px solid var(--border);border-radius:6px;
+  border:1px solid var(--border);border-radius:50%;
   background:var(--bg-soft);cursor:pointer;color:var(--muted);
   font-size:14px;font-family:inherit;
 }
@@ -449,7 +472,7 @@ details .body p + p{margin-top:8px}
 .history-item .meta{font-size:10.5px;color:var(--muted);font-weight:400;font-family:var(--mono)}
 .history-item .latest{display:inline-block;background:var(--green-strong);color:#FFFCF7;font-size:9.5px;font-weight:600;padding:2px 6px;border-radius:980px;vertical-align:middle;margin-left:5px}
 .history-item .body{padding:0 0 13px;display:flex;flex-direction:column;gap:8px}
-.history-item .notes{background:var(--bg-soft);border:1px solid var(--border);border-radius:8px;padding:10px 12px;margin:0;font-size:12px;color:var(--ink);white-space:pre-wrap;word-break:break-word}
+.history-item .notes{background:var(--bg-soft);border:1px solid var(--border);border-radius:12px;padding:10px 12px;margin:0;font-size:12px;color:var(--ink);white-space:pre-wrap;word-break:break-word}
 .history-item .dl{align-self:flex-start;font-size:12px}
 .history-item .archive-only{font-size:11px;color:var(--muted)}
 
@@ -457,7 +480,7 @@ details .body p + p{margin-top:8px}
 footer{padding:40px 0 34px;border-top:1px solid var(--border);background:#F1EAE0;font-size:12px;color:var(--muted)}
 footer .cols{display:flex;flex-wrap:wrap;gap:28px;justify-content:space-between}
 footer .col{max-width:520px}
-footer .brand{font-size:13px;color:var(--ink-strong);margin-bottom:6px;display:flex;align-items:center;gap:7px;font-weight:600}
+footer .brand{font-size:14px;color:var(--ink-strong);margin-bottom:6px;display:flex;align-items:center;gap:7px;font-family:var(--font-display);font-weight:600}
 footer .brand img{width:20px;height:20px;border-radius:5px}
 footer a{color:var(--link)}
 footer .fine{margin-top:20px;padding-top:15px;border-top:1px solid var(--border-strong);font-size:11px;line-height:1.9;color:var(--muted)}
@@ -601,6 +624,7 @@ footer .fine{margin-top:20px;padding-top:15px;border-top:1px solid var(--border-
 <section id="features">
   <div class="wrap">
     <div class="sec-head">
+      <div class="sec-label"><i></i>features</div>
       <h2>它到底能做什么</h2>
       <p>不是又一个工资计算器 —— 它是你上班时挂在屏幕角落、一直在涨的那个数字。</p>
     </div>
@@ -684,6 +708,7 @@ footer .fine{margin-top:20px;padding-top:15px;border-top:1px solid var(--border-
 <section id="how">
   <div class="wrap">
     <div class="sec-head">
+      <div class="sec-label"><i></i>how it works</div>
       <h2>它是怎么算的</h2>
       <p>公式全部摊开给你看 —— 而且所有政策参数都能在设置里改，政策变了不用等更新。</p>
     </div>
@@ -737,6 +762,7 @@ footer .fine{margin-top:20px;padding-top:15px;border-top:1px solid var(--border-
 <section id="muyu">
   <div class="wrap">
     <div class="muyu-panel">
+      <div class="sec-label"><i></i>muyu</div>
       <h2>摸鱼，但理直气壮</h2>
       <p>
         点一下「抽根烟」，计时开始，屏幕实时显示这段时间<b>白赚</b>了多少钱 ——
@@ -760,6 +786,7 @@ footer .fine{margin-top:20px;padding-top:15px;border-top:1px solid var(--border-
 <section id="privacy">
   <div class="wrap">
     <div class="sec-head">
+      <div class="sec-label"><i></i>privacy</div>
       <h2>你的数据，只在你电脑里</h2>
       <p>工资是很私人的事。所以它不联网、不注册、不上传。</p>
     </div>
@@ -794,6 +821,7 @@ footer .fine{margin-top:20px;padding-top:15px;border-top:1px solid var(--border-
 <section id="install">
   <div class="wrap">
     <div class="sec-head">
+      <div class="sec-label"><i></i>install</div>
       <h2>三十秒就能用上</h2>
       <p>绿色免安装：不需要装 .NET 运行时，不需要管理员权限，删掉 exe 就等于卸载。</p>
     </div>
@@ -835,6 +863,7 @@ footer .fine{margin-top:20px;padding-top:15px;border-top:1px solid var(--border-
 <section id="faq">
   <div class="wrap">
     <div class="sec-head">
+      <div class="sec-label"><i></i>faq</div>
       <h2>常见问题</h2>
     </div>
 
@@ -914,6 +943,7 @@ footer .fine{margin-top:20px;padding-top:15px;border-top:1px solid var(--border-
 <section id="changelog">
   <div class="wrap">
     <div class="sec-head">
+      <div class="sec-label"><i></i>changelog</div>
       <h2>最新版本</h2>
     </div>
 
@@ -938,6 +968,7 @@ footer .fine{margin-top:20px;padding-top:15px;border-top:1px solid var(--border-
 <section id="support">
   <div class="wrap">
     <div class="sec-head">
+      <div class="sec-label"><i></i>support</div>
       <h2>如果它帮到了你</h2>
     </div>
 
@@ -990,6 +1021,7 @@ footer .fine{margin-top:20px;padding-top:15px;border-top:1px solid var(--border-
     <div class="fine">
       内置深圳参数；其他城市可在「设置 → 政策参数」中按当地政策调整。<br>
       计算结果仅供参考，以实际工资条为准。愿你的付出都有回响，休息也理直气壮。<br>
+      标题字体 Noto Serif SC（SIL OFL 1.1），其余字体使用系统字体。<br>
       © 2026 SalaryTicker。本页面不含任何第三方统计脚本。
     </div>
   </div>
