@@ -152,6 +152,13 @@
 - 截图：`silk-hero.png` / `silk-full.png` / `silk-history.png` / `silk-mobile.png`（静态图无法体现动效，需实际交互体验）。
 - 应用不变；测试 231 全绿；未部署。
 
+## 卡片 3D 聚焦（2026-10-19）
+
+- 鼠标悬停卡片时，卡片以 `perspective(900px)` 朝光标方向 `rotateX/rotateY`（约 ±4–5°）、`scale(1.02)`、上浮 4px，柔光继续跟随指针；离开回正。
+- 触屏（`pointer: coarse`）与 `prefers-reduced-motion` 下不启用 3D/缩放，只保留基础悬停。
+- 演示截图：`card-3d-hover-crop.png`（第三张卡片处于悬停态）。
+- 应用不变；测试 231 全绿；未部署。
+
 ## Phase 0 基线
 
 - `dotnet build`：通过。

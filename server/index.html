@@ -168,7 +168,7 @@ b{font-weight:600}
 /* 滚动渐入 */
 .reveal{opacity:0;translate:0 16px;transition:opacity .55s cubic-bezier(.2,.7,.2,1),translate .55s cubic-bezier(.2,.7,.2,1)}
 .reveal.in{opacity:1;translate:0 0}
-.card.reveal,.step.reveal{transition:opacity .55s cubic-bezier(.2,.7,.2,1),translate .55s cubic-bezier(.2,.7,.2,1),transform .28s cubic-bezier(.2,.7,.2,1),box-shadow .28s cubic-bezier(.2,.7,.2,1),border-color .28s ease}
+.card.reveal,.step.reveal{transition:opacity .55s cubic-bezier(.2,.7,.2,1),translate .55s cubic-bezier(.2,.7,.2,1),transform .18s cubic-bezier(.2,.7,.2,1),box-shadow .28s cubic-bezier(.2,.7,.2,1),border-color .28s ease}
 .btn small{font-family:var(--font-mono);font-weight:400;font-size:12px;opacity:.82}
 .btn.ghost{background:var(--surface);color:var(--ink);border-color:var(--border);box-shadow:none}
 .btn.ghost:hover{background:var(--bg-soft);border-color:var(--border-strong)}
@@ -309,7 +309,7 @@ section{padding:88px 0}
   border:1px solid var(--border);
   padding:24px;
   box-shadow:0 10px 30px rgba(90,60,40,.05);
-  transition:transform .28s cubic-bezier(.2,.7,.2,1),box-shadow .28s cubic-bezier(.2,.7,.2,1),border-color .28s ease;
+  transition:transform .18s cubic-bezier(.2,.7,.2,1),box-shadow .28s cubic-bezier(.2,.7,.2,1),border-color .28s ease;
 }
 .card:hover{transform:translateY(-3px);box-shadow:0 18px 44px rgba(90,60,40,.10)}
 .card h3{font-size:18px;font-weight:600;letter-spacing:-.02em;margin-bottom:7px;color:var(--ink-strong)}
@@ -454,7 +454,7 @@ section{padding:88px 0}
   border-radius:20px;padding:24px;
   background:var(--surface);border:1px solid var(--border);
   box-shadow:0 10px 30px rgba(90,60,40,.05);
-  transition:transform .28s cubic-bezier(.2,.7,.2,1),box-shadow .28s cubic-bezier(.2,.7,.2,1),border-color .28s ease;
+  transition:transform .18s cubic-bezier(.2,.7,.2,1),box-shadow .28s cubic-bezier(.2,.7,.2,1),border-color .28s ease;
 }
 .step:hover{transform:translateY(-2px);box-shadow:0 16px 38px rgba(90,60,40,.09)}
 .step .n{font-family:var(--font-mono);font-size:12px;color:var(--green);font-weight:500;letter-spacing:.04em}
@@ -1439,13 +1439,25 @@ footer .fine{margin-top:20px;padding-top:15px;border-top:1px solid var(--border-
     device.addEventListener('pointerleave', function () { frame.style.transform = ''; });
   }
 
-  /* 卡片柔光跟随指针 */
+  /* 卡片柔光与 3D 聚焦 */
+  var finePointer = window.matchMedia('(pointer:fine)').matches;
   var glowCards = document.querySelectorAll('.bento .card, .tri .card, .steps .step, .support .card');
   glowCards.forEach(function (card) {
     card.addEventListener('pointermove', function (e) {
       var r = card.getBoundingClientRect();
-      card.style.setProperty('--mx', ((e.clientX - r.left) / r.width * 100).toFixed(1) + '%');
-      card.style.setProperty('--my', ((e.clientY - r.top) / r.height * 100).toFixed(1) + '%');
+      var px = (e.clientX - r.left) / r.width - .5;
+      var py = (e.clientY - r.top) / r.height - .5;
+
+      card.style.setProperty('--mx', ((px + .5) * 100).toFixed(1) + '%');
+      card.style.setProperty('--my', ((py + .5) * 100).toFixed(1) + '%');
+
+      if (!reduceMotion && finePointer) {
+        card.style.transform = 'perspective(900px) translateY(-4px) rotateX(' +
+          (-py * 4).toFixed(2) + 'deg) rotateY(' + (px * 5).toFixed(2) + 'deg) scale(1.02)';
+      }
+    });
+    card.addEventListener('pointerleave', function () {
+      card.style.transform = '';
     });
   });
 })();
