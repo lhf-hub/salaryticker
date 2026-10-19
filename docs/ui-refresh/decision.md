@@ -127,6 +127,14 @@
 - 截图：`type-hero.png` / `type-full.png` / `type-features-crop.png` / `type-how-crop.png` / `type-history.png` / `type-mobile.png`。
 - 应用不变；测试 231 全绿；未部署。
 
+## 官网色彩扩展（2026-10-19）
+
+- 用户反馈「色彩少了」；在暖色高级版基础上加入六色柔和分区：珊瑚 / 琥珀 / 薄荷 / 雾蓝 / 玫瑰 / 青绿。
+- 首屏多色氛围光（珊瑚+琥珀+薄荷+雾蓝）；bento 六张卡各分一色；「怎么算的」与 FAQ 用薄荷底；隐私用雾蓝底；支持区用暖桃底；安装三步分别绿/琥珀/雾蓝；页脚四色渐变收边；捐献按钮改深珊瑚。
+- 字体层级、圆角、密度保持不变；所有文本对比度仍按 AA 选取。
+- 截图：`color-hero.png` / `color-full.png` / `color-features-crop.png` / `color-support-crop.png` / `color-history.png` / `color-mobile.png`。
+- 应用不变；测试 231 全绿；未部署。
+
 ## Phase 0 基线
 
 - `dotnet build`：通过。
