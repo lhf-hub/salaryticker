@@ -101,6 +101,14 @@
 - 动效尊重 `prefers-reduced-motion`；截图 `apple-bold-hero.png` / `apple-bold-full.png` / `apple-bold-history.png` / `apple-bold-mobile.png`。
 - 应用侧仍未改动；测试 231 全绿；未部署。
 
+## 官网 GitHub 风暗色重做（2026-10-19）
+
+- 用户认为浅色 Apple 版仍「太素、没有高级感」，且不如正式环境那版；要求多参考 GitHub / 逆向好样式。
+- 参考 GitHub 当前设计语言：`#0d1117` canvas、纯黑 hero 带、单一暖色氛围光、中间字重、mono 版本号与代码窗口、绿色主操作、arctic blue 链接、pill 分段控件。
+- 重做：暗色产品页；品牌珊瑚/琥珀光晕只出现在首屏产品窗后；公式改为 GitHub 风代码窗口；深色 bento + 彩色图标；绿色 CTA；真实应用截图为主角。保留文案、版本/历史、无障碍与无 JS 兜底。
+- 截图：`github-hero.png` / `github-full.png` / `github-history.png` / `github-coffee.png` / `github-mobile.png`（`D:\Data\Coding\demo\_ui-baseline\`）。
+- 应用不变；测试 231 全绿；未部署。
+
 ## Phase 0 基线
 
 - `dotnet build`：通过。
