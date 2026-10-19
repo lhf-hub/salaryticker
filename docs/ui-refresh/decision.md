@@ -143,6 +143,15 @@
 - 截图：`strong-hero.png` / `strong-full.png` / `strong-features-crop.png` / `strong-support-crop.png` / `strong-mobile.png`。
 - 应用不变；测试 231 全绿；未部署。
 
+## 官网丝滑动效（2026-10-19）
+
+- 交互缓动：按钮/卡片/导航 hover 轻微位移与阴影过渡；卡片柔光跟随指针；首屏产品窗轻微跟随鼠标 3D 倾斜；版本圆点脉冲；氛围光 18s 缓慢漂移。
+- 滚动体验：章节标题与卡片滚动渐入（由 JS 添加 `.reveal`，无 JS 不隐藏）；导航滚过顶部后出现柔和阴影。
+- 弹层：确认/历史弹窗淡入 + 轻微缩放；FAQ 用 `::details-content` 做高度/透明度展开；移动端菜单淡入下滑。
+- 全部遵循 `prefers-reduced-motion`：动画与过渡关闭，3D 倾斜不启用。
+- 截图：`silk-hero.png` / `silk-full.png` / `silk-history.png` / `silk-mobile.png`（静态图无法体现动效，需实际交互体验）。
+- 应用不变；测试 231 全绿；未部署。
+
 ## Phase 0 基线
 
 - `dotnet build`：通过。
