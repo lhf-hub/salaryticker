@@ -86,6 +86,14 @@
 - 营销文案本轮未重写（按用户范围）；hero / FAQ / 摸鱼 / 页脚口号的重写列为后续建议。
 - 本地预览使用 staged fixture（`server/` + `version.json` + `history.json`）；**未部署**。
 
+## 官网 Apple 风重做（2026-10-19）
+
+- 用户反馈 B 官网「太寡淡」，决定试一版 Apple 风格；范围仅官网，应用保持 B 不动。
+- 视觉：`#F5F5F7` 灰白底 + 白色毛玻璃 + Apple 蓝 `#0071E3`（文字链接用 `#0066CC` 保证 AA）；居中大标题、发光应用窗口、非对称 bento、玻璃面板、低透明度冷暖光晕。
+- 保留：营销文案、真实示例截图、`version.json`/`history.json` 逻辑、skip link、`:focus-visible`、弹窗焦点陷阱/回焦、移动端 `<details>`、无 JS 兜底、此前的事实性修正。
+- 截图：`apple-hero.png` / `apple-full.png` / `apple-modal-*.png` / `apple-mobile*.png`（在 `D:\Data\Coding\demo\_ui-baseline\`）；本地 staged 预览，**未部署**。
+- 若官网方向认可，再评估是否把这套浅色玻璃语言迁到 WPF；WPF 的真毛玻璃需要 DWM Acrylic/Mica，迁移成本另计。
+
 ## Phase 0 基线
 
 - `dotnet build`：通过。
