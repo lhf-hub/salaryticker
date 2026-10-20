@@ -176,6 +176,15 @@
 - 验证：本地 staged 页面 23/23 自动化检查通过（卡片插值进入 / 离开、FAQ 箭头旋转、历史弹窗仍为 `+`、移动端无横向溢出、reduce 下卡片 3D 仍生效）；截图 `anim-desktop-hero.png` / `anim-desktop-full.png` / `anim-card-hover.png` / `anim-mobile-hero.png` / `anim-mobile-full.png`。
 - 应用不变；测试 231 全绿；未部署。
 
+## Warm 主题试点（2026-10-20）
+
+- 官网暖色高级版获用户认可后，评估向 WPF 迁移；用户选择先做样式画廊对照，并用系统衬线（Noto Serif SC）。
+- 新增 `Resources/WarmTheme.xaml`（W 前缀 token，不覆盖 BTheme / 旧样式）与 `Views/WarmGalleryWindow.xaml`，启动 `dotnet run -- warm`；主窗、设置页、迷你窗均未改动。
+- 字体：标题 `Noto Serif SC`（本机已安装 `NotoSerifSC-VF.ttf`），正文 `Microsoft YaHei UI`，数字 `Cascadia Mono` + tabular。圆角 12（卡片）/ 8（输入）/ 胶囊按钮。
+- 只验证字体、配色、圆角、语义色；毛玻璃、六色分区、大光晕不迁移。卡片保留轻阴影，语义色仍为 绿 = 金额、珊瑚 = 负数/警告、琥珀 = 摸鱼、蓝 = 信息。
+- 截图：`warm-gallery.png` / `warm-gallery-mid.png` / `warm-gallery-bottom2.png`（`D:\Data\Coding\demo\_ui-baseline\`）。
+- 应用主窗仍未切换；测试 231 全绿；未部署。
+
 ## Phase 0 基线
 
 - `dotnet build`：通过。

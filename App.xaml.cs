@@ -79,6 +79,11 @@ public partial class App : Application
             ShowSingleWindow(new StyleGalleryWindow());
             return;
         }
+        if (e.Args.Contains("warm"))
+        {
+            ShowSingleWindow(new WarmGalleryWindow());
+            return;
+        }
         if (e.Args.Contains("main"))
         {
             ShowSingleWindow(new MainWindow());
@@ -178,6 +183,7 @@ public partial class App : Application
         Check("MiniWindow", () => new MiniWindow());
         Check("ConfirmDialog", () => new ConfirmDialog());
         Check("StyleGalleryWindow", () => new StyleGalleryWindow());
+        Check("WarmGalleryWindow", () => new WarmGalleryWindow());
         Check("DesignSpikeWindow", () => new DesignSpikeWindow());
 
         if (failures.Count > 0)

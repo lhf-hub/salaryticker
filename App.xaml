@@ -14,6 +14,8 @@
                 <ResourceDictionary Source="Resources/Icons.xaml"/>
                 <!-- 实验：B 流水台账主题（只加 key，旧界面不受影响） -->
                 <ResourceDictionary Source="Resources/BTheme.xaml"/>
+                <!-- 实验：官网暖色高级版的 W 前缀 token（仅 Warm 对照窗使用） -->
+                <ResourceDictionary Source="Resources/WarmTheme.xaml"/>
             </ResourceDictionary.MergedDictionaries>
 
             <!-- 全局转换器 -->

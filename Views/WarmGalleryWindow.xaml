@@ -1,0 +1,209 @@
+<!-- WarmGalleryWindow.xaml —— 官网暖色高级版的 WPF 对照窗（仅目检，不接业务） -->
+<Window x:Class="SalaryTicker.Views.WarmGalleryWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Icon="/Assets/SalaryTicker.ico"
+        Title="Warm 主题对照 - SalaryTicker 实时计算器"
+        Width="1100" Height="780"
+        WindowStartupLocation="CenterScreen"
+        Background="{DynamicResource WPaperBrush}">
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <StackPanel Margin="32,28,32,40">
+
+            <!-- ══════════ 首屏暖色带 ══════════ -->
+            <Border Style="{StaticResource WHeroBandStyle}" Padding="38,34">
+                <StackPanel>
+                    <TextBlock Text="WARM / 官网暖色高级版的桌面化试点" Style="{StaticResource WMonoSmallStyle}"/>
+                    <TextBlock Text="谋生有度，生活有光。" Style="{StaticResource WHeroTitleStyle}" Margin="0,10,0,8"/>
+                    <TextBlock Text="Noto Serif SC 标题 + 暖白台账 + 珊瑚 / 琥珀 / 薄荷语义色。当前只用于对照，主窗仍是 B 台账。"
+                               Style="{StaticResource WBodyStyle}" MaxWidth="680" HorizontalAlignment="Left"/>
+                    <StackPanel Orientation="Horizontal" Margin="0,22,0,0">
+                        <Button Content="下载 Windows 版" Style="{StaticResource WPrimaryButtonStyle}"/>
+                        <Button Content="先看看它能做什么" Style="{StaticResource WGhostButtonStyle}" Margin="10,0,0,0"/>
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+
+            <!-- ══════════ ① 颜色 Token ══════════ -->
+            <TextBlock Text="① 暖色 Token" Style="{StaticResource WSectionTitleStyle}" Margin="0,30,0,14"/>
+            <WrapPanel>
+                <StackPanel Width="126" Margin="0,0,8,12">
+                    <Border Style="{StaticResource WColorChipStyle}" Background="{StaticResource WPaperBrush}"/>
+                    <TextBlock Text="Paper #FAF7F2" Style="{StaticResource WMonoSmallStyle}" Margin="0,4,0,0"/>
+                </StackPanel>
+                <StackPanel Width="126" Margin="0,0,8,12">
+                    <Border Style="{StaticResource WColorChipStyle}" Background="{StaticResource WSurfaceBrush}"/>
+                    <TextBlock Text="Surface #FFFCF7" Style="{StaticResource WMonoSmallStyle}" Margin="0,4,0,0"/>
+                </StackPanel>
+                <StackPanel Width="126" Margin="0,0,8,12">
+                    <Border Style="{StaticResource WColorChipStyle}" Background="{StaticResource WInkStrongBrush}"/>
+                    <TextBlock Text="Ink #1F1B17" Style="{StaticResource WMonoSmallStyle}" Margin="0,4,0,0"/>
+                </StackPanel>
+                <StackPanel Width="126" Margin="0,0,8,12">
+                    <Border Style="{StaticResource WColorChipStyle}" Background="{StaticResource WMutedBrush}"/>
+                    <TextBlock Text="Muted #665C52" Style="{StaticResource WMonoSmallStyle}" Margin="0,4,0,0"/>
+                </StackPanel>
+                <StackPanel Width="126" Margin="0,0,8,12">
+                    <Border Style="{StaticResource WColorChipStyle}" Background="{StaticResource WCoralBrush}"/>
+                    <TextBlock Text="Coral #E07A5F" Style="{StaticResource WMonoSmallStyle}" Margin="0,4,0,0"/>
+                </StackPanel>
+                <StackPanel Width="126" Margin="0,0,8,12">
+                    <Border Style="{StaticResource WColorChipStyle}" Background="{StaticResource WAmberBrush}"/>
+                    <TextBlock Text="Amber #F4A261" Style="{StaticResource WMonoSmallStyle}" Margin="0,4,0,0"/>
+                </StackPanel>
+                <StackPanel Width="126" Margin="0,0,8,12">
+                    <Border Style="{StaticResource WColorChipStyle}" Background="{StaticResource WGreenBrush}"/>
+                    <TextBlock Text="Green #047857" Style="{StaticResource WMonoSmallStyle}" Margin="0,4,0,0"/>
+                </StackPanel>
+                <StackPanel Width="126" Margin="0,0,8,12">
+                    <Border Style="{StaticResource WColorChipStyle}" Background="{StaticResource WBlueBrush}"/>
+                    <TextBlock Text="Blue #5B8DB8" Style="{StaticResource WMonoSmallStyle}" Margin="0,4,0,0"/>
+                </StackPanel>
+                <StackPanel Width="126" Margin="0,0,8,12">
+                    <Border Style="{StaticResource WColorChipStyle}" Background="{StaticResource WTealBrush}"/>
+                    <TextBlock Text="Teal #2A9D8F" Style="{StaticResource WMonoSmallStyle}" Margin="0,4,0,0"/>
+                </StackPanel>
+                <StackPanel Width="126" Margin="0,0,8,12">
+                    <Border Style="{StaticResource WColorChipStyle}" Background="{StaticResource WRoseStrongBrush}"/>
+                    <TextBlock Text="Rose #A65E6D" Style="{StaticResource WMonoSmallStyle}" Margin="0,4,0,0"/>
+                </StackPanel>
+            </WrapPanel>
+
+            <!-- ══════════ ② 字体层级 ══════════ -->
+            <TextBlock Text="② 字体层级" Style="{StaticResource WSectionTitleStyle}" Margin="0,30,0,14"/>
+            <Border Style="{StaticResource WCardStyle}" Padding="28">
+                <StackPanel>
+                    <TextBlock Text="NOTO SERIF SC · 40 MEDIUM" Style="{StaticResource WMonoSmallStyle}"/>
+                    <TextBlock Text="谋生有度，生活有光。" Style="{StaticResource WHeroTitleStyle}" Margin="0,6,0,0"/>
+                    <TextBlock Text="SECTION / 它到底能做什么" Style="{StaticResource WSectionTitleStyle}" Margin="0,16,0,0"/>
+                    <TextBlock Text="Card Title / 三个维度的实时数字" Style="{StaticResource WCardTitleStyle}" Margin="0,14,0,0"/>
+                    <TextBlock Text="正文：13.5pt 微软雅黑，1.7 倍行高，用于说明与台账标签。数字统一等宽、右对齐、tabular 对齐。"
+                               Style="{StaticResource WBodyStyle}" Margin="0,8,0,0"/>
+                    <TextBlock Text="MONO 11 / v1.1.9 · Windows 10 / 11 · 免安装" Style="{StaticResource WMonoSmallStyle}" Margin="0,10,0,0"/>
+                    <TextBlock Text="¥7,006.22" Style="{StaticResource WHeroNumberStyle}" HorizontalAlignment="Left" Margin="0,16,0,0"/>
+                </StackPanel>
+            </Border>
+
+            <!-- ══════════ ③ 卡片与语义色 ══════════ -->
+            <TextBlock Text="③ 卡片与语义色" Style="{StaticResource WSectionTitleStyle}" Margin="0,30,0,14"/>
+            <UniformGrid Columns="3">
+                <Border Style="{StaticResource WCardStyle}" Margin="0,0,8,0">
+                    <StackPanel>
+                        <Rectangle Height="2" Fill="{StaticResource WCoralBrush}" Margin="0,0,0,16"/>
+                        <Border Style="{StaticResource WIconTileStyle}">
+                            <Path Data="{StaticResource IconSettings}"
+                                  Fill="{StaticResource WCoralStrongBrush}"
+                                  Width="18" Height="18" Stretch="Uniform"
+                                  HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <TextBlock Text="参数都可改" Style="{StaticResource WCardTitleStyle}" Margin="0,12,0,6"/>
+                        <TextBlock Text="社保基数、公积金比例、节假日与补班日，全部在设置里。"
+                                   Style="{StaticResource WBodyStyle}"/>
+                    </StackPanel>
+                </Border>
+                <Border Style="{StaticResource WCardStyle}" Margin="0,0,8,0">
+                    <StackPanel>
+                        <Rectangle Height="2" Fill="{StaticResource WAmberBrush}" Margin="0,0,0,16"/>
+                        <Border Style="{StaticResource WIconTileStyle}"
+                                Background="{StaticResource WAmberSoftBrush}"
+                                BorderBrush="{StaticResource WAmberBrush}">
+                            <Path Data="{StaticResource IconFish}"
+                                  Fill="{StaticResource WAmberStrongBrush}"
+                                  Width="18" Height="18" Stretch="Uniform"
+                                  HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <TextBlock Text="摸鱼还算白赚" Style="{StaticResource WCardTitleStyle}" Margin="0,12,0,6"/>
+                        <TextBlock Text="去趟 WC、倒杯水、抽根烟，实时折成这段时间的工资。"
+                                   Style="{StaticResource WBodyStyle}"/>
+                    </StackPanel>
+                </Border>
+                <Border Style="{StaticResource WCardStyle}">
+                    <StackPanel>
+                        <Rectangle Height="2" Fill="{StaticResource WBlueBrush}" Margin="0,0,0,16"/>
+                        <Border Style="{StaticResource WIconTileStyle}"
+                                Background="{StaticResource WBlueSoftBrush}"
+                                BorderBrush="{StaticResource WBlueBrush}">
+                            <Path Data="{StaticResource IconInfo}"
+                                  Fill="{StaticResource WBlueStrongBrush}"
+                                  Width="18" Height="18" Stretch="Uniform"
+                                  HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <TextBlock Text="只存本地" Style="{StaticResource WCardTitleStyle}" Margin="0,12,0,6"/>
+                        <TextBlock Text="工资数据只写 %AppData%，不上传，也不需要账号。"
+                                   Style="{StaticResource WBodyStyle}"/>
+                    </StackPanel>
+                </Border>
+            </UniformGrid>
+
+            <!-- ══════════ ④ 主窗数据区预览 ══════════ -->
+            <TextBlock Text="④ 主窗数据区预览" Style="{StaticResource WSectionTitleStyle}" Margin="0,30,0,14"/>
+            <Border Style="{StaticResource WCardStyle}" Padding="30">
+                <StackPanel>
+                    <Grid>
+                        <TextBlock Text="本月已赚" Style="{StaticResource WLabelStyle}" VerticalAlignment="Center"/>
+                        <Border Style="{StaticResource WStatusPillStyle}" HorizontalAlignment="Right">
+                            <StackPanel Orientation="Horizontal">
+                                <Ellipse Width="6" Height="6" Fill="{StaticResource WGreenBrush}"
+                                         VerticalAlignment="Center" Margin="0,0,6,0"/>
+                                <TextBlock Text="工作中" FontSize="11" Foreground="{StaticResource WGreenStrongBrush}"/>
+                            </StackPanel>
+                        </Border>
+                    </Grid>
+                    <TextBlock Text="¥7,006.22" Style="{StaticResource WHeroNumberStyle}" Margin="0,4,0,12"/>
+                    <Rectangle Height="1" Fill="{StaticResource WBorderBrush}" Margin="0,0,0,14"/>
+
+                    <Grid Margin="0,0,0,8">
+                        <TextBlock Text="今日" Style="{StaticResource WBodyStyle}"/>
+                        <TextBlock Text="¥0.00" Style="{StaticResource WNumberStyle}"
+                                   HorizontalAlignment="Right" Foreground="{StaticResource WGreenBrush}"/>
+                    </Grid>
+                    <Grid Margin="0,0,0,8">
+                        <TextBlock Text="当前小时" Style="{StaticResource WBodyStyle}"/>
+                        <TextBlock Text="¥0.00" Style="{StaticResource WNumberStyle}"
+                                   HorizontalAlignment="Right" Foreground="{StaticResource WGreenBrush}"/>
+                    </Grid>
+
+                    <Grid Margin="0,8,0,0">
+                        <TextBlock Text="本月进度" Style="{StaticResource WLabelStyle}"/>
+                        <TextBlock Text="44.4%" Style="{StaticResource WMonoSmallStyle}" HorizontalAlignment="Right"/>
+                    </Grid>
+                    <Grid Height="6" Margin="0,6,0,0">
+                        <Border Background="{StaticResource WPaperSoftBrush}" CornerRadius="3"/>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="444*"/>
+                                <ColumnDefinition Width="556*"/>
+                            </Grid.ColumnDefinitions>
+                            <Border Grid.Column="0" Background="{StaticResource WGreenBrush}" CornerRadius="3"/>
+                        </Grid>
+                    </Grid>
+
+                    <StackPanel Orientation="Horizontal" Margin="0,22,0,0">
+                        <Button Content="去趟 WC" Style="{StaticResource WGhostButtonStyle}"/>
+                        <Button Content="倒杯水" Style="{StaticResource WGhostButtonStyle}" Margin="8,0,0,0"/>
+                        <Button Content="抽根烟" Style="{StaticResource WGhostButtonStyle}" Margin="8,0,0,0"/>
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+
+            <!-- ══════════ ⑤ 输入与按钮 ══════════ -->
+            <TextBlock Text="⑤ 输入与按钮" Style="{StaticResource WSectionTitleStyle}" Margin="0,30,0,14"/>
+            <Border Style="{StaticResource WCardStyle}" Padding="28">
+                <StackPanel>
+                    <TextBlock Text="税前月薪" Style="{StaticResource WLabelStyle}"/>
+                    <TextBox Text="20000" Style="{StaticResource WTextBoxStyle}"
+                             Width="260" HorizontalAlignment="Left" Margin="0,6,0,16"/>
+                    <StackPanel Orientation="Horizontal">
+                        <Button Content="保存" Style="{StaticResource WPrimaryButtonStyle}"/>
+                        <Button Content="取消" Style="{StaticResource WGhostButtonStyle}" Margin="8,0,0,0"/>
+                        <Button Content="清空历史" Style="{StaticResource WCoralButtonStyle}" Margin="8,0,0,0"/>
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+
+            <TextBlock Text="说明：本窗只验证字体 / 配色 / 圆角 / 语义色；毛玻璃、六色分区、大光晕不迁移。主窗保持 B 台账。"
+                       Style="{StaticResource WMonoSmallStyle}" Margin="0,24,0,0"/>
+
+        </StackPanel>
+    </ScrollViewer>
+</Window>

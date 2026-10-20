@@ -1,0 +1,270 @@
+<!-- ============================================================================
+     WarmTheme.xaml —— 官网暖色高级版的 WPF 试点 token（仅样式画廊使用）
+     只加 W 前缀的新 key，不覆盖 BTheme / 旧设计系统；主窗未引用。
+     ============================================================================ -->
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <!-- ── 颜色 ───────────────────────────────────────────────── -->
+    <SolidColorBrush x:Key="WPaperBrush" Color="#FAF7F2"/>
+    <SolidColorBrush x:Key="WPaperSoftBrush" Color="#F5EEE4"/>
+    <SolidColorBrush x:Key="WSurfaceBrush" Color="#FFFCF7"/>
+    <SolidColorBrush x:Key="WSurfaceRaisedBrush" Color="#FFFFFF"/>
+    <SolidColorBrush x:Key="WInkBrush" Color="#2D2A26"/>
+    <SolidColorBrush x:Key="WInkStrongBrush" Color="#1F1B17"/>
+    <SolidColorBrush x:Key="WMutedBrush" Color="#665C52"/>
+    <SolidColorBrush x:Key="WSubtleBrush" Color="#8A8074"/>
+    <SolidColorBrush x:Key="WBorderBrush" Color="#E6DDD0"/>
+    <SolidColorBrush x:Key="WBorderStrongBrush" Color="#D6C9B8"/>
+    <SolidColorBrush x:Key="WCoralBrush" Color="#E07A5F"/>
+    <SolidColorBrush x:Key="WCoralStrongBrush" Color="#B4533C"/>
+    <SolidColorBrush x:Key="WCoralSoftBrush" Color="#FBEDE6"/>
+    <SolidColorBrush x:Key="WGreenBrush" Color="#047857"/>
+    <SolidColorBrush x:Key="WGreenStrongBrush" Color="#17694F"/>
+    <SolidColorBrush x:Key="WGreenSoftBrush" Color="#E7F6F0"/>
+    <SolidColorBrush x:Key="WAmberBrush" Color="#F4A261"/>
+    <SolidColorBrush x:Key="WAmberStrongBrush" Color="#A45A0B"/>
+    <SolidColorBrush x:Key="WAmberSoftBrush" Color="#FDF1E4"/>
+    <SolidColorBrush x:Key="WBlueBrush" Color="#5B8DB8"/>
+    <SolidColorBrush x:Key="WBlueStrongBrush" Color="#3B6E8F"/>
+    <SolidColorBrush x:Key="WBlueSoftBrush" Color="#EAF2F8"/>
+    <SolidColorBrush x:Key="WTealBrush" Color="#2A9D8F"/>
+    <SolidColorBrush x:Key="WTealSoftBrush" Color="#E6F3F1"/>
+    <SolidColorBrush x:Key="WRoseStrongBrush" Color="#A65E6D"/>
+    <SolidColorBrush x:Key="WRoseSoftBrush" Color="#F6EAEA"/>
+
+    <!-- ── 字体：标题用系统 Noto Serif SC，正文雅黑，数字等宽 ──── -->
+    <FontFamily x:Key="WFontDisplay">Noto Serif SC, Source Han Serif SC, SimSun</FontFamily>
+    <FontFamily x:Key="WFontBody">Microsoft YaHei UI, Segoe UI</FontFamily>
+    <FontFamily x:Key="WFontMono">Cascadia Mono, Consolas, Segoe UI</FontFamily>
+
+    <!-- ── 圆角 ───────────────────────────────────────────────── -->
+    <CornerRadius x:Key="WRadiusCard">12</CornerRadius>
+    <CornerRadius x:Key="WRadiusInput">8</CornerRadius>
+
+    <!-- ── FocusVisual ────────────────────────────────────────── -->
+    <Style x:Key="WFocusVisual">
+        <Setter Property="Control.Template">
+            <Setter.Value>
+                <ControlTemplate>
+                    <Border BorderBrush="{StaticResource WGreenBrush}"
+                            BorderThickness="2"
+                            CornerRadius="999"
+                            Margin="2"
+                            SnapsToDevicePixels="True"/>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- ── 文本层级 ───────────────────────────────────────────── -->
+    <Style x:Key="WHeroTitleStyle" TargetType="TextBlock">
+        <Setter Property="FontFamily" Value="{StaticResource WFontDisplay}"/>
+        <Setter Property="FontSize" Value="40"/>
+        <Setter Property="FontWeight" Value="Medium"/>
+        <Setter Property="Foreground" Value="{StaticResource WInkStrongBrush}"/>
+        <Setter Property="TextWrapping" Value="Wrap"/>
+    </Style>
+
+    <Style x:Key="WSectionTitleStyle" TargetType="TextBlock">
+        <Setter Property="FontFamily" Value="{StaticResource WFontDisplay}"/>
+        <Setter Property="FontSize" Value="24"/>
+        <Setter Property="FontWeight" Value="Medium"/>
+        <Setter Property="Foreground" Value="{StaticResource WInkStrongBrush}"/>
+    </Style>
+
+    <Style x:Key="WCardTitleStyle" TargetType="TextBlock">
+        <Setter Property="FontFamily" Value="{StaticResource WFontBody}"/>
+        <Setter Property="FontSize" Value="16"/>
+        <Setter Property="FontWeight" Value="SemiBold"/>
+        <Setter Property="Foreground" Value="{StaticResource WInkStrongBrush}"/>
+    </Style>
+
+    <Style x:Key="WLabelStyle" TargetType="TextBlock">
+        <Setter Property="FontFamily" Value="{StaticResource WFontBody}"/>
+        <Setter Property="FontSize" Value="12"/>
+        <Setter Property="Foreground" Value="{StaticResource WMutedBrush}"/>
+    </Style>
+
+    <Style x:Key="WBodyStyle" TargetType="TextBlock">
+        <Setter Property="FontFamily" Value="{StaticResource WFontBody}"/>
+        <Setter Property="FontSize" Value="13.5"/>
+        <Setter Property="Foreground" Value="{StaticResource WMutedBrush}"/>
+        <Setter Property="TextWrapping" Value="Wrap"/>
+        <Setter Property="LineHeight" Value="22"/>
+        <Setter Property="LineStackingStrategy" Value="BlockLineHeight"/>
+    </Style>
+
+    <Style x:Key="WMonoSmallStyle" TargetType="TextBlock">
+        <Setter Property="FontFamily" Value="{StaticResource WFontMono}"/>
+        <Setter Property="FontSize" Value="11"/>
+        <Setter Property="Foreground" Value="{StaticResource WSubtleBrush}"/>
+    </Style>
+
+    <Style x:Key="WHeroNumberStyle" TargetType="TextBlock">
+        <Setter Property="FontFamily" Value="{StaticResource WFontMono}"/>
+        <Setter Property="FontSize" Value="54"/>
+        <Setter Property="FontWeight" Value="SemiBold"/>
+        <Setter Property="Foreground" Value="{StaticResource WInkStrongBrush}"/>
+        <Setter Property="Typography.NumeralAlignment" Value="Tabular"/>
+        <Setter Property="HorizontalAlignment" Value="Right"/>
+    </Style>
+
+    <Style x:Key="WNumberStyle" TargetType="TextBlock">
+        <Setter Property="FontFamily" Value="{StaticResource WFontMono}"/>
+        <Setter Property="FontSize" Value="14"/>
+        <Setter Property="FontWeight" Value="SemiBold"/>
+        <Setter Property="Foreground" Value="{StaticResource WInkStrongBrush}"/>
+        <Setter Property="Typography.NumeralAlignment" Value="Tabular"/>
+    </Style>
+
+    <!-- ── 卡片 / 首屏暖色带 ──────────────────────────────────── -->
+    <Style x:Key="WCardStyle" TargetType="Border">
+        <Setter Property="Background" Value="{StaticResource WSurfaceBrush}"/>
+        <Setter Property="BorderBrush" Value="{StaticResource WBorderBrush}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="CornerRadius" Value="{StaticResource WRadiusCard}"/>
+        <Setter Property="Padding" Value="22"/>
+        <Setter Property="Effect">
+            <Setter.Value>
+                <DropShadowEffect BlurRadius="16" ShadowDepth="2" Direction="270"
+                                  Opacity="0.08" Color="#5A3C28"/>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="WHeroBandStyle" TargetType="Border">
+        <Setter Property="Background">
+            <Setter.Value>
+                <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                    <GradientStop Color="#38E07A5F" Offset="0"/>
+                    <GradientStop Color="#22F4A261" Offset="0.38"/>
+                    <GradientStop Color="#16047857" Offset="0.68"/>
+                    <GradientStop Color="#195B8DB8" Offset="1"/>
+                </LinearGradientBrush>
+            </Setter.Value>
+        </Setter>
+        <Setter Property="BorderBrush" Value="{StaticResource WBorderBrush}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="CornerRadius" Value="18"/>
+    </Style>
+
+    <Style x:Key="WIconTileStyle" TargetType="Border">
+        <Setter Property="Width" Value="38"/>
+        <Setter Property="Height" Value="38"/>
+        <Setter Property="CornerRadius" Value="12"/>
+        <Setter Property="Background" Value="{StaticResource WCoralSoftBrush}"/>
+        <Setter Property="BorderBrush" Value="{StaticResource WCoralBrush}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="HorizontalAlignment" Value="Left"/>
+    </Style>
+
+    <Style x:Key="WStatusPillStyle" TargetType="Border">
+        <Setter Property="Background" Value="{StaticResource WGreenSoftBrush}"/>
+        <Setter Property="CornerRadius" Value="999"/>
+        <Setter Property="Padding" Value="10,4"/>
+    </Style>
+
+    <Style x:Key="WColorChipStyle" TargetType="Border">
+        <Setter Property="Width" Value="118"/>
+        <Setter Property="Height" Value="46"/>
+        <Setter Property="CornerRadius" Value="8"/>
+        <Setter Property="BorderBrush" Value="{StaticResource WBorderBrush}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+    </Style>
+
+    <!-- ── 按钮 ───────────────────────────────────────────────── -->
+    <Style x:Key="WButtonBaseStyle" TargetType="Button">
+        <Setter Property="FontFamily" Value="{StaticResource WFontBody}"/>
+        <Setter Property="FontSize" Value="13"/>
+        <Setter Property="FontWeight" Value="SemiBold"/>
+        <Setter Property="Padding" Value="18,9"/>
+        <Setter Property="Cursor" Value="Hand"/>
+        <Setter Property="FocusVisualStyle" Value="{StaticResource WFocusVisual}"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Border x:Name="Bd"
+                            Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}"
+                            CornerRadius="999"
+                            SnapsToDevicePixels="True">
+                        <ContentPresenter Margin="{TemplateBinding Padding}"
+                                          HorizontalAlignment="Center"
+                                          VerticalAlignment="Center"
+                                          RecognizesAccessKey="True"/>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Bd" Property="Opacity" Value="0.9"/>
+                        </Trigger>
+                        <Trigger Property="IsPressed" Value="True">
+                            <Setter TargetName="Bd" Property="Opacity" Value="0.8"/>
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter Property="Opacity" Value="0.5"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="WPrimaryButtonStyle" TargetType="Button" BasedOn="{StaticResource WButtonBaseStyle}">
+        <Setter Property="Background" Value="{StaticResource WGreenStrongBrush}"/>
+        <Setter Property="BorderBrush" Value="{StaticResource WGreenStrongBrush}"/>
+        <Setter Property="Foreground" Value="#FFFCF7"/>
+    </Style>
+
+    <Style x:Key="WGhostButtonStyle" TargetType="Button" BasedOn="{StaticResource WButtonBaseStyle}">
+        <Setter Property="Background" Value="{StaticResource WSurfaceBrush}"/>
+        <Setter Property="BorderBrush" Value="{StaticResource WBorderBrush}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="Foreground" Value="{StaticResource WInkBrush}"/>
+    </Style>
+
+    <Style x:Key="WCoralButtonStyle" TargetType="Button" BasedOn="{StaticResource WButtonBaseStyle}">
+        <Setter Property="Background" Value="{StaticResource WCoralStrongBrush}"/>
+        <Setter Property="BorderBrush" Value="{StaticResource WCoralStrongBrush}"/>
+        <Setter Property="Foreground" Value="#FFFCF7"/>
+    </Style>
+
+    <!-- ── 输入框 ─────────────────────────────────────────────── -->
+    <Style x:Key="WTextBoxStyle" TargetType="TextBox">
+        <Setter Property="Height" Value="36"/>
+        <Setter Property="Padding" Value="12,0"/>
+        <Setter Property="FontFamily" Value="{StaticResource WFontBody}"/>
+        <Setter Property="FontSize" Value="13"/>
+        <Setter Property="Foreground" Value="{StaticResource WInkBrush}"/>
+        <Setter Property="Background" Value="{StaticResource WSurfaceRaisedBrush}"/>
+        <Setter Property="BorderBrush" Value="{StaticResource WBorderBrush}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="VerticalContentAlignment" Value="Center"/>
+        <Setter Property="FocusVisualStyle" Value="{StaticResource WFocusVisual}"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="TextBox">
+                    <Border Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}"
+                            CornerRadius="{StaticResource WRadiusInput}"
+                            SnapsToDevicePixels="True">
+                        <ScrollViewer x:Name="PART_ContentHost"
+                                      Margin="{TemplateBinding Padding}"
+                                      VerticalAlignment="Center"/>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsKeyboardFocusWithin" Value="True">
+                            <Setter Property="BorderBrush" Value="{StaticResource WGreenBrush}"/>
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter Property="Opacity" Value="0.55"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+</ResourceDictionary>
