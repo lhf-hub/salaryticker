@@ -29,8 +29,8 @@
         <!-- ══════════ 顶部工具栏 ══════════ -->
         <Border Grid.Row="0"
                 Background="{StaticResource WSurfaceBrush}"
-                BorderBrush="{StaticResource WBrandGradientBrush}"
-                BorderThickness="0,0,0,2"
+                BorderBrush="{StaticResource WBorderBrush}"
+                BorderThickness="0,0,0,1"
                 Padding="28,12">
             <Grid>
                 <Grid.ColumnDefinitions>

@@ -291,21 +291,14 @@
     </LinearGradientBrush>
 
     <LinearGradientBrush x:Key="WMuyuCardBrush" StartPoint="0,0" EndPoint="1,1">
-        <GradientStop Color="#FDF1E4" Offset="0"/>
-        <GradientStop Color="#FBEDE6" Offset="0.55"/>
+        <GradientStop Color="#FFF9F1" Offset="0"/>
         <GradientStop Color="#FFFCF7" Offset="1"/>
     </LinearGradientBrush>
 
     <RadialGradientBrush x:Key="WHeroGlowCoralBrush" Center="0.08,0" GradientOrigin="0.08,0"
                          RadiusX="0.75" RadiusY="0.9">
-        <GradientStop Color="#33E07A5F" Offset="0"/>
+        <GradientStop Color="#24E07A5F" Offset="0"/>
         <GradientStop Color="#00E07A5F" Offset="0.72"/>
-    </RadialGradientBrush>
-
-    <RadialGradientBrush x:Key="WHeroGlowGreenBrush" Center="0.92,0.9" GradientOrigin="0.92,0.9"
-                         RadiusX="0.8" RadiusY="1">
-        <GradientStop Color="#26047857" Offset="0"/>
-        <GradientStop Color="#00047857" Offset="0.70"/>
     </RadialGradientBrush>
 
     <Style x:Key="WHeroCardStyle" TargetType="Border">
@@ -315,8 +308,8 @@
         <Setter Property="CornerRadius" Value="18"/>
         <Setter Property="Effect">
             <Setter.Value>
-                <DropShadowEffect BlurRadius="26" ShadowDepth="3" Direction="270"
-                                  Opacity="0.10" Color="#5A3C28"/>
+                <DropShadowEffect BlurRadius="20" ShadowDepth="2" Direction="270"
+                                  Opacity="0.06" Color="#5A3C28"/>
             </Setter.Value>
         </Setter>
     </Style>
@@ -329,8 +322,8 @@
         <Setter Property="Padding" Value="18"/>
         <Setter Property="Effect">
             <Setter.Value>
-                <DropShadowEffect BlurRadius="18" ShadowDepth="2" Direction="270"
-                                  Opacity="0.07" Color="#5A3C28"/>
+                <DropShadowEffect BlurRadius="14" ShadowDepth="1" Direction="270"
+                                  Opacity="0.04" Color="#5A3C28"/>
             </Setter.Value>
         </Setter>
     </Style>
@@ -343,8 +336,8 @@
         <Setter Property="Padding" Value="20,18"/>
         <Setter Property="Effect">
             <Setter.Value>
-                <DropShadowEffect BlurRadius="18" ShadowDepth="2" Direction="270"
-                                  Opacity="0.07" Color="#5A3C28"/>
+                <DropShadowEffect BlurRadius="14" ShadowDepth="1" Direction="270"
+                                  Opacity="0.04" Color="#5A3C28"/>
             </Setter.Value>
         </Setter>
     </Style>
@@ -383,7 +376,7 @@
 
     <Style x:Key="WStatValueStyle" TargetType="TextBlock" BasedOn="{StaticResource WNumberStyle}">
         <Setter Property="FontSize" Value="38"/>
-        <Setter Property="FontWeight" Value="Bold"/>
+        <Setter Property="FontWeight" Value="SemiBold"/>
         <Setter Property="HorizontalAlignment" Value="Left"/>
     </Style>
 
@@ -410,7 +403,7 @@
     <Style x:Key="WCountdownStyle" TargetType="TextBlock">
         <Setter Property="FontFamily" Value="{StaticResource WFontMono}"/>
         <Setter Property="FontSize" Value="30"/>
-        <Setter Property="FontWeight" Value="Bold"/>
+        <Setter Property="FontWeight" Value="SemiBold"/>
         <Setter Property="Foreground" Value="{StaticResource WBlueStrongBrush}"/>
         <Setter Property="Typography.NumeralAlignment" Value="Tabular"/>
         <Setter Property="HorizontalAlignment" Value="Left"/>
@@ -449,24 +442,6 @@
                 </ControlTemplate>
             </Setter.Value>
         </Setter>
-    </Style>
-
-    <Style x:Key="WLiveDotStyle" TargetType="Ellipse">
-        <Setter Property="Width" Value="6"/>
-        <Setter Property="Height" Value="6"/>
-        <Setter Property="Fill" Value="{StaticResource WGreenBrush}"/>
-        <Setter Property="VerticalAlignment" Value="Center"/>
-        <Style.Triggers>
-            <EventTrigger RoutedEvent="Loaded">
-                <BeginStoryboard>
-                    <Storyboard>
-                        <DoubleAnimation Storyboard.TargetProperty="Opacity"
-                                         From="1" To="0.25" Duration="0:0:0.9"
-                                         AutoReverse="True" RepeatBehavior="Forever"/>
-                    </Storyboard>
-                </BeginStoryboard>
-            </EventTrigger>
-        </Style.Triggers>
     </Style>
 
     <Style x:Key="WStatusDotStyle" TargetType="Ellipse">
@@ -536,7 +511,7 @@
     </Style>
 
     <Style x:Key="WProgressBarStyle" TargetType="ProgressBar">
-        <Setter Property="Height" Value="8"/>
+        <Setter Property="Height" Value="6"/>
         <Setter Property="Minimum" Value="0"/>
         <Setter Property="Maximum" Value="1"/>
         <Setter Property="Template">
