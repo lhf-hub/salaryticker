@@ -16,7 +16,8 @@
         AllowsTransparency="True"
         Background="Transparent"
         MouseLeftButtonDown="Window_MouseLeftButtonDown"
-        MouseDoubleClick="Window_MouseDoubleClick">
+        MouseDoubleClick="Window_MouseDoubleClick"
+        KeyDown="Window_KeyDown">
 
     <Window.Resources>
         <Style x:Key="MiniSlider" TargetType="Slider"

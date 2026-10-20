@@ -73,6 +73,14 @@ public partial class MainViewModel : ObservableObject
     [ObservableProperty]
     private string _statusShortText = "";
 
+    /// <summary>当前是否处于计薪工作状态</summary>
+    [ObservableProperty]
+    private bool _isEarning;
+
+    /// <summary>顶部实时状态文案（非工作时段显示当前状态）</summary>
+    [ObservableProperty]
+    private string _liveStatusText = "正在加载…";
+
     /// <summary>倒计时文本</summary>
     [ObservableProperty]
     private string _countdownText = "--:--:--";
@@ -152,6 +160,7 @@ public partial class MainViewModel : ObservableObject
     /// <summary>工作状态变化时同步摸鱼按钮可用性与禁用说明（单一数据源，不依赖 ApplySnapshot 的调用顺序）</summary>
     partial void OnStatusChanged(WorkStatus value)
     {
+        IsEarning = value == WorkStatus.Earning;
         IsMuyuEnabled = value == WorkStatus.Earning;
         OnPropertyChanged(nameof(MuyuDisabledHint));
         OnPropertyChanged(nameof(MuyuDisabledShortHint));
@@ -286,6 +295,8 @@ public partial class MainViewModel : ObservableObject
         Status = snapshot.Status;
         StatusText = GetStatusText(snapshot.Status, snapshot.IsMuyu);
         StatusShortText = GetStatusShortText(snapshot.Status, snapshot.IsMuyu);
+        IsEarning = snapshot.Status == WorkStatus.Earning;
+        LiveStatusText = IsEarning ? "实时计算中" : StatusShortText;
         UpdateCountdown(snapshot);
 
         // 「本月日薪」按当月实际计薪天数摊平，和上面的「本月已赚」同一口径
@@ -297,8 +308,8 @@ public partial class MainViewModel : ObservableObject
         // 挂机时也要能收到新版本提示
         MaybeCheckUpdatePeriodically(snapshot.Now);
 
-        // 触发数字脉冲动画
-        TriggerPulse();
+        // 只在计薪工作时段触发数字脉冲；休息/下班时不制造“还在涨”的错觉
+        if (IsEarning) TriggerPulse();
     }
 
     /// <summary>

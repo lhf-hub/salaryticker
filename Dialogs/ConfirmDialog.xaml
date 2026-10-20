@@ -75,6 +75,7 @@
 
                 <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right">
                     <Button Content="取消"
+                            x:Name="CancelButton"
                             Style="{StaticResource ButtonGhost}"
                             Click="Cancel_Click"
                             IsCancel="True"

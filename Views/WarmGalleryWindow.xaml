@@ -79,7 +79,7 @@
                     <TextBlock Text="Card Title / 三个维度的实时数字" Style="{StaticResource WCardTitleStyle}" Margin="0,14,0,0"/>
                     <TextBlock Text="正文：13.5pt 微软雅黑，1.7 倍行高，用于说明与台账标签。数字统一等宽、右对齐、tabular 对齐。"
                                Style="{StaticResource WBodyStyle}" Margin="0,8,0,0"/>
-                    <TextBlock Text="MONO 11 / v1.1.9 · Windows 10 / 11 · 免安装" Style="{StaticResource WMonoSmallStyle}" Margin="0,10,0,0"/>
+                    <TextBlock Text="MONO 11 / v1.2.0 · Windows 10 / 11 · 免安装" Style="{StaticResource WMonoSmallStyle}" Margin="0,10,0,0"/>
                     <TextBlock Text="¥7,006.22" Style="{StaticResource WHeroNumberStyle}" HorizontalAlignment="Left" Margin="0,16,0,0"/>
                 </StackPanel>
             </Border>

@@ -131,8 +131,11 @@ public partial class App : Application
         if (showSplash)
         {
             var splash = new SplashWindow();
+            var confirmed = false;
             splash.ViewModel.Confirmed += (_, args) =>
             {
+                confirmed = true;
+
                 // 勾选"下次不再显示"则持久化
                 if (args.DontShowAgain)
                 {
@@ -142,6 +145,11 @@ public partial class App : Application
 
                 // 淡出后打开主窗口
                 FadeOutAndOpenMain(splash);
+            };
+            splash.Closed += (_, _) =>
+            {
+                // Alt+F4 关掉启动页时也要进入主窗口，不能留下一个不可见的应用。
+                if (!confirmed) OpenMainWindow();
             };
             splash.Show();
         }

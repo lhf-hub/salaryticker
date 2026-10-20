@@ -45,11 +45,22 @@ internal static class WindowFit
 
         var workWidth = (info.rcWork.Right - info.rcWork.Left) / scale;
         var workHeight = (info.rcWork.Bottom - info.rcWork.Top) / scale;
+        var availableWidth = Math.Max(320, workWidth - margin * 2);
+        var availableHeight = Math.Max(240, workHeight - margin * 2);
 
-        window.Width = Math.Min(window.Width, Math.Max(320, workWidth - margin * 2));
-        window.Height = Math.Min(window.Height, Math.Max(240, workHeight - margin * 2));
-        window.Left = info.rcWork.Left / scale + (workWidth - window.Width) / 2;
-        window.Top = info.rcWork.Top / scale + (workHeight - window.Height) / 2;
+        // WPF enforces MinWidth/MinHeight over Width/Height. Lower the minimum
+        // first so a small or HiDPI work area cannot leave the window off-screen.
+        if (window.MinWidth > availableWidth) window.MinWidth = availableWidth;
+        if (window.MinHeight > availableHeight) window.MinHeight = availableHeight;
+
+        window.Width = Math.Min(window.Width, availableWidth);
+        window.Height = Math.Min(window.Height, availableHeight);
+        window.UpdateLayout();
+
+        var actualWidth = window.ActualWidth > 0 ? window.ActualWidth : window.Width;
+        var actualHeight = window.ActualHeight > 0 ? window.ActualHeight : window.Height;
+        window.Left = info.rcWork.Left / scale + (workWidth - actualWidth) / 2;
+        window.Top = info.rcWork.Top / scale + (workHeight - actualHeight) / 2;
     }
 
     [StructLayout(LayoutKind.Sequential)]

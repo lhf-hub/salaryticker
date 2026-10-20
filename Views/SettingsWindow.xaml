@@ -322,7 +322,8 @@
                             <TextBox Style="{StaticResource TextBoxNumber}" Text="{Binding HousingFundBase}" Width="160" HorizontalAlignment="Left"/>
                         </StackPanel>
 
-                        <StackPanel Margin="0,0,0,8">
+                        <StackPanel Margin="0,0,0,8"
+                                    Visibility="{Binding HousingFundModeIndex, Converter={StaticResource IndexMinToVisibility}, ConverterParameter=1}">
                             <TextBlock Text="比例（%）" Style="{StaticResource TextLabel}" Margin="0,0,0,4"/>
                             <TextBox Style="{StaticResource TextBoxNumber}" Text="{Binding HousingFundRatePercent, UpdateSourceTrigger=PropertyChanged}"
                                      Width="160" HorizontalAlignment="Left"/>
@@ -935,6 +936,7 @@
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
                 <Button Content="取消" Style="{StaticResource ButtonGhost}"
                         Command="{Binding CancelCommand}"
+                        IsCancel="True"
                         Padding="24,10" Margin="0,0,12,0"/>
                 <Button Content="保存" Style="{StaticResource ButtonPrimary}"
                         Command="{Binding SaveCommand}"

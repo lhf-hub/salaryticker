@@ -4,7 +4,9 @@
 // ============================================================================
 
 using System;
+using System.Diagnostics;
 using System.Windows;
+using System.Windows.Navigation;
 using SalaryTicker.ViewModels;
 
 namespace SalaryTicker.Views;
@@ -21,7 +23,11 @@ public partial class SplashWindow : Window
     {
         InitializeComponent();
 
-        Loaded += (_, _) => FitToScreen();
+        Loaded += (_, _) =>
+        {
+            FitToScreen();
+            StartButton.Focus();
+        };
 
         ViewModel = (SplashViewModel)DataContext;
     }
@@ -32,5 +38,14 @@ public partial class SplashWindow : Window
     private void FitToScreen()
     {
         WindowFit.Fit(this);
+    }
+
+    /// <summary>
+    /// 打开默认邮件客户端
+    /// </summary>
+    private void Email_RequestNavigate(object sender, RequestNavigateEventArgs e)
+    {
+        Process.Start(new ProcessStartInfo(e.Uri.AbsoluteUri) { UseShellExecute = true });
+        e.Handled = true;
     }
 }

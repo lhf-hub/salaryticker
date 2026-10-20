@@ -85,9 +85,10 @@ function Invoke-Git {
 function Invoke-CurlJson {
     # POSTs a file body to the GitHub API with curl.exe and returns the parsed
     # JSON. curl.exe (not Invoke-RestMethod) because it streams large files
-    # without loading them into memory, and because the asset upload has to go
-    # through the same proxy as git.
-    param([string]$Url, [string]$BodyFile, [string]$ContentType)
+    # without loading them into memory. API calls use the configured proxy;
+    # large asset uploads pass -NoProxy because uploads.github.com stalls
+    # through the proxy.
+    param([string]$Url, [string]$BodyFile, [string]$ContentType, [switch]$NoProxy)
 
     $respFile = [System.IO.Path]::GetTempFileName()
     $curlArgs = @("-sS", "-X", "POST",
@@ -101,7 +102,11 @@ function Invoke-CurlJson {
                   "--max-time", "1800",
                   "-o", $respFile,
                   "-w", "%{http_code}")
-    if ($cfg.proxy) { $curlArgs += @("-x", $cfg.proxy) }
+    if ($NoProxy) {
+        $curlArgs += @("--noproxy", "*")
+    } elseif ($cfg.proxy) {
+        $curlArgs += @("-x", $cfg.proxy)
+    }
     $curlArgs += $Url
 
     $status = & curl.exe @curlArgs
@@ -255,6 +260,11 @@ if (-not $NoTag -and -not (Test-Path $assetPath)) {
     throw "Build artifact not found: $assetPath`nRun 'powershell -File tools\deploy.ps1 -SkipUpload' first, or drop -SkipBuild."
 }
 
+# The build writes tools\version-history.json, so the dirty snapshot from the
+# guards may be stale. Recompute before deciding whether to commit, otherwise a
+# clean tree would leave the generated history entry outside the release tag.
+$dirty = @(Invoke-Git @("status", "--porcelain")) | Where-Object { $_ }
+
 # ---------------------------------------------------------------- 5. commit
 if ($repairRelease) {
     Write-Host "[5/7] Repairing an existing release - nothing to commit" -ForegroundColor DarkYellow
@@ -338,15 +348,15 @@ if ($NoTag) {
     }
     Remove-Item $bodyFile -Force -ErrorAction SilentlyContinue
 
-    # Uploading a large file through the proxy occasionally stalls outright (curl
-    # reports a schannel send timeout having sent 0 bytes). A retry on a fresh
-    # connection is enough - one network hiccup must not fail the whole release.
+    # Large uploads to uploads.github.com stall through the local proxy (curl
+    # reports a schannel send timeout having sent 0 bytes). Use a direct
+    # connection for the asset; the API calls keep using the proxy.
     Write-Host "      Uploading $assetName ..." -ForegroundColor Yellow
     $uploadUrl = "https://uploads.github.com/repos/$slug/releases/$($release.id)/assets?name=$assetName"
     $uploaded = $false
     for ($attempt = 1; $attempt -le 3 -and -not $uploaded; $attempt++) {
         try {
-            Invoke-CurlJson -Url $uploadUrl -BodyFile $assetPath -ContentType "application/octet-stream" | Out-Null
+            Invoke-CurlJson -Url $uploadUrl -BodyFile $assetPath -ContentType "application/octet-stream" -NoProxy | Out-Null
             $uploaded = $true
         } catch {
             if ($attempt -eq 3) { throw }

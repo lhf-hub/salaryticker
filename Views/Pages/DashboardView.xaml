@@ -24,14 +24,28 @@
                 <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Center">
                     <TextBlock Text="{Binding NextHolidayText}"
                                Style="{StaticResource WMonoSmallStyle}"
-                               VerticalAlignment="Center"/>
+                               VerticalAlignment="Center"
+                               MaxWidth="280" TextTrimming="CharacterEllipsis"
+                               ToolTip="节假日可在 设置 → 政策参数 维护"/>
                     <TextBlock Text="·"
                                Style="{StaticResource WMonoSmallStyle}"
                                Margin="6,0" VerticalAlignment="Center"/>
-                    <Ellipse Style="{StaticResource WLiveDotStyle}" Margin="0,0,6,0"/>
-                    <TextBlock Text="实时计算中"
-                               Style="{StaticResource WMonoSmallStyle}"
-                               Foreground="{StaticResource WGreenStrongBrush}"/>
+                    <Ellipse Style="{StaticResource WLiveDotStyle}" Margin="0,0,6,0"
+                             Visibility="{Binding IsEarning, Converter={StaticResource BoolToVisibility}}"/>
+                    <Ellipse Style="{StaticResource WStatusDotStyle}" Margin="0,0,6,0"
+                             Visibility="{Binding IsEarning, Converter={StaticResource InverseBoolToVisibility}}"/>
+                    <TextBlock Text="{Binding LiveStatusText}">
+                        <TextBlock.Style>
+                            <Style TargetType="TextBlock" BasedOn="{StaticResource WMonoSmallStyle}">
+                                <Setter Property="Foreground" Value="{StaticResource WGreenStrongBrush}"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsEarning}" Value="False">
+                                        <Setter Property="Foreground" Value="{StaticResource WMutedBrush}"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </TextBlock.Style>
+                    </TextBlock>
                 </StackPanel>
             </DockPanel>
 
@@ -60,7 +74,8 @@
                                            VerticalAlignment="Center"/>
                                 <Border DockPanel.Dock="Right"
                                         Style="{StaticResource WNeutralPillStyle}"
-                                        VerticalAlignment="Center">
+                                        VerticalAlignment="Center"
+                                        Visibility="{Binding IsEarning, Converter={StaticResource BoolToVisibility}}">
                                     <StackPanel Orientation="Horizontal">
                                         <Ellipse Style="{StaticResource WLiveDotStyle}" Margin="0,0,6,0"/>
                                         <TextBlock Text="工资在涨"
@@ -319,7 +334,7 @@
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
                                     <Button Style="{StaticResource WMuyuButtonStyle}"
-                                            Margin="0,0,8,0"
+                                            Margin="0,0,8,8"
                                             IsEnabled="{Binding DataContext.IsMuyuEnabled,
                                                         RelativeSource={RelativeSource AncestorType=ItemsControl}}"
                                             Command="{Binding DataContext.MuyuClickCommand,

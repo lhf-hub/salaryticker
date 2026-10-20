@@ -11,7 +11,7 @@ SalaryTicker（实时计算器）—— Windows 桌面工资实时计算器。
 | 项 | 值 |
 |---|---|
 | 技术栈 | C# / .NET 8 / WPF / MVVM（CommunityToolkit.Mvvm） |
-| 主工程 | `SalaryTicker.csproj` —— 版本号在 `<Version>`，发版时只改这里 |
+| 主工程 | `SalaryTicker.csproj` —— 版本号在 `<Version>` / `<AssemblyVersion>` / `<FileVersion>` / `<InformationalVersion>`，发版时四个一起改（应用内版本号读 AssemblyVersion） |
 | 测试工程 | `tests/ShenzhenSalaryTimer.Tests/`（xUnit） |
 | 用户数据 | `%AppData%\SalaryTicker\`（纯 JSON，无数据库） |
 | 官网与下载页 | `server/`（Nginx 配置 + index.html） |

@@ -725,9 +725,11 @@ public partial class SettingsViewModel : ObservableObject
         // 判断是否需要确认
         if (AffectsCalculation(_live, draft))
         {
-            var owner = Application.Current?.Windows.Count > 0
-                ? Application.Current.Windows[0]
-                : null;
+            var windows = Application.Current?.Windows;
+            var owner = windows is null
+                ? Application.Current?.MainWindow
+                : windows.OfType<Window>().FirstOrDefault(w => w.IsActive)
+                  ?? Application.Current?.MainWindow;
 
             var confirmed = ConfirmDialog.Show(owner,
                 "修改后当前计时将重置，已累计的今日/当月数据会重新计算，确定吗？",

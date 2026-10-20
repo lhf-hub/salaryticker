@@ -118,9 +118,12 @@
                                     <Run Text="其他城市可在「设置 → 政策参数」中按当地政策自行调整。"/>
                                     <LineBreak/>
                                     <Run Text="有疑问或建议，欢迎联系 Lee 老师："/>
-                                    <Run Text="leemail208@163.com"
-                                         Foreground="{StaticResource WCoralStrongBrush}"
-                                         FontWeight="SemiBold"/>
+                                    <Hyperlink NavigateUri="mailto:leemail208@163.com"
+                                               RequestNavigate="Email_RequestNavigate"
+                                               Foreground="{StaticResource WCoralStrongBrush}"
+                                               TextDecorations="{x:Null}">
+                                        <Run Text="leemail208@163.com" FontWeight="SemiBold"/>
+                                    </Hyperlink>
                                 </TextBlock>
                             </StackPanel>
                         </Border>
@@ -214,7 +217,9 @@
                               IsChecked="{Binding DontShowAgain}"
                               Margin="0,0,0,14"/>
                     <Button Content="我已知晓，开始使用 →"
+                            x:Name="StartButton"
                             Style="{StaticResource SplashPrimary}"
+                            IsDefault="True"
                             Command="{Binding ConfirmCommand}"/>
                 </StackPanel>
             </Grid>

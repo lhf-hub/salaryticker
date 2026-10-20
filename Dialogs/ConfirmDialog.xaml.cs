@@ -16,7 +16,11 @@ public partial class ConfirmDialog : Window
     internal ConfirmDialog()
     {
         InitializeComponent();
-        Loaded += (_, _) => OkButton.Focus();
+        Loaded += (_, _) =>
+        {
+            if (OkButton.IsDefault) OkButton.Focus();
+            else CancelButton.Focus();
+        };
     }
 
     /// <summary>
@@ -39,6 +43,9 @@ public partial class ConfirmDialog : Window
         if (isDanger)
         {
             dialog.OkButton.Style = (Style)dialog.FindResource("ButtonDanger");
+            // Dangerous actions must not be confirmed by a reflexive Enter.
+            dialog.OkButton.IsDefault = false;
+            dialog.CancelButton.IsDefault = true;
         }
 
         return dialog.ShowDialog() == true;

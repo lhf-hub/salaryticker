@@ -13,11 +13,12 @@
     <SolidColorBrush x:Key="WInkBrush" Color="#2D2A26"/>
     <SolidColorBrush x:Key="WInkStrongBrush" Color="#1F1B17"/>
     <SolidColorBrush x:Key="WMutedBrush" Color="#665C52"/>
-    <SolidColorBrush x:Key="WSubtleBrush" Color="#8A8074"/>
+    <SolidColorBrush x:Key="WSubtleBrush" Color="#756B60"/>
     <SolidColorBrush x:Key="WBorderBrush" Color="#E6DDD0"/>
     <SolidColorBrush x:Key="WBorderStrongBrush" Color="#D6C9B8"/>
+    <SolidColorBrush x:Key="WControlBorderBrush" Color="#96846C"/>
     <SolidColorBrush x:Key="WCoralBrush" Color="#E07A5F"/>
-    <SolidColorBrush x:Key="WCoralStrongBrush" Color="#B4533C"/>
+    <SolidColorBrush x:Key="WCoralStrongBrush" Color="#A64A34"/>
     <SolidColorBrush x:Key="WCoralSoftBrush" Color="#FBEDE6"/>
     <SolidColorBrush x:Key="WGreenBrush" Color="#047857"/>
     <SolidColorBrush x:Key="WGreenStrongBrush" Color="#17694F"/>
@@ -47,11 +48,17 @@
         <Setter Property="Control.Template">
             <Setter.Value>
                 <ControlTemplate>
-                    <Border BorderBrush="{StaticResource WGreenBrush}"
-                            BorderThickness="2"
-                            CornerRadius="999"
-                            Margin="2"
-                            SnapsToDevicePixels="True"/>
+                    <Border BorderBrush="{StaticResource WInkStrongBrush}"
+                            BorderThickness="1"
+                            CornerRadius="4"
+                            Margin="1"
+                            SnapsToDevicePixels="True">
+                        <Border BorderBrush="{StaticResource WSurfaceRaisedBrush}"
+                                BorderThickness="1"
+                                CornerRadius="3"
+                                Margin="1"
+                                SnapsToDevicePixels="True"/>
+                    </Border>
                 </ControlTemplate>
             </Setter.Value>
         </Setter>
@@ -716,6 +723,11 @@
                                     Value="{StaticResource WPaperSoftBrush}"/>
                             <Setter Property="FontWeight" Value="SemiBold"/>
                         </Trigger>
+                        <Trigger Property="IsHighlighted" Value="True">
+                            <Setter TargetName="Bd" Property="Background"
+                                    Value="{StaticResource WGreenSoftBrush}"/>
+                            <Setter Property="Foreground" Value="{StaticResource WInkStrongBrush}"/>
+                        </Trigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>
             </Setter.Value>
@@ -735,7 +747,7 @@
                     <StackPanel Orientation="Horizontal" Background="Transparent">
                         <Border x:Name="Box" Width="16" Height="16" CornerRadius="4"
                                 Background="{StaticResource WSurfaceRaisedBrush}"
-                                BorderBrush="{StaticResource WBorderStrongBrush}"
+                                BorderBrush="{StaticResource WControlBorderBrush}"
                                 BorderThickness="1" VerticalAlignment="Center">
                             <Path x:Name="Check" Data="M 2.5 8 L 6.5 12 L 13.5 4"
                                   Stroke="{StaticResource WSurfaceRaisedBrush}" StrokeThickness="2"
@@ -778,7 +790,7 @@
                     <StackPanel Orientation="Horizontal" Background="Transparent">
                         <Grid Width="16" Height="16" VerticalAlignment="Center">
                             <Ellipse x:Name="Outer" Fill="{StaticResource WSurfaceRaisedBrush}"
-                                     Stroke="{StaticResource WBorderStrongBrush}" StrokeThickness="1"/>
+                                     Stroke="{StaticResource WControlBorderBrush}" StrokeThickness="1"/>
                             <Ellipse x:Name="Inner" Width="8" Height="8"
                                      Fill="{StaticResource WGreenStrongBrush}" Visibility="Collapsed"/>
                         </Grid>
@@ -837,6 +849,11 @@
                         <Trigger Property="IsToday" Value="True">
                             <Setter TargetName="Bd" Property="BorderBrush"
                                     Value="{StaticResource WGreenBrush}"/>
+                        </Trigger>
+                        <Trigger Property="IsKeyboardFocused" Value="True">
+                            <Setter TargetName="Bd" Property="BorderBrush"
+                                    Value="{StaticResource WInkStrongBrush}"/>
+                            <Setter TargetName="Bd" Property="BorderThickness" Value="2"/>
                         </Trigger>
                         <Trigger Property="IsInactive" Value="True">
                             <Setter Property="Foreground" Value="{StaticResource WSubtleBrush}"/>

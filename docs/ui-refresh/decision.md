@@ -257,6 +257,21 @@
 - 验证：`dotnet build` 通过、`dotnet test` 236 全绿、`dotnet run -- smoke` 全部 OK；截图 `app-shot-new.png`。
 - 未部署。
 
+## 发布前自检与 1.2.0 准备（2026-10-20）
+
+- 按用户「自检 + 用户视角优化」要求做了独立的 UX/无障碍审计与发布流程审计，修复：
+  - `WindowFit` 先降低 `MinWidth/MinHeight` 再设置尺寸，避免 125% 小屏上窗口超出工作区。
+  - `WSubtleBrush` 加深到 `#756B60`、`WCoralStrongBrush` 加深到 `#A64A34`；焦点环改为深/浅双色；复选框/单选框边框改用更深的控件色。
+  - 非工作时段不再显示「工资在涨」和绿色实时点：英雄卡胶囊隐藏，顶部状态显示真实状态；数字脉冲只在计薪时段触发。
+  - 危险确认默认聚焦「取消」而不是「确定」；设置页 Esc 取消；启动页 Enter 开始、初始聚焦开始按钮；启动页邮箱改为 mailto 链接。
+  - 迷你窗 Esc / Alt+F4 返回主窗；启动页 Alt+F4 也会打开主窗，不再留下不可见进程。
+  - 假期倒计时加「设置 → 政策参数」提示；公积金比例只在「基数 × 比例」模式下显示；摸鱼按钮自动换行间距修正；空摸鱼记录不再重复提示。
+  - ComboBox 键盘高亮、日历日期键盘焦点、设置页确认框 owner 修正；网站 skip link 目标加 `tabindex=-1`，品牌图改装饰性 alt。
+- 发布准备：版本升至 **1.2.0** 并同步四个版本字段；更新 `tools/release-notes.txt`；官网静态版本兜底改为 v1.2.0，重新生成官网 app-shot / mini-shot。
+- 发布脚本修正：GitHub 大附件上传改为直连 `uploads.github.com`（API 仍走代理）；`deploy.ps1 -SkipPublish` 增加 exe 版本校验；`release.ps1` 在构建后重新计算脏状态，保证 `version-history.json` 进入发布提交；CLAUDE.md 明确四个版本字段。
+- 验证：`dotnet build` 通过、`dotnet test` **236** 全绿、`dotnet run -- smoke` 全部 OK；截图 `final-main/settings/splash/confirm/history.png`。
+- 随后合并 `main`、打 `v1.2.0`、建 GitHub Release 并部署应用与官网。
+
 ## Phase 0 基线
 
 - `dotnet build`：通过。

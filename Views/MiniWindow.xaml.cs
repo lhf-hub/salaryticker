@@ -200,6 +200,18 @@ public partial class MiniWindow : Window
     }
 
     /// <summary>
+    /// Esc 返回主窗口
+    /// </summary>
+    private void Window_KeyDown(object sender, KeyEventArgs e)
+    {
+        if (e.Key == Key.Escape)
+        {
+            e.Handled = true;
+            ReturnToMain();
+        }
+    }
+
+    /// <summary>
     /// 返回主窗口（隐藏迷你窗，显示主窗）
     /// </summary>
     private void ReturnToMain()
@@ -217,10 +229,23 @@ public partial class MiniWindow : Window
     }
 
     /// <summary>
-    /// 关闭：解除订阅
+    /// 关闭：解除订阅；若是 Alt+F4 关闭迷你窗，把隐藏的主窗找回来，避免应用“消失”。
     /// </summary>
     private void OnClosed(object? sender, EventArgs e)
     {
         AppServices.Ticker.Snapshot -= OnSnapshot;
+
+        if (Application.Current is { ShutdownMode: ShutdownMode.OnExplicitShutdown } app)
+        {
+            foreach (Window window in app.Windows)
+            {
+                if (window is MainWindow main && main.IsLoaded && !main.IsVisible)
+                {
+                    main.Show();
+                    main.Activate();
+                    break;
+                }
+            }
+        }
     }
 }

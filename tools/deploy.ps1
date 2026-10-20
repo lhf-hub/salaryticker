@@ -78,8 +78,13 @@ $exePath = Join-Path $distDir $exeName
 
 if ($SkipPublish -and (Test-Path $exePath)) {
     # Reuse the exe tools\release.ps1 already attached to the GitHub Release, so
-    # both download channels serve a byte-identical binary.
-    Write-Host "[2/6] -SkipPublish: reusing dist\$exeName (no rebuild)" -ForegroundColor DarkYellow
+    # both download channels serve a byte-identical binary. Refuse to publish a
+    # stale build from an earlier version.
+    $fileVersion = (Get-Item $exePath).VersionInfo.FileVersion
+    if ($fileVersion -notlike "$version*") {
+        throw "dist\$exeName is version $fileVersion, expected $version. Run release.ps1 first or drop -SkipPublish."
+    }
+    Write-Host "[2/6] -SkipPublish: reusing dist\$exeName (no build; version $fileVersion)" -ForegroundColor DarkYellow
 } else {
     if ($SkipPublish) {
         Write-Host "[2/6] -SkipPublish given but dist\$exeName is missing - publishing anyway" -ForegroundColor DarkYellow
