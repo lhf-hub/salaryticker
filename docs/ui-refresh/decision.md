@@ -251,7 +251,7 @@
   - 有未来节假日 → 「离{名称}还有 N 天」
   - 当前年假期表已用完且包含元旦 → 推断下一年元旦
   - 其他 → 「假期表待更新」
-- `MainViewModel.NextHolidayText` 随每个快照刷新；主窗顶部上下文行增加琥珀色胶囊（时钟图标 + 文案），例如「离元旦还有 73 天」。
+- `MainViewModel.NextHolidayText` 随每个快照刷新；主窗顶部上下文行以现有 `WMonoSmallStyle` 纯文本显示（不新增胶囊/图标），例如「离元旦还有 73 天 · ● 实时计算中」。
 - 新增 5 个单元测试（`NextHolidayCalculatorTests`），测试总数 231 → 236。
 - 官网 `app-shot` 同步更新（顶部含假期倒计时）；`mini-shot` 不变。
 - 验证：`dotnet build` 通过、`dotnet test` 236 全绿、`dotnet run -- smoke` 全部 OK；截图 `app-shot-new.png`。
