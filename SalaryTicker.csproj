@@ -35,6 +35,7 @@
   <ItemGroup>
     <!-- 图标资源：窗口 Icon 属性引用（pack URI） -->
     <Resource Include="Assets\SalaryTicker.ico" />
+    <Resource Include="Assets\icon-preview-48.png" />
   </ItemGroup>
 
 </Project>
