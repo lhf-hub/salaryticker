@@ -1,7 +1,7 @@
 <!-- ============================================================================
      文件名：MiniWindow.xaml
      功能描述：迷你悬浮窗（无边框、置顶、可拖拽、透明度可调、位置记忆）
-     B 流水台账：白卡片、1px 控制边界、墨色读数、功能性阴影
+     Warm：暖白卡片、细边框、绿色读数、顶部四色短线
      ============================================================================ -->
 <Window x:Class="SalaryTicker.Views.MiniWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
@@ -19,112 +19,97 @@
         MouseDoubleClick="Window_MouseDoubleClick">
 
     <Window.Resources>
-        <Style x:Key="MiniSlider" TargetType="Slider">
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Slider">
-                        <Grid Height="14" VerticalAlignment="Center">
-                            <Border Height="2" Background="{StaticResource BRuleBrush}" VerticalAlignment="Center"/>
-                            <Track x:Name="PART_Track"
-                                   Orientation="Horizontal"
-                                   Maximum="{TemplateBinding Maximum}"
-                                   Minimum="{TemplateBinding Minimum}"
-                                   Value="{TemplateBinding Value}"
-                                   IsDirectionReversed="{TemplateBinding IsDirectionReversed}"
-                                   VerticalAlignment="Center">
-                                <Track.Thumb>
-                                    <Thumb Width="8" Height="8">
-                                        <Thumb.Template>
-                                            <ControlTemplate TargetType="Thumb">
-                                                <Ellipse Fill="{StaticResource BInkBrush}" Width="8" Height="8"/>
-                                            </ControlTemplate>
-                                        </Thumb.Template>
-                                    </Thumb>
-                                </Track.Thumb>
-                            </Track>
-                        </Grid>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
+        <Style x:Key="MiniSlider" TargetType="Slider"
+               BasedOn="{StaticResource WSliderStyle}"/>
     </Window.Resources>
 
-    <Border Background="{StaticResource BWhiteBrush}"
-            BorderBrush="{StaticResource BControlBrush}"
+    <Border Background="{StaticResource WSurfaceBrush}"
+            BorderBrush="{StaticResource WBorderBrush}"
             BorderThickness="1"
-            CornerRadius="4"
-            Padding="10,8"
+            CornerRadius="12"
             Margin="6">
         <Border.Effect>
-            <DropShadowEffect Color="#1F2724"
-                              BlurRadius="20" ShadowDepth="4" Opacity="0.16"/>
+            <DropShadowEffect Color="#5A3C28"
+                              BlurRadius="20" ShadowDepth="4" Opacity="0.14"/>
         </Border.Effect>
 
         <Grid>
             <Grid.RowDefinitions>
-                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="2"/>
                 <RowDefinition Height="*"/>
-                <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
 
-            <!-- 标题行：当前指标 + 切换 / 透明度 / 返回 -->
-            <Grid Grid.Row="0">
-                <TextBlock x:Name="MetricText"
-                           Text="本月已赚"
-                           FontSize="11"
-                           Foreground="{StaticResource BMutedBrush}"
+            <Border Grid.Row="0" Background="{StaticResource WBrandGradientBrush}"
+                    CornerRadius="12,12,0,0"/>
+
+            <Grid Grid.Row="1" Margin="10,7,10,7">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <!-- 标题行：当前指标 + 切换 / 透明度 / 返回 -->
+                <Grid Grid.Row="0">
+                    <TextBlock x:Name="MetricText"
+                               Text="本月已赚"
+                               FontFamily="{StaticResource WFontBody}"
+                               FontSize="11"
+                               Foreground="{StaticResource WMutedBrush}"
+                               VerticalAlignment="Center"/>
+
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                        <Slider x:Name="OpacitySlider"
+                                Style="{StaticResource MiniSlider}"
+                                Width="36" Height="14"
+                                Minimum="0.3" Maximum="1.0" Value="0.9"
+                                ValueChanged="OpacitySlider_ValueChanged"
+                                VerticalAlignment="Center"
+                                ToolTip="调整透明度"/>
+                        <Button Style="{StaticResource WTopButtonStyle}"
+                                Click="SwitchMetric_Click"
+                                Width="20" Height="20"
+                                Padding="0"
+                                Margin="4,0,0,0"
+                                ToolTip="切换显示内容：本月已赚 → 今日已赚 → 当前小时已赚">
+                            <TextBlock Text="⇄" FontSize="11"
+                                       Foreground="{StaticResource WMutedBrush}"
+                                       HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Button>
+                        <Button Style="{StaticResource WTopButtonStyle}"
+                                Click="Return_Click"
+                                Width="20" Height="20"
+                                Padding="0"
+                                Margin="4,0,0,0"
+                                ToolTip="返回主窗口（也可双击窗口）">
+                            <TextBlock Text="↩" FontSize="11"
+                                       Foreground="{StaticResource WMutedBrush}"
+                                       HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Button>
+                    </StackPanel>
+                </Grid>
+
+                <!-- 金额 -->
+                <TextBlock Grid.Row="1"
+                           x:Name="AmountText"
+                           Text="¥0.00"
+                           FontFamily="{StaticResource WFontMono}"
+                           FontSize="26" FontWeight="SemiBold"
+                           Foreground="{StaticResource WGreenBrush}"
+                           Typography.NumeralAlignment="Tabular"
+                           HorizontalAlignment="Right"
                            VerticalAlignment="Center"/>
 
-                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                    <Slider x:Name="OpacitySlider"
-                            Style="{StaticResource MiniSlider}"
-                            Width="36" Height="14"
-                            Minimum="0.3" Maximum="1.0" Value="0.9"
-                            ValueChanged="OpacitySlider_ValueChanged"
-                            VerticalAlignment="Center"
-                            ToolTip="调整透明度"/>
-                    <Button Style="{StaticResource BTopButtonStyle}"
-                            Click="SwitchMetric_Click"
-                            Width="20" Height="20"
-                            Padding="0"
-                            Margin="4,0,0,0"
-                            ToolTip="切换显示内容：本月已赚 → 今日已赚 → 当前小时已赚">
-                        <TextBlock Text="⇄" FontSize="11"
-                                   Foreground="{StaticResource BMutedBrush}"
-                                   HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                    </Button>
-                    <Button Style="{StaticResource BTopButtonStyle}"
-                            Click="Return_Click"
-                            Width="20" Height="20"
-                            Padding="0"
-                            Margin="4,0,0,0"
-                            ToolTip="返回主窗口（也可双击窗口）">
-                        <TextBlock Text="↩" FontSize="11"
-                                   Foreground="{StaticResource BMutedBrush}"
-                                   HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                    </Button>
-                </StackPanel>
+                <!-- 状态 -->
+                <TextBlock Grid.Row="2"
+                           x:Name="StatusText"
+                           Text=""
+                           FontFamily="{StaticResource WFontBody}"
+                           FontSize="11"
+                           Foreground="{StaticResource WSubtleBrush}"
+                           HorizontalAlignment="Left"
+                           TextTrimming="CharacterEllipsis"/>
             </Grid>
-
-            <!-- 金额 -->
-            <TextBlock Grid.Row="1"
-                       x:Name="AmountText"
-                       Text="¥0.00"
-                       FontFamily="{StaticResource FontFamilyNumber}"
-                       FontSize="24" FontWeight="SemiBold"
-                       Foreground="{StaticResource BInkBrush}"
-                       Typography.NumeralAlignment="Tabular"
-                       HorizontalAlignment="Right"
-                       VerticalAlignment="Center"/>
-
-            <!-- 状态 -->
-            <TextBlock Grid.Row="2"
-                       x:Name="StatusText"
-                       Text=""
-                       FontSize="11"
-                       Foreground="{StaticResource BMutedBrush}"
-                       HorizontalAlignment="Left"
-                       TextTrimming="CharacterEllipsis"/>
         </Grid>
     </Border>
 </Window>

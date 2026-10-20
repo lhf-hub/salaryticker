@@ -112,7 +112,9 @@
         <StackPanel Grid.Row="1">
 
             <!-- 配置损坏等提示 -->
-            <Border Background="{StaticResource WarnSoftBrush}"
+            <Border Background="{StaticResource WCoralSoftBrush}"
+                    BorderBrush="{StaticResource WCoralBrush}"
+                    BorderThickness="0,0,0,1"
                     Padding="24,12"
                     Visibility="{Binding IsNoticeVisible, Converter={StaticResource BoolToVisibility}}">
                 <Grid>
@@ -122,57 +124,91 @@
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
 
-                    <TextBlock Grid.Column="0" Text="⚠️" FontSize="15" VerticalAlignment="Center"/>
+                    <Border Grid.Column="0" Width="26" Height="26" CornerRadius="8"
+                            Background="{StaticResource WSurfaceRaisedBrush}"
+                            BorderBrush="{StaticResource WCoralBrush}" BorderThickness="1"
+                            VerticalAlignment="Center">
+                        <Path Data="{StaticResource IconWarning}"
+                              Fill="{StaticResource WCoralStrongBrush}"
+                              Width="14" Height="14" Stretch="Uniform"
+                              HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    </Border>
 
                     <TextBlock Grid.Column="1"
                                Text="{Binding NoticeText}"
-                               Foreground="#8A5A2B"
+                               FontFamily="{StaticResource WFontBody}" FontSize="12.5"
+                               Foreground="{StaticResource WCoralStrongBrush}"
                                Margin="10,0" TextWrapping="Wrap"
                                VerticalAlignment="Center"/>
 
                     <Button Grid.Column="2"
-                            Style="{StaticResource ButtonIcon}"
-                            Width="28" Height="28"
-                            Command="{Binding DismissNoticeCommand}">
-                        <TextBlock Text="✕" FontSize="12" Foreground="#8A5A2B"/>
+                            Style="{StaticResource WTopButtonStyle}"
+                            Width="28" Height="28" Padding="0"
+                            Command="{Binding DismissNoticeCommand}"
+                            ToolTip="关闭提示">
+                        <Path Data="{StaticResource IconClose}"
+                              Fill="{StaticResource WCoralStrongBrush}"
+                              Width="12" Height="12" Stretch="Uniform"
+                              HorizontalAlignment="Center" VerticalAlignment="Center"/>
                     </Button>
                 </Grid>
             </Border>
 
             <!-- 位置小提示（仅在程序目录不可写时出现，可写时完全不打扰） -->
-            <Border Background="{StaticResource BgSubtleBrush}"
+            <Border Background="{StaticResource WBlueSoftBrush}"
+                    BorderBrush="{StaticResource WBlueBrush}"
+                    BorderThickness="0,0,0,1"
                     Padding="24,12"
                     Visibility="{Binding Update.IsPortabilityNoticeVisible, Converter={StaticResource BoolToVisibility}}">
                 <Grid>
                     <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
 
-                    <TextBlock Grid.Column="0"
+                    <Border Grid.Column="0" Width="26" Height="26" CornerRadius="8"
+                            Background="{StaticResource WSurfaceRaisedBrush}"
+                            BorderBrush="{StaticResource WBlueBrush}" BorderThickness="1"
+                            VerticalAlignment="Center">
+                        <Path Data="{StaticResource IconInfo}"
+                              Fill="{StaticResource WBlueStrongBrush}"
+                              Width="14" Height="14" Stretch="Uniform"
+                              HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    </Border>
+
+                    <TextBlock Grid.Column="1"
                                Text="{Binding Update.PortabilityNoticeText}"
-                               Foreground="{StaticResource TextPrimaryBrush}"
-                               TextWrapping="Wrap"
+                               FontFamily="{StaticResource WFontBody}" FontSize="12.5"
+                               Foreground="{StaticResource WBlueStrongBrush}"
+                               Margin="10,0" TextWrapping="Wrap"
                                VerticalAlignment="Center"/>
 
-                    <Button Grid.Column="1"
-                            Style="{StaticResource ButtonIcon}"
-                            Width="28" Height="28"
-                            Command="{Binding Update.DismissPortabilityNoticeCommand}">
-                        <TextBlock Text="✕" FontSize="12" Foreground="{StaticResource TextSecondaryBrush}"/>
+                    <Button Grid.Column="2"
+                            Style="{StaticResource WTopButtonStyle}"
+                            Width="28" Height="28" Padding="0"
+                            Command="{Binding Update.DismissPortabilityNoticeCommand}"
+                            ToolTip="关闭提示">
+                        <Path Data="{StaticResource IconClose}"
+                              Fill="{StaticResource WBlueStrongBrush}"
+                              Width="12" Height="12" Stretch="Uniform"
+                              HorizontalAlignment="Center" VerticalAlignment="Center"/>
                     </Button>
                 </Grid>
             </Border>
 
             <!-- 发现新版本 -->
             <Border Padding="24,12"
+                    BorderThickness="0,0,0,1"
                     Visibility="{Binding Update.IsVisible, Converter={StaticResource BoolToVisibility}}">
                 <Border.Style>
                     <Style TargetType="Border">
-                        <Setter Property="Background" Value="{StaticResource PrimarySoftBrush}"/>
+                        <Setter Property="Background" Value="{StaticResource WGreenSoftBrush}"/>
+                        <Setter Property="BorderBrush" Value="{StaticResource WGreenBrush}"/>
                         <Style.Triggers>
                             <DataTrigger Binding="{Binding Update.IsError}" Value="True">
-                                <Setter Property="Background" Value="{StaticResource DangerSoftBrush}"/>
+                                <Setter Property="Background" Value="{StaticResource WCoralSoftBrush}"/>
+                                <Setter Property="BorderBrush" Value="{StaticResource WCoralBrush}"/>
                             </DataTrigger>
                         </Style.Triggers>
                     </Style>
@@ -186,29 +222,48 @@
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
 
-                    <TextBlock Grid.Column="0" Text="🎉" FontSize="15" VerticalAlignment="Center"/>
+                    <Border Grid.Column="0" Width="26" Height="26" CornerRadius="8"
+                            Background="{StaticResource WSurfaceRaisedBrush}"
+                            BorderBrush="{StaticResource WBorderBrush}" BorderThickness="1"
+                            VerticalAlignment="Center">
+                        <Path Data="{StaticResource IconRefresh}"
+                              Width="14" Height="14" Stretch="Uniform"
+                              HorizontalAlignment="Center" VerticalAlignment="Center">
+                            <Path.Style>
+                                <Style TargetType="Path">
+                                    <Setter Property="Fill" Value="{StaticResource WGreenStrongBrush}"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding Update.IsError}" Value="True">
+                                            <Setter Property="Fill" Value="{StaticResource WCoralStrongBrush}"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Path.Style>
+                        </Path>
+                    </Border>
 
                     <StackPanel Grid.Column="1" Margin="10,0" VerticalAlignment="Center">
                         <TextBlock Text="{Binding Update.TitleText}"
-                                   FontWeight="SemiBold" FontSize="14"
-                                   Foreground="#8A4B38"/>
+                                   FontFamily="{StaticResource WFontBody}"
+                                   FontWeight="SemiBold" FontSize="13.5"
+                                   Foreground="{StaticResource WInkStrongBrush}"/>
                         <TextBlock Text="{Binding Update.NotesText}"
-                                   Style="{StaticResource TextSmall}"
-                                   TextWrapping="Wrap" Margin="0,3,0,0"/>
+                                   Style="{StaticResource WSmallStyle}"
+                                   Margin="0,3,0,0"/>
                         <TextBlock Text="{Binding Update.StatusText}"
-                                   Style="{StaticResource TextSmall}"
+                                   Style="{StaticResource WSmallStyle}"
                                    FontWeight="SemiBold"
-                                   TextWrapping="Wrap" Margin="0,3,0,0"/>
+                                   Margin="0,3,0,0"/>
                         <ProgressBar Value="{Binding Update.Progress, Mode=OneWay}"
-                                     Minimum="0" Maximum="1"
-                                     Height="6" Margin="0,6,0,0"
+                                     Style="{StaticResource WProgressBarStyle}"
+                                     Margin="0,6,0,0"
                                      Visibility="{Binding Update.IsDownloading, Converter={StaticResource BoolToVisibility}}"/>
                     </StackPanel>
 
                     <!-- 操作按钮（下载中隐藏） -->
                     <Button Grid.Column="2"
                             Content="立即更新"
-                            Style="{StaticResource ButtonPrimary}"
+                            Style="{StaticResource WPrimaryButtonStyle}"
                             Command="{Binding Update.StartUpdateCommand}"
                             Padding="18,7" Margin="0,0,8,0"
                             VerticalAlignment="Center"
@@ -217,7 +272,7 @@
                     <!-- 程序目录不可写时的兜底：引导到官网手动下载 -->
                     <Button Grid.Column="2"
                             Content="前往下载"
-                            Style="{StaticResource ButtonPrimary}"
+                            Style="{StaticResource WPrimaryButtonStyle}"
                             Command="{Binding Update.OpenDownloadPageCommand}"
                             Padding="18,7" Margin="0,0,8,0"
                             VerticalAlignment="Center"
@@ -225,18 +280,22 @@
 
                     <Button Grid.Column="3"
                             Content="忽略此版本"
-                            Style="{StaticResource ButtonGhost}"
+                            Style="{StaticResource WGhostButtonStyle}"
                             Command="{Binding Update.SkipVersionCommand}"
                             Padding="14,7" Margin="0,0,4,0"
                             VerticalAlignment="Center"
                             Visibility="{Binding Update.IsDownloading, Converter={StaticResource InverseBoolToVisibility}}"/>
 
                     <Button Grid.Column="4"
-                            Style="{StaticResource ButtonIcon}"
-                            Width="28" Height="28"
+                            Style="{StaticResource WTopButtonStyle}"
+                            Width="28" Height="28" Padding="0"
                             VerticalAlignment="Center"
-                            Command="{Binding Update.DismissCommand}">
-                        <TextBlock Text="✕" FontSize="12" Foreground="#8A4B38"/>
+                            Command="{Binding Update.DismissCommand}"
+                            ToolTip="关闭提示">
+                        <Path Data="{StaticResource IconClose}"
+                              Fill="{StaticResource WInkBrush}"
+                              Width="12" Height="12" Stretch="Uniform"
+                              HorizontalAlignment="Center" VerticalAlignment="Center"/>
                     </Button>
                 </Grid>
             </Border>

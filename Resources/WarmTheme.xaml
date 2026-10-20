@@ -528,4 +528,427 @@
         </Setter>
     </Style>
 
+    <!-- ══════════════════════════════════════════════════════════
+         设置 / 启动 / 迷你 / 历史 / 弹窗：通用控件
+         ══════════════════════════════════════════════════════════ -->
+
+    <Style x:Key="WSmallStyle" TargetType="TextBlock">
+        <Setter Property="FontFamily" Value="{StaticResource WFontBody}"/>
+        <Setter Property="FontSize" Value="12"/>
+        <Setter Property="Foreground" Value="{StaticResource WMutedBrush}"/>
+        <Setter Property="TextWrapping" Value="Wrap"/>
+    </Style>
+
+    <Style x:Key="WPageTitleStyle" TargetType="TextBlock">
+        <Setter Property="FontFamily" Value="{StaticResource WFontDisplay}"/>
+        <Setter Property="FontSize" Value="28"/>
+        <Setter Property="FontWeight" Value="Medium"/>
+        <Setter Property="Foreground" Value="{StaticResource WInkStrongBrush}"/>
+    </Style>
+
+    <Style x:Key="WDangerButtonStyle" TargetType="Button" BasedOn="{StaticResource WButtonBaseStyle}">
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="BorderBrush" Value="{StaticResource WCoralBrush}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="Foreground" Value="{StaticResource WCoralStrongBrush}"/>
+    </Style>
+
+    <!-- ── ComboBox ───────────────────────────────────────────── -->
+    <Style x:Key="WComboBoxStyle" TargetType="ComboBox">
+        <Setter Property="Height" Value="36"/>
+        <Setter Property="FontFamily" Value="{StaticResource WFontBody}"/>
+        <Setter Property="FontSize" Value="13"/>
+        <Setter Property="Foreground" Value="{StaticResource WInkBrush}"/>
+        <Setter Property="Background" Value="{StaticResource WSurfaceRaisedBrush}"/>
+        <Setter Property="BorderBrush" Value="{StaticResource WBorderBrush}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="Padding" Value="12,0,30,0"/>
+        <Setter Property="FocusVisualStyle" Value="{StaticResource WFocusVisual}"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ComboBox">
+                    <Grid>
+                        <ToggleButton x:Name="Toggle" Focusable="False" ClickMode="Press"
+                                      IsChecked="{Binding IsDropDownOpen, Mode=TwoWay,
+                                                  RelativeSource={RelativeSource TemplatedParent}}">
+                            <ToggleButton.Template>
+                                <ControlTemplate TargetType="ToggleButton">
+                                    <Border x:Name="Bd"
+                                            Background="{StaticResource WSurfaceRaisedBrush}"
+                                            BorderBrush="{StaticResource WBorderBrush}"
+                                            BorderThickness="1" CornerRadius="8"
+                                            SnapsToDevicePixels="True">
+                                        <Path HorizontalAlignment="Right" VerticalAlignment="Center"
+                                              Margin="0,0,12,0" Data="M 0,0 L 4,4 L 8,0"
+                                              Stroke="{StaticResource WSubtleBrush}" StrokeThickness="1.4"
+                                              StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
+                                    </Border>
+                                    <ControlTemplate.Triggers>
+                                        <Trigger Property="IsMouseOver" Value="True">
+                                            <Setter TargetName="Bd" Property="Background"
+                                                    Value="{StaticResource WPaperSoftBrush}"/>
+                                        </Trigger>
+                                        <Trigger Property="IsChecked" Value="True">
+                                            <Setter TargetName="Bd" Property="BorderBrush"
+                                                    Value="{StaticResource WGreenBrush}"/>
+                                        </Trigger>
+                                    </ControlTemplate.Triggers>
+                                </ControlTemplate>
+                            </ToggleButton.Template>
+                        </ToggleButton>
+                        <ContentPresenter Margin="{TemplateBinding Padding}"
+                                          Content="{TemplateBinding SelectionBoxItem}"
+                                          ContentTemplate="{TemplateBinding SelectionBoxItemTemplate}"
+                                          ContentStringFormat="{TemplateBinding SelectionBoxItemStringFormat}"
+                                          VerticalAlignment="Center" HorizontalAlignment="Left"
+                                          IsHitTestVisible="False"/>
+                        <Popup x:Name="PART_Popup" IsOpen="{TemplateBinding IsDropDownOpen}"
+                               Placement="Bottom" AllowsTransparency="True" Focusable="False"
+                               PopupAnimation="Fade" VerticalOffset="2">
+                            <Border Background="{StaticResource WSurfaceRaisedBrush}"
+                                    BorderBrush="{StaticResource WBorderBrush}"
+                                    BorderThickness="1" CornerRadius="8"
+                                    MinWidth="200" MaxHeight="280">
+                                <ScrollViewer VerticalScrollBarVisibility="Auto">
+                                    <ItemsPresenter/>
+                                </ScrollViewer>
+                            </Border>
+                        </Popup>
+                    </Grid>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter Property="Opacity" Value="0.55"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="WComboBoxItemStyle" TargetType="ComboBoxItem">
+        <Setter Property="FontFamily" Value="{StaticResource WFontBody}"/>
+        <Setter Property="FontSize" Value="13"/>
+        <Setter Property="Foreground" Value="{StaticResource WInkBrush}"/>
+        <Setter Property="Padding" Value="12,8"/>
+        <Setter Property="Cursor" Value="Hand"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ComboBoxItem">
+                    <Border x:Name="Bd" Background="Transparent" Padding="{TemplateBinding Padding}">
+                        <ContentPresenter VerticalAlignment="Center"/>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Bd" Property="Background"
+                                    Value="{StaticResource WPaperSoftBrush}"/>
+                        </Trigger>
+                        <Trigger Property="IsSelected" Value="True">
+                            <Setter TargetName="Bd" Property="Background"
+                                    Value="{StaticResource WPaperSoftBrush}"/>
+                            <Setter Property="FontWeight" Value="SemiBold"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- ── CheckBox / RadioButton ─────────────────────────────── -->
+    <Style x:Key="WCheckBoxStyle" TargetType="CheckBox">
+        <Setter Property="FontFamily" Value="{StaticResource WFontBody}"/>
+        <Setter Property="FontSize" Value="13"/>
+        <Setter Property="Foreground" Value="{StaticResource WInkBrush}"/>
+        <Setter Property="Cursor" Value="Hand"/>
+        <Setter Property="FocusVisualStyle" Value="{StaticResource WFocusVisual}"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="CheckBox">
+                    <StackPanel Orientation="Horizontal" Background="Transparent">
+                        <Border x:Name="Box" Width="16" Height="16" CornerRadius="4"
+                                Background="{StaticResource WSurfaceRaisedBrush}"
+                                BorderBrush="{StaticResource WBorderStrongBrush}"
+                                BorderThickness="1" VerticalAlignment="Center">
+                            <Path x:Name="Check" Data="M 2.5 8 L 6.5 12 L 13.5 4"
+                                  Stroke="{StaticResource WSurfaceRaisedBrush}" StrokeThickness="2"
+                                  StrokeStartLineCap="Round" StrokeEndLineCap="Round"
+                                  StrokeLineJoin="Round" Visibility="Collapsed"/>
+                        </Border>
+                        <ContentPresenter Margin="8,0,0,0" VerticalAlignment="Center"
+                                          RecognizesAccessKey="True"/>
+                    </StackPanel>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsChecked" Value="True">
+                            <Setter TargetName="Box" Property="Background"
+                                    Value="{StaticResource WGreenStrongBrush}"/>
+                            <Setter TargetName="Box" Property="BorderBrush"
+                                    Value="{StaticResource WGreenStrongBrush}"/>
+                            <Setter TargetName="Check" Property="Visibility" Value="Visible"/>
+                        </Trigger>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Box" Property="BorderBrush"
+                                    Value="{StaticResource WGreenBrush}"/>
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter Property="Opacity" Value="0.55"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="WRadioButtonStyle" TargetType="RadioButton">
+        <Setter Property="FontFamily" Value="{StaticResource WFontBody}"/>
+        <Setter Property="FontSize" Value="13"/>
+        <Setter Property="Foreground" Value="{StaticResource WInkBrush}"/>
+        <Setter Property="Cursor" Value="Hand"/>
+        <Setter Property="FocusVisualStyle" Value="{StaticResource WFocusVisual}"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="RadioButton">
+                    <StackPanel Orientation="Horizontal" Background="Transparent">
+                        <Grid Width="16" Height="16" VerticalAlignment="Center">
+                            <Ellipse x:Name="Outer" Fill="{StaticResource WSurfaceRaisedBrush}"
+                                     Stroke="{StaticResource WBorderStrongBrush}" StrokeThickness="1"/>
+                            <Ellipse x:Name="Inner" Width="8" Height="8"
+                                     Fill="{StaticResource WGreenStrongBrush}" Visibility="Collapsed"/>
+                        </Grid>
+                        <ContentPresenter Margin="8,0,0,0" VerticalAlignment="Center"
+                                          RecognizesAccessKey="True"/>
+                    </StackPanel>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsChecked" Value="True">
+                            <Setter TargetName="Outer" Property="Stroke"
+                                    Value="{StaticResource WGreenStrongBrush}"/>
+                            <Setter TargetName="Inner" Property="Visibility" Value="Visible"/>
+                        </Trigger>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Outer" Property="Stroke"
+                                    Value="{StaticResource WGreenBrush}"/>
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter Property="Opacity" Value="0.55"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- ── DatePicker / Calendar ──────────────────────────────── -->
+    <Style x:Key="WCalendarDayButtonStyle" TargetType="CalendarDayButton">
+        <Setter Property="FontFamily" Value="{StaticResource WFontBody}"/>
+        <Setter Property="FontSize" Value="11.5"/>
+        <Setter Property="Foreground" Value="{StaticResource WInkBrush}"/>
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="Margin" Value="1"/>
+        <Setter Property="MinWidth" Value="26"/>
+        <Setter Property="MinHeight" Value="26"/>
+        <Setter Property="HorizontalContentAlignment" Value="Center"/>
+        <Setter Property="VerticalContentAlignment" Value="Center"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="CalendarDayButton">
+                    <Border x:Name="Bd" Background="{TemplateBinding Background}"
+                            BorderBrush="Transparent" BorderThickness="1"
+                            CornerRadius="6">
+                        <ContentPresenter HorizontalAlignment="Center"
+                                          VerticalAlignment="Center"/>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Bd" Property="Background"
+                                    Value="{StaticResource WPaperSoftBrush}"/>
+                        </Trigger>
+                        <Trigger Property="IsSelected" Value="True">
+                            <Setter TargetName="Bd" Property="Background"
+                                    Value="{StaticResource WGreenStrongBrush}"/>
+                            <Setter Property="Foreground" Value="{StaticResource WSurfaceBrush}"/>
+                        </Trigger>
+                        <Trigger Property="IsToday" Value="True">
+                            <Setter TargetName="Bd" Property="BorderBrush"
+                                    Value="{StaticResource WGreenBrush}"/>
+                        </Trigger>
+                        <Trigger Property="IsInactive" Value="True">
+                            <Setter Property="Foreground" Value="{StaticResource WSubtleBrush}"/>
+                        </Trigger>
+                        <Trigger Property="IsBlackedOut" Value="True">
+                            <Setter Property="Opacity" Value="0.35"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="WCalendarButtonStyle" TargetType="CalendarButton">
+        <Setter Property="FontFamily" Value="{StaticResource WFontBody}"/>
+        <Setter Property="FontSize" Value="11.5"/>
+        <Setter Property="Foreground" Value="{StaticResource WInkBrush}"/>
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="Margin" Value="1"/>
+        <Setter Property="MinWidth" Value="42"/>
+        <Setter Property="MinHeight" Value="26"/>
+        <Setter Property="HorizontalContentAlignment" Value="Center"/>
+        <Setter Property="VerticalContentAlignment" Value="Center"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="CalendarButton">
+                    <Border x:Name="Bd" Background="{TemplateBinding Background}"
+                            CornerRadius="6">
+                        <ContentPresenter HorizontalAlignment="Center"
+                                          VerticalAlignment="Center"/>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Bd" Property="Background"
+                                    Value="{StaticResource WPaperSoftBrush}"/>
+                        </Trigger>
+                        <Trigger Property="IsInactive" Value="True">
+                            <Setter Property="Foreground" Value="{StaticResource WSubtleBrush}"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="WCalendarStyle" TargetType="Calendar">
+        <Setter Property="Background" Value="{StaticResource WSurfaceBrush}"/>
+        <Setter Property="BorderBrush" Value="{StaticResource WBorderBrush}"/>
+        <Setter Property="Foreground" Value="{StaticResource WInkBrush}"/>
+        <Setter Property="FontFamily" Value="{StaticResource WFontBody}"/>
+        <Setter Property="FontSize" Value="12"/>
+        <Setter Property="CalendarDayButtonStyle" Value="{StaticResource WCalendarDayButtonStyle}"/>
+        <Setter Property="CalendarButtonStyle" Value="{StaticResource WCalendarButtonStyle}"/>
+    </Style>
+
+    <Style TargetType="DatePickerTextBox">
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="BorderThickness" Value="0"/>
+        <Setter Property="Foreground" Value="{StaticResource WInkBrush}"/>
+        <Setter Property="FontFamily" Value="{StaticResource WFontBody}"/>
+        <Setter Property="FontSize" Value="13"/>
+        <Setter Property="Padding" Value="0"/>
+        <Setter Property="VerticalContentAlignment" Value="Center"/>
+    </Style>
+
+    <Style x:Key="WDatePickerStyle" TargetType="DatePicker">
+        <Setter Property="Height" Value="36"/>
+        <Setter Property="FontFamily" Value="{StaticResource WFontBody}"/>
+        <Setter Property="FontSize" Value="13"/>
+        <Setter Property="Foreground" Value="{StaticResource WInkBrush}"/>
+        <Setter Property="Background" Value="{StaticResource WSurfaceRaisedBrush}"/>
+        <Setter Property="BorderBrush" Value="{StaticResource WBorderBrush}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="VerticalContentAlignment" Value="Center"/>
+        <Setter Property="FocusVisualStyle" Value="{StaticResource WFocusVisual}"/>
+        <Setter Property="CalendarStyle" Value="{StaticResource WCalendarStyle}"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="DatePicker">
+                    <Border Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}"
+                            CornerRadius="8" SnapsToDevicePixels="True">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <DatePickerTextBox x:Name="PART_TextBox" Grid.Column="0"
+                                               Margin="12,0,0,0"
+                                               VerticalContentAlignment="Center"/>
+                            <Button x:Name="PART_Button" Grid.Column="1" Width="30"
+                                    Focusable="False" Cursor="Hand"
+                                    Background="Transparent" BorderThickness="0">
+                                <Button.Template>
+                                    <ControlTemplate TargetType="Button">
+                                        <Border Background="Transparent">
+                                            <Path Data="M 2,4 L 14,4 L 14,15 L 2,15 Z M 2,7 L 14,7 M 5,2 L 5,6 M 11,2 L 11,6"
+                                                  Stroke="{StaticResource WSubtleBrush}" StrokeThickness="1.2"
+                                                  Fill="Transparent"
+                                                  HorizontalAlignment="Center" VerticalAlignment="Center"
+                                                  Width="14" Height="14" Stretch="Uniform"/>
+                                        </Border>
+                                        <ControlTemplate.Triggers>
+                                            <Trigger Property="IsMouseOver" Value="True">
+                                                <Setter Property="Opacity" Value="0.65"/>
+                                            </Trigger>
+                                        </ControlTemplate.Triggers>
+                                    </ControlTemplate>
+                                </Button.Template>
+                            </Button>
+                            <Popup x:Name="PART_Popup" IsOpen="{TemplateBinding IsDropDownOpen}"
+                                   StaysOpen="False" Placement="Bottom" AllowsTransparency="True"
+                                   PopupAnimation="Fade" VerticalOffset="2">
+                                <Border Background="{StaticResource WSurfaceBrush}"
+                                        BorderBrush="{StaticResource WBorderBrush}"
+                                        BorderThickness="1" CornerRadius="10" Padding="6">
+                                    <Calendar x:Name="PART_Calendar"
+                                              Style="{StaticResource WCalendarStyle}"/>
+                                </Border>
+                            </Popup>
+                        </Grid>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter Property="Opacity" Value="0.55"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- ── Slider（迷你窗透明度） ─────────────────────────────── -->
+    <Style x:Key="WSliderStyle" TargetType="Slider">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Slider">
+                    <Grid Height="14" VerticalAlignment="Center">
+                        <Border Height="2" Background="{StaticResource WBorderBrush}"
+                                CornerRadius="1" VerticalAlignment="Center"/>
+                        <Track x:Name="PART_Track" Orientation="Horizontal"
+                               Maximum="{TemplateBinding Maximum}"
+                               Minimum="{TemplateBinding Minimum}"
+                               Value="{TemplateBinding Value}"
+                               IsDirectionReversed="{TemplateBinding IsDirectionReversed}"
+                               VerticalAlignment="Center">
+                            <Track.Thumb>
+                                <Thumb Width="10" Height="10">
+                                    <Thumb.Template>
+                                        <ControlTemplate TargetType="Thumb">
+                                            <Ellipse Fill="{StaticResource WGreenBrush}" Width="10" Height="10"/>
+                                        </ControlTemplate>
+                                    </Thumb.Template>
+                                </Thumb>
+                            </Track.Thumb>
+                        </Track>
+                    </Grid>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- ── ToolTip ────────────────────────────────────────────── -->
+    <Style TargetType="ToolTip">
+        <Setter Property="Background" Value="{StaticResource WInkStrongBrush}"/>
+        <Setter Property="Foreground" Value="{StaticResource WSurfaceBrush}"/>
+        <Setter Property="BorderThickness" Value="0"/>
+        <Setter Property="Padding" Value="9,6"/>
+        <Setter Property="FontFamily" Value="{StaticResource WFontBody}"/>
+        <Setter Property="FontSize" Value="11.5"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ToolTip">
+                    <Border Background="{TemplateBinding Background}" CornerRadius="6"
+                            Padding="{TemplateBinding Padding}">
+                        <ContentPresenter/>
+                    </Border>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
 </ResourceDictionary>

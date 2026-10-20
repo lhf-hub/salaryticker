@@ -1,6 +1,6 @@
 <!-- ============================================================================
      文件名：MuyuHistoryView.xaml
-     功能描述：B 流水台账风格的摸鱼历史（汇总表 + 记录表 + 口径说明）
+     功能描述：Warm 风格的摸鱼历史（汇总卡 + 记录卡 + 口径说明）
      ============================================================================ -->
 <UserControl x:Class="SalaryTicker.Views.Pages.MuyuHistoryView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
@@ -13,23 +13,36 @@
 
     <UserControl.Resources>
         <Style x:Key="BTableHead" TargetType="TextBlock">
+            <Setter Property="FontFamily" Value="{StaticResource WFontBody}"/>
             <Setter Property="FontSize" Value="12"/>
-            <Setter Property="Foreground" Value="{StaticResource BMutedBrush}"/>
+            <Setter Property="Foreground" Value="{StaticResource WSubtleBrush}"/>
             <Setter Property="HorizontalAlignment" Value="Right"/>
         </Style>
         <Style x:Key="BTableHeadLeft" TargetType="TextBlock" BasedOn="{StaticResource BTableHead}">
             <Setter Property="HorizontalAlignment" Value="Left"/>
         </Style>
+        <Style x:Key="BRowLabelStyle" TargetType="TextBlock">
+            <Setter Property="FontFamily" Value="{StaticResource WFontBody}"/>
+            <Setter Property="FontSize" Value="12.5"/>
+            <Setter Property="Foreground" Value="{StaticResource WMutedBrush}"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="TextWrapping" Value="NoWrap"/>
+        </Style>
+        <Style x:Key="BRowValueStyle" TargetType="TextBlock" BasedOn="{StaticResource WNumberStyle}">
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="HorizontalAlignment" Value="Right"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+        </Style>
         <Style x:Key="BTableMoney" TargetType="TextBlock" BasedOn="{StaticResource BRowValueStyle}">
-            <Setter Property="Foreground" Value="{StaticResource BGreenBrush}"/>
+            <Setter Property="Foreground" Value="{StaticResource WGreenBrush}"/>
         </Style>
     </UserControl.Resources>
 
-    <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="32,22,32,18">
+    <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="30,20,30,18">
         <StackPanel>
 
             <!-- 顶部：返回 + 标题 + 清空 -->
-            <Grid Margin="0,0,0,14">
+            <Grid Margin="0,0,0,16">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto"/>
                     <ColumnDefinition Width="*"/>
@@ -37,164 +50,176 @@
                 </Grid.ColumnDefinitions>
 
                 <Button Grid.Column="0"
-                        Style="{StaticResource BTopButtonStyle}"
+                        Style="{StaticResource WTopButtonStyle}"
                         Command="{Binding DataContext.BackToDashboardCommand,
                                   RelativeSource={RelativeSource AncestorType=Window}}"
                         Margin="0,0,12,0">
                     <StackPanel Orientation="Horizontal">
                         <Path Data="{StaticResource IconBack}"
-                              Fill="{StaticResource BMutedBrush}"
+                              Fill="{StaticResource WMutedBrush}"
                               Width="15" Height="15" Stretch="Uniform"
                               VerticalAlignment="Center"/>
                         <TextBlock Text="返回" FontSize="13"
-                                   Foreground="{StaticResource BInkBrush}"
+                                   Foreground="{StaticResource WInkBrush}"
                                    Margin="6,0,0,0" VerticalAlignment="Center"/>
                     </StackPanel>
                 </Button>
 
                 <TextBlock Grid.Column="1" Text="摸鱼统计"
-                           FontSize="20" FontWeight="SemiBold"
-                           Foreground="{StaticResource BInkBrush}"
+                           Style="{StaticResource WPageTitleStyle}"
                            VerticalAlignment="Center"/>
 
                 <Button Grid.Column="2"
-                        Style="{StaticResource BButtonStyle}"
-                        BorderBrush="{StaticResource BRedBrush}"
+                        Style="{StaticResource WDangerButtonStyle}"
                         Command="{Binding ClearAllCommand}"
                         Padding="12,7">
                     <StackPanel Orientation="Horizontal">
                         <Path Data="{StaticResource IconTrash}"
-                              Fill="{StaticResource BRedBrush}"
+                              Fill="{StaticResource WCoralStrongBrush}"
                               Width="14" Height="14" Stretch="Uniform"
                               VerticalAlignment="Center"/>
                         <TextBlock Text="一键清空" FontSize="13"
-                                   Foreground="{StaticResource BRedBrush}"
+                                   Foreground="{StaticResource WCoralStrongBrush}"
                                    Margin="6,0,0,0" VerticalAlignment="Center"/>
                     </StackPanel>
                 </Button>
             </Grid>
 
-            <!-- 一句真实换算，不做口号 -->
             <TextBlock Text="{Binding FunnyText}"
-                       FontSize="13"
-                       Foreground="{StaticResource BMutedBrush}"
-                       TextWrapping="Wrap"
-                       Margin="0,0,0,12"/>
+                       Style="{StaticResource WBodyStyle}"
+                       Margin="0,0,0,14"/>
 
-            <!-- 汇总表 -->
-            <Border Height="1" Background="{StaticResource BRuleBrush}"/>
-            <Grid Margin="0,8,0,0">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="120"/>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="*"/>
-                </Grid.ColumnDefinitions>
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="28"/>
-                    <RowDefinition Height="30"/>
-                    <RowDefinition Height="30"/>
-                    <RowDefinition Height="30"/>
-                </Grid.RowDefinitions>
-
-                <TextBlock Grid.Row="0" Grid.Column="0" Text="范围" Style="{StaticResource BTableHeadLeft}"/>
-                <TextBlock Grid.Row="0" Grid.Column="1" Text="次数" Style="{StaticResource BTableHead}"/>
-                <TextBlock Grid.Row="0" Grid.Column="2" Text="时长" Style="{StaticResource BTableHead}"/>
-                <TextBlock Grid.Row="0" Grid.Column="3" Text="白赚" Style="{StaticResource BTableHead}"/>
-
-                <TextBlock Grid.Row="1" Grid.Column="0" Text="今日" Style="{StaticResource BRowLabelStyle}"/>
-                <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding TodayCount}" Style="{StaticResource BRowValueStyle}"/>
-                <TextBlock Grid.Row="1" Grid.Column="2" Text="{Binding TodayDurationText}" Style="{StaticResource BRowValueStyle}"/>
-                <TextBlock Grid.Row="1" Grid.Column="3" Text="{Binding TodayCostText}" Style="{StaticResource BTableMoney}"/>
-
-                <TextBlock Grid.Row="2" Grid.Column="0" Text="本周" Style="{StaticResource BRowLabelStyle}"/>
-                <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding WeekCount}" Style="{StaticResource BRowValueStyle}"/>
-                <TextBlock Grid.Row="2" Grid.Column="2" Text="{Binding WeekDurationText}" Style="{StaticResource BRowValueStyle}"/>
-                <TextBlock Grid.Row="2" Grid.Column="3" Text="{Binding WeekCostText}" Style="{StaticResource BTableMoney}"/>
-
-                <TextBlock Grid.Row="3" Grid.Column="0" Text="本月" Style="{StaticResource BRowLabelStyle}"/>
-                <TextBlock Grid.Row="3" Grid.Column="1" Text="{Binding MonthCount}" Style="{StaticResource BRowValueStyle}"/>
-                <TextBlock Grid.Row="3" Grid.Column="2" Text="{Binding MonthDurationText}" Style="{StaticResource BRowValueStyle}"/>
-                <TextBlock Grid.Row="3" Grid.Column="3" Text="{Binding MonthCostText}" Style="{StaticResource BTableMoney}"/>
-            </Grid>
-            <Border Height="1" Background="{StaticResource BRuleBrush}"/>
+            <!-- 汇总卡 -->
+            <Border Style="{StaticResource WPanelCardStyle}" Padding="0">
+                <UniformGrid Columns="3">
+                    <StackPanel Margin="20,16">
+                        <Border Height="2" Background="{StaticResource WGreenBrush}"
+                                CornerRadius="1" Margin="0,0,0,10"/>
+                        <TextBlock Text="今日" Style="{StaticResource WStatLabelStyle}"/>
+                        <TextBlock Text="{Binding TodayCostText}"
+                                   Style="{StaticResource WStatValueStyle}"
+                                   FontSize="30" Foreground="{StaticResource WGreenBrush}"
+                                   Margin="0,4,0,2"/>
+                        <TextBlock Style="{StaticResource WSmallStyle}" TextWrapping="NoWrap">
+                            <Run Text="{Binding TodayCount, Mode=OneWay}"/>
+                            <Run Text=" 次 · "/>
+                            <Run Text="{Binding TodayDurationText, Mode=OneWay}"/>
+                        </TextBlock>
+                    </StackPanel>
+                    <StackPanel Margin="20,16">
+                        <Border Height="2" Background="{StaticResource WAmberBrush}"
+                                CornerRadius="1" Margin="0,0,0,10"/>
+                        <TextBlock Text="本周" Style="{StaticResource WStatLabelStyle}"/>
+                        <TextBlock Text="{Binding WeekCostText}"
+                                   Style="{StaticResource WStatValueStyle}"
+                                   FontSize="30" Foreground="{StaticResource WAmberStrongBrush}"
+                                   Margin="0,4,0,2"/>
+                        <TextBlock Style="{StaticResource WSmallStyle}" TextWrapping="NoWrap">
+                            <Run Text="{Binding WeekCount, Mode=OneWay}"/>
+                            <Run Text=" 次 · "/>
+                            <Run Text="{Binding WeekDurationText, Mode=OneWay}"/>
+                        </TextBlock>
+                    </StackPanel>
+                    <StackPanel Margin="20,16">
+                        <Border Height="2" Background="{StaticResource WBlueBrush}"
+                                CornerRadius="1" Margin="0,0,0,10"/>
+                        <TextBlock Text="本月" Style="{StaticResource WStatLabelStyle}"/>
+                        <TextBlock Text="{Binding MonthCostText}"
+                                   Style="{StaticResource WStatValueStyle}"
+                                   FontSize="30" Foreground="{StaticResource WBlueStrongBrush}"
+                                   Margin="0,4,0,2"/>
+                        <TextBlock Style="{StaticResource WSmallStyle}" TextWrapping="NoWrap">
+                            <Run Text="{Binding MonthCount, Mode=OneWay}"/>
+                            <Run Text=" 次 · "/>
+                            <Run Text="{Binding MonthDurationText, Mode=OneWay}"/>
+                        </TextBlock>
+                    </StackPanel>
+                </UniformGrid>
+            </Border>
 
             <!-- 历史记录 -->
-            <TextBlock Text="历史记录" Style="{StaticResource BSectionTitleStyle}" Margin="0,16,0,6"/>
+            <Border Style="{StaticResource WPanelCardStyle}" Margin="0,14,0,0" Padding="18">
+                <StackPanel>
+                    <TextBlock Text="历史记录" Style="{StaticResource WPanelTitleStyle}"
+                               Margin="0,0,0,10"/>
 
-            <Grid Margin="0,0,0,4">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="110"/>
-                    <ColumnDefinition Width="140"/>
-                    <ColumnDefinition Width="130"/>
-                    <ColumnDefinition Width="100"/>
-                    <ColumnDefinition Width="*"/>
-                </Grid.ColumnDefinitions>
-                <TextBlock Grid.Column="0" Text="日期" Style="{StaticResource BTableHeadLeft}"/>
-                <TextBlock Grid.Column="1" Text="项目" Style="{StaticResource BTableHeadLeft}"/>
-                <TextBlock Grid.Column="2" Text="时间段" Style="{StaticResource BTableHeadLeft}"/>
-                <TextBlock Grid.Column="3" Text="时长" Style="{StaticResource BTableHead}"/>
-                <TextBlock Grid.Column="4" Text="白赚" Style="{StaticResource BTableHead}"/>
-            </Grid>
-            <Border Height="1" Background="{StaticResource BRuleBrush}"/>
+                    <Grid Margin="0,0,0,4">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="110"/>
+                            <ColumnDefinition Width="140"/>
+                            <ColumnDefinition Width="130"/>
+                            <ColumnDefinition Width="100"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" Text="日期" Style="{StaticResource BTableHeadLeft}"/>
+                        <TextBlock Grid.Column="1" Text="项目" Style="{StaticResource BTableHeadLeft}"/>
+                        <TextBlock Grid.Column="2" Text="时间段" Style="{StaticResource BTableHeadLeft}"/>
+                        <TextBlock Grid.Column="3" Text="时长" Style="{StaticResource BTableHead}"/>
+                        <TextBlock Grid.Column="4" Text="白赚" Style="{StaticResource BTableHead}"/>
+                    </Grid>
+                    <Border Height="1" Background="{StaticResource WBorderBrush}"/>
 
-            <ItemsControl ItemsSource="{Binding Records}" MaxHeight="320" Margin="0,2,0,0">
-                <ItemsControl.Template>
-                    <ControlTemplate TargetType="ItemsControl">
-                        <ScrollViewer VerticalScrollBarVisibility="Auto">
-                            <ItemsPresenter/>
-                        </ScrollViewer>
-                    </ControlTemplate>
-                </ItemsControl.Template>
-                <ItemsControl.ItemTemplate>
-                    <DataTemplate>
-                        <Grid MinHeight="28" Margin="0,2">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="110"/>
-                                <ColumnDefinition Width="140"/>
-                                <ColumnDefinition Width="130"/>
-                                <ColumnDefinition Width="100"/>
-                                <ColumnDefinition Width="*"/>
-                            </Grid.ColumnDefinitions>
-                            <TextBlock Grid.Column="0" Text="{Binding DateText}" Style="{StaticResource BRowLabelStyle}"/>
-                            <TextBlock Grid.Column="1" Text="{Binding ButtonLabel}" Style="{StaticResource BRowLabelStyle}"/>
-                            <TextBlock Grid.Column="2" Text="{Binding TimeRangeText}" Style="{StaticResource BRowLabelStyle}"/>
-                            <TextBlock Grid.Column="3" Text="{Binding DurationText}" Style="{StaticResource BRowValueStyle}"
-                                       ToolTip="{Binding DurationTooltip}"/>
-                            <TextBlock Grid.Column="4" Text="{Binding CostText}" Style="{StaticResource BTableMoney}"/>
-                        </Grid>
-                    </DataTemplate>
-                </ItemsControl.ItemTemplate>
-            </ItemsControl>
+                    <ItemsControl ItemsSource="{Binding Records}" MaxHeight="300" Margin="0,2,0,0">
+                        <ItemsControl.Template>
+                            <ControlTemplate TargetType="ItemsControl">
+                                <ScrollViewer VerticalScrollBarVisibility="Auto">
+                                    <ItemsPresenter/>
+                                </ScrollViewer>
+                            </ControlTemplate>
+                        </ItemsControl.Template>
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Border BorderBrush="{StaticResource WBorderBrush}"
+                                        BorderThickness="0,0,0,1" Padding="0,6">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="110"/>
+                                            <ColumnDefinition Width="140"/>
+                                            <ColumnDefinition Width="130"/>
+                                            <ColumnDefinition Width="100"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Grid.Column="0" Text="{Binding DateText}"
+                                                   Style="{StaticResource BRowLabelStyle}"/>
+                                        <TextBlock Grid.Column="1" Text="{Binding ButtonLabel}"
+                                                   Style="{StaticResource BRowLabelStyle}"/>
+                                        <TextBlock Grid.Column="2" Text="{Binding TimeRangeText}"
+                                                   Style="{StaticResource BRowLabelStyle}"/>
+                                        <TextBlock Grid.Column="3" Text="{Binding DurationText}"
+                                                   Style="{StaticResource BRowValueStyle}"
+                                                   ToolTip="{Binding DurationTooltip}"/>
+                                        <TextBlock Grid.Column="4" Text="{Binding CostText}"
+                                                   Style="{StaticResource BTableMoney}"/>
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
 
-            <TextBlock Text="还没有摸鱼记录。"
-                       HorizontalAlignment="Left"
-                       Margin="0,18,0,10"
-                       FontSize="12"
-                       Foreground="{StaticResource BMutedBrush}">
-                <TextBlock.Style>
-                    <Style TargetType="TextBlock">
-                        <Setter Property="Visibility" Value="Collapsed"/>
-                        <Style.Triggers>
-                            <DataTrigger Binding="{Binding Records.Count}" Value="0">
-                                <Setter Property="Visibility" Value="Visible"/>
-                            </DataTrigger>
-                        </Style.Triggers>
-                    </Style>
-                </TextBlock.Style>
-            </TextBlock>
+                    <TextBlock Text="还没有摸鱼记录。"
+                               Foreground="{StaticResource WSubtleBrush}"
+                               Margin="0,16,0,6">
+                        <TextBlock.Style>
+                            <Style TargetType="TextBlock" BasedOn="{StaticResource WSmallStyle}">
+                                <Setter Property="Visibility" Value="Collapsed"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding Records.Count}" Value="0">
+                                        <Setter Property="Visibility" Value="Visible"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </TextBlock.Style>
+                    </TextBlock>
+                </StackPanel>
+            </Border>
 
             <!-- 口径与隐私 -->
-            <Border Height="1" Background="{StaticResource BRuleBrush}" Margin="0,14,0,0"/>
+            <Border Height="1" Background="{StaticResource WBorderBrush}" Margin="0,14,0,0"/>
             <TextBlock Text="时长与白赚只统计工作时段内的部分（午休、下班后、节假日不计）。"
-                       FontSize="11"
-                       Foreground="{StaticResource BMutedBrush}"
-                       TextWrapping="Wrap"
+                       Style="{StaticResource WSmallStyle}"
                        Margin="0,8,0,0"/>
             <TextBlock Text="摸鱼历史只存本地，不上传。"
-                       FontSize="11"
-                       Foreground="{StaticResource BMutedBrush}"
-                       TextWrapping="Wrap"
+                       Style="{StaticResource WSmallStyle}"
                        Margin="0,4,0,0"/>
 
         </StackPanel>

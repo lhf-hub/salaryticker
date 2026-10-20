@@ -15,124 +15,81 @@
         Width="960" Height="720"
         MinWidth="820" MinHeight="480"
         WindowStartupLocation="CenterOwner"
-        Background="{StaticResource BPaperBrush}">
+        Background="{StaticResource WWindowBackgroundBrush}">
 
     <Window.Resources>
-        <!-- B 流水台账：局部覆盖，只影响设置窗口 -->
+        <!-- Warm：局部覆盖，只影响设置窗口 -->
         <Style x:Key="Card" TargetType="Border">
-            <Setter Property="Background" Value="{StaticResource BWhiteBrush}"/>
-            <Setter Property="BorderBrush" Value="{StaticResource BRuleBrush}"/>
+            <Setter Property="Background" Value="{StaticResource WSurfaceBrush}"/>
+            <Setter Property="BorderBrush" Value="{StaticResource WBorderBrush}"/>
             <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="CornerRadius" Value="4"/>
+            <Setter Property="CornerRadius" Value="12"/>
             <Setter Property="Padding" Value="20,16"/>
         </Style>
 
         <Style x:Key="TextPageTitle" TargetType="TextBlock">
-            <Setter Property="FontSize" Value="20"/>
-            <Setter Property="FontWeight" Value="SemiBold"/>
-            <Setter Property="Foreground" Value="{StaticResource BInkBrush}"/>
+            <Setter Property="FontFamily" Value="{StaticResource WFontDisplay}"/>
+            <Setter Property="FontSize" Value="28"/>
+            <Setter Property="FontWeight" Value="Medium"/>
+            <Setter Property="Foreground" Value="{StaticResource WInkStrongBrush}"/>
         </Style>
         <Style x:Key="TextCardTitle" TargetType="TextBlock">
-            <Setter Property="FontSize" Value="15"/>
-            <Setter Property="FontWeight" Value="SemiBold"/>
-            <Setter Property="Foreground" Value="{StaticResource BInkBrush}"/>
+            <Setter Property="FontFamily" Value="{StaticResource WFontDisplay}"/>
+            <Setter Property="FontSize" Value="18"/>
+            <Setter Property="FontWeight" Value="Medium"/>
+            <Setter Property="Foreground" Value="{StaticResource WInkStrongBrush}"/>
         </Style>
         <Style x:Key="TextLabel" TargetType="TextBlock">
+            <Setter Property="FontFamily" Value="{StaticResource WFontBody}"/>
             <Setter Property="FontSize" Value="13"/>
-            <Setter Property="Foreground" Value="{StaticResource BMutedBrush}"/>
+            <Setter Property="Foreground" Value="{StaticResource WMutedBrush}"/>
         </Style>
         <Style x:Key="TextSmall" TargetType="TextBlock">
+            <Setter Property="FontFamily" Value="{StaticResource WFontBody}"/>
             <Setter Property="FontSize" Value="12"/>
-            <Setter Property="Foreground" Value="{StaticResource BMutedBrush}"/>
+            <Setter Property="Foreground" Value="{StaticResource WSubtleBrush}"/>
+            <Setter Property="TextWrapping" Value="Wrap"/>
         </Style>
 
-        <!-- 按钮：模板直接用 TextBlock 渲染字符串，避免隐式 TextBlock 样式覆盖前景色 -->
-        <Style x:Key="SettingsButtonBase" TargetType="Button">
-            <Setter Property="FontSize" Value="13"/>
-            <Setter Property="Padding" Value="14,8"/>
-            <Setter Property="FocusVisualStyle" Value="{StaticResource BFocusVisual}"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Button">
-                        <Border Background="{TemplateBinding Background}"
-                                BorderBrush="{TemplateBinding BorderBrush}"
-                                BorderThickness="{TemplateBinding BorderThickness}"
-                                CornerRadius="4"
-                                Padding="{TemplateBinding Padding}"
-                                SnapsToDevicePixels="True">
-                            <TextBlock Text="{TemplateBinding Content}"
-                                       Foreground="{TemplateBinding Foreground}"
-                                       FontSize="{TemplateBinding FontSize}"
-                                       HorizontalAlignment="Center"
-                                       VerticalAlignment="Center"/>
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsEnabled" Value="False">
-                                <Setter Property="Opacity" Value="0.55"/>
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-        <Style x:Key="ButtonPrimary" TargetType="Button" BasedOn="{StaticResource SettingsButtonBase}">
-            <Setter Property="Background" Value="{StaticResource BInkBrush}"/>
-            <Setter Property="BorderBrush" Value="{StaticResource BInkBrush}"/>
-            <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="Foreground" Value="{StaticResource BPaperBrush}"/>
-            <Style.Triggers>
-                <Trigger Property="IsMouseOver" Value="True">
-                    <Setter Property="Background" Value="#2E3A35"/>
-                </Trigger>
-            </Style.Triggers>
-        </Style>
-        <Style x:Key="ButtonGhost" TargetType="Button" BasedOn="{StaticResource SettingsButtonBase}">
-            <Setter Property="Background" Value="Transparent"/>
-            <Setter Property="BorderBrush" Value="Transparent"/>
-            <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="Foreground" Value="{StaticResource BMutedBrush}"/>
-            <Style.Triggers>
-                <Trigger Property="IsMouseOver" Value="True">
-                    <Setter Property="Background" Value="{StaticResource BHoverBrush}"/>
-                    <Setter Property="Foreground" Value="{StaticResource BInkBrush}"/>
-                </Trigger>
-            </Style.Triggers>
-        </Style>
-        <Style x:Key="ButtonDanger" TargetType="Button" BasedOn="{StaticResource SettingsButtonBase}">
-            <Setter Property="Background" Value="Transparent"/>
-            <Setter Property="BorderBrush" Value="{StaticResource BRedBrush}"/>
-            <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="Foreground" Value="{StaticResource BRedBrush}"/>
-        </Style>
+        <Style x:Key="SettingsButtonBase" TargetType="Button" BasedOn="{StaticResource WButtonBaseStyle}"/>
+        <Style x:Key="ButtonPrimary" TargetType="Button" BasedOn="{StaticResource WPrimaryButtonStyle}"/>
+        <Style x:Key="ButtonGhost" TargetType="Button" BasedOn="{StaticResource WGhostButtonStyle}"/>
+        <Style x:Key="ButtonDanger" TargetType="Button" BasedOn="{StaticResource WDangerButtonStyle}"/>
 
         <!-- 输入控件：覆盖全局隐式样式，只影响设置窗口 -->
-        <Style TargetType="TextBox" BasedOn="{StaticResource BTextBoxStyle}"/>
-        <Style TargetType="ComboBox" BasedOn="{StaticResource BComboBoxStyle}"/>
-        <Style TargetType="ComboBoxItem" BasedOn="{StaticResource BComboBoxItemStyle}"/>
-        <Style TargetType="CheckBox" BasedOn="{StaticResource BCheckBoxStyle}"/>
-        <Style TargetType="RadioButton" BasedOn="{StaticResource BRadioButtonStyle}"/>
+        <Style TargetType="TextBox" BasedOn="{StaticResource WTextBoxStyle}"/>
+        <Style TargetType="ComboBox" BasedOn="{StaticResource WComboBoxStyle}"/>
+        <Style TargetType="ComboBoxItem" BasedOn="{StaticResource WComboBoxItemStyle}"/>
+        <Style TargetType="CheckBox" BasedOn="{StaticResource WCheckBoxStyle}"/>
+        <Style TargetType="RadioButton" BasedOn="{StaticResource WRadioButtonStyle}"/>
+        <Style TargetType="DatePicker" BasedOn="{StaticResource WDatePickerStyle}"/>
+        <Style TargetType="Calendar" BasedOn="{StaticResource WCalendarStyle}"/>
 
         <!-- 左侧导航项 -->
         <Style TargetType="ListBoxItem">
-            <Setter Property="Foreground" Value="{StaticResource BMutedBrush}"/>
-            <Setter Property="Padding" Value="10,8"/>
+            <Setter Property="Foreground" Value="{StaticResource WMutedBrush}"/>
+            <Setter Property="Padding" Value="12,9"/>
+            <Setter Property="Cursor" Value="Hand"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="ListBoxItem">
                         <Border x:Name="Bd" Background="Transparent"
                                 BorderBrush="Transparent" BorderThickness="0"
-                                Padding="{TemplateBinding Padding}">
+                                CornerRadius="8" Padding="{TemplateBinding Padding}">
                             <ContentPresenter VerticalAlignment="Center"/>
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="Bd" Property="Background" Value="{StaticResource BHoverBrush}"/>
+                                <Setter TargetName="Bd" Property="Background"
+                                        Value="{StaticResource WPaperSoftBrush}"/>
                             </Trigger>
                             <Trigger Property="IsSelected" Value="True">
-                                <Setter TargetName="Bd" Property="Background" Value="{StaticResource BHoverBrush}"/>
-                                <Setter TargetName="Bd" Property="BorderBrush" Value="{StaticResource BInkBrush}"/>
-                                <Setter TargetName="Bd" Property="BorderThickness" Value="1,0,0,0"/>
-                                <Setter Property="Foreground" Value="{StaticResource BInkBrush}"/>
+                                <Setter TargetName="Bd" Property="Background"
+                                        Value="{StaticResource WCoralSoftBrush}"/>
+                                <Setter TargetName="Bd" Property="BorderBrush"
+                                        Value="{StaticResource WCoralBrush}"/>
+                                <Setter TargetName="Bd" Property="BorderThickness" Value="2,0,0,0"/>
+                                <Setter Property="Foreground" Value="{StaticResource WInkStrongBrush}"/>
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -144,7 +101,7 @@
              必须定义在窗口资源里而不是 Resources/Styles.xaml —— EventSetter 的处理器
              要在同一个 XAML 的 code-behind 里才解析得到，而 Styles.xaml 没有 code-behind。 -->
         <Style x:Key="TextBoxNumber" TargetType="TextBox"
-               BasedOn="{StaticResource BTextBoxStyle}">
+               BasedOn="{StaticResource WTextBoxStyle}">
             <EventSetter Event="PreviewTextInput" Handler="NumberOnly_PreviewTextInput"/>
             <EventSetter Event="DataObject.Pasting" Handler="NumberOnly_Pasting"/>
         </Style>
@@ -165,18 +122,18 @@
 
         <!-- 错误提示 -->
         <Border Grid.Row="0" Grid.Column="1"
-                Background="Transparent"
-                BorderBrush="{StaticResource BRedBrush}"
+                Background="{StaticResource WCoralSoftBrush}"
+                BorderBrush="{StaticResource WCoralBrush}"
                 BorderThickness="1"
-                CornerRadius="4" Padding="12,8" Margin="24,16,24,0"
+                CornerRadius="8" Padding="12,8" Margin="24,16,24,0"
                 Visibility="{Binding IsErrorVisible, Converter={StaticResource BoolToVisibility}}">
-            <TextBlock Text="{Binding ErrorText}" Foreground="{StaticResource BRedBrush}" TextWrapping="Wrap"/>
+            <TextBlock Text="{Binding ErrorText}" Foreground="{StaticResource WCoralStrongBrush}" TextWrapping="Wrap"/>
         </Border>
 
         <!-- ══════════ 左侧导航 ══════════ -->
         <Border Grid.Row="1" Grid.Column="0"
-                Background="{StaticResource BPaperBrush}"
-                BorderBrush="{StaticResource BRuleBrush}"
+                Background="{StaticResource WSurfaceBrush}"
+                BorderBrush="{StaticResource WBorderBrush}"
                 BorderThickness="0,0,1,0">
             <StackPanel Margin="12,20">
                 <TextBlock Text="设置" Style="{StaticResource TextCardTitle}" Margin="12,0,0,20"/>
@@ -260,7 +217,7 @@
                                  Visibility="{Binding PensionInputModeIndex, Converter={StaticResource IndexToVisibility}, ConverterParameter=4}"/>
                         <TextBlock Text="{Binding PensionDetail}"
                                    Style="{StaticResource TextSmall}"
-                                   Foreground="{StaticResource BGreenBrush}"
+                                   Foreground="{StaticResource WGreenStrongBrush}"
                                    TextWrapping="Wrap" Margin="0,10,0,0"/>
                     </StackPanel>
                 </Border>
@@ -290,7 +247,7 @@
                                  Visibility="{Binding MedicalInputModeIndex, Converter={StaticResource IndexToVisibility}, ConverterParameter=4}"/>
                         <TextBlock Text="{Binding MedicalDetail}"
                                    Style="{StaticResource TextSmall}"
-                                   Foreground="{StaticResource BGreenBrush}"
+                                   Foreground="{StaticResource WGreenStrongBrush}"
                                    TextWrapping="Wrap" Margin="0,10,0,0"/>
                     </StackPanel>
                 </Border>
@@ -315,7 +272,7 @@
                                  Visibility="{Binding UnemploymentInputModeIndex, Converter={StaticResource IndexToVisibility}, ConverterParameter=4}"/>
                         <TextBlock Text="{Binding UnemploymentDetail}"
                                    Style="{StaticResource TextSmall}"
-                                   Foreground="{StaticResource BGreenBrush}"
+                                   Foreground="{StaticResource WGreenStrongBrush}"
                                    TextWrapping="Wrap" Margin="0,10,0,0"/>
                     </StackPanel>
                 </Border>
@@ -356,7 +313,7 @@
 
                         <TextBlock Text="{Binding HousingFundDetail}"
                                    Style="{StaticResource TextSmall}"
-                                   Foreground="{StaticResource BGreenBrush}"
+                                   Foreground="{StaticResource WGreenStrongBrush}"
                                    TextWrapping="Wrap" Margin="0,12,0,0"/>
                     </StackPanel>
                 </Border>
@@ -581,7 +538,7 @@
                             <CheckBox Content="周日" IsChecked="{Binding SundayChecked}" Margin="0,0,16,8"/>
                         </WrapPanel>
 
-                        <Separator Background="{StaticResource BRuleBrush}" Margin="0,8"/>
+                        <Separator Background="{StaticResource WBorderBrush}" Margin="0,8"/>
 
                         <CheckBox Content="启用大小周（大周双休，小周按小周工作日）"
                                   IsChecked="{Binding AlternateWeekEnabled}" Margin="0,0,0,8"/>
@@ -635,7 +592,7 @@
                             </ItemsControl.ItemTemplate>
                         </ItemsControl>
 
-                        <Separator Background="{StaticResource BRuleBrush}" Margin="0,12"/>
+                        <Separator Background="{StaticResource WBorderBrush}" Margin="0,12"/>
 
                         <TextBlock Text="添加新按钮" Style="{StaticResource TextLabel}" Margin="0,0,0,8"/>
                         <StackPanel Orientation="Horizontal">
@@ -750,7 +707,7 @@
                             </ItemsControl.ItemTemplate>
                         </ItemsControl>
 
-                        <Separator Background="{StaticResource BRuleBrush}" Margin="0,12"/>
+                        <Separator Background="{StaticResource WBorderBrush}" Margin="0,12"/>
 
                         <StackPanel Orientation="Horizontal">
                             <DatePicker SelectedDate="{Binding NewHolidayDate}" Width="140" Margin="0,0,8,0"
@@ -799,7 +756,7 @@
                             </ItemsControl.ItemTemplate>
                         </ItemsControl>
 
-                        <Separator Background="{StaticResource BRuleBrush}" Margin="0,12"/>
+                        <Separator Background="{StaticResource WBorderBrush}" Margin="0,12"/>
 
                         <StackPanel Orientation="Horizontal">
                             <DatePicker SelectedDate="{Binding NewMakeupDate}" Width="140" Margin="0,0,8,0"
@@ -822,15 +779,15 @@
                         <Grid Margin="0,0,0,14">
                             <TextBlock Text="当前版本" Style="{StaticResource TextCardTitle}" VerticalAlignment="Center"/>
                             <TextBlock Text="{Binding Update.CurrentVersionText}"
-                                       FontFamily="{StaticResource FontFamilyNumber}"
+                                       FontFamily="{StaticResource WFontMono}"
                                        FontSize="16" FontWeight="Bold"
-                                       Foreground="{StaticResource BInkBrush}"
+                                       Foreground="{StaticResource WInkStrongBrush}"
                                        HorizontalAlignment="Right" VerticalAlignment="Center"/>
                         </Grid>
 
                         <!-- 程序位置与一键更新可用性（常驻状态，随时可查） -->
-                        <Border Background="{StaticResource BHoverBrush}"
-                                CornerRadius="12" Padding="14,12" Margin="0,0,0,14">
+                        <Border Background="{StaticResource WPaperSoftBrush}"
+                                CornerRadius="10" Padding="14,12" Margin="0,0,0,14">
                             <StackPanel>
                                 <TextBlock Text="程序位置" Style="{StaticResource TextSmall}" Margin="0,0,0,4"/>
                                 <TextBlock Text="{Binding Update.InstallDirPath}"
@@ -872,7 +829,7 @@
 
                 <Border Style="{StaticResource Card}">
                     <StackPanel>
-                        <TextBlock Text="📡 关于联网" Style="{StaticResource TextCardTitle}" Margin="0,0,0,8"/>
+                        <TextBlock Text="关于联网" Style="{StaticResource TextCardTitle}" Margin="0,0,0,8"/>
                         <TextBlock Text="本应用不会上传任何数据。开启「检查新版本」后，启动时会请求上面的版本清单（几百字节）以判断是否有更新；下载安装包只在你点击「立即更新」后发生。"
                                    Style="{StaticResource TextLabel}" TextWrapping="Wrap" Margin="0,0,0,6"/>
                         <TextBlock Text="除更新检查外，应用其余功能完全离线运行。"
@@ -924,9 +881,9 @@
                     <Grid>
                         <TextBlock Text="版本" Style="{StaticResource TextLabel}" VerticalAlignment="Center"/>
                         <TextBlock Text="{Binding Update.CurrentVersionText}"
-                                   FontFamily="{StaticResource FontFamilyNumber}"
+                                   FontFamily="{StaticResource WFontMono}"
                                    FontSize="15" FontWeight="Bold"
-                                   Foreground="{StaticResource BInkBrush}"
+                                   Foreground="{StaticResource WInkStrongBrush}"
                                    HorizontalAlignment="Right" VerticalAlignment="Center"/>
                     </Grid>
                 </Border>
@@ -934,7 +891,7 @@
                 <!-- 开源许可：单文件 exe 里含第三方组件，分发时必须保留其版权声明 -->
                 <Border Style="{StaticResource Card}" Margin="0,16,0,0">
                     <StackPanel>
-                        <TextBlock Text="🔓 开源许可" Style="{StaticResource TextCardTitle}" Margin="0,0,0,8"/>
+                        <TextBlock Text="开源许可" Style="{StaticResource TextCardTitle}" Margin="0,0,0,8"/>
                         <TextBlock Text="本项目基于 Apache License 2.0 开源。"
                                    Style="{StaticResource TextLabel}" TextWrapping="Wrap"/>
                         <TextBlock Text="包含第三方组件 CommunityToolkit.Mvvm（MIT 许可证，版权归 .NET Foundation and Contributors 所有）。"
@@ -949,8 +906,8 @@
 
         <!-- ══════════ 底部按钮栏 ══════════ -->
         <Border Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2"
-                Background="{StaticResource BPaperBrush}"
-                BorderBrush="{StaticResource BRuleBrush}"
+                Background="{StaticResource WSurfaceBrush}"
+                BorderBrush="{StaticResource WBorderBrush}"
                 BorderThickness="0,1,0,0"
                 Padding="24,14">
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">

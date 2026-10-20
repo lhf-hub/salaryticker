@@ -1,6 +1,6 @@
 <!-- ============================================================================
      文件名：ConfirmDialog.xaml
-     功能描述：轻量自定义确认对话框（B 流水台账风格）
+     功能描述：轻量自定义确认对话框（Warm 暖白卡片 + 胶囊按钮）
      ============================================================================ -->
 <Window x:Class="SalaryTicker.Dialogs.ConfirmDialog"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
@@ -16,71 +16,12 @@
         ShowInTaskbar="False">
 
     <Window.Resources>
-        <Style x:Key="DialogButtonBase" TargetType="Button">
-            <Setter Property="FontSize" Value="13"/>
-            <Setter Property="Padding" Value="18,8"/>
-            <Setter Property="FocusVisualStyle" Value="{StaticResource BFocusVisual}"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Button">
-                        <Border Background="{TemplateBinding Background}"
-                                BorderBrush="{TemplateBinding BorderBrush}"
-                                BorderThickness="{TemplateBinding BorderThickness}"
-                                CornerRadius="4"
-                                Padding="{TemplateBinding Padding}"
-                                SnapsToDevicePixels="True">
-                            <TextBlock Text="{TemplateBinding Content}"
-                                       Foreground="{TemplateBinding Foreground}"
-                                       FontSize="{TemplateBinding FontSize}"
-                                       HorizontalAlignment="Center"
-                                       VerticalAlignment="Center"/>
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsEnabled" Value="False">
-                                <Setter Property="Opacity" Value="0.55"/>
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-
-        <Style x:Key="ButtonGhost" TargetType="Button" BasedOn="{StaticResource DialogButtonBase}">
-            <Setter Property="Background" Value="Transparent"/>
-            <Setter Property="BorderBrush" Value="Transparent"/>
-            <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="Foreground" Value="{StaticResource BMutedBrush}"/>
-            <Style.Triggers>
-                <Trigger Property="IsMouseOver" Value="True">
-                    <Setter Property="Background" Value="{StaticResource BHoverBrush}"/>
-                    <Setter Property="Foreground" Value="{StaticResource BInkBrush}"/>
-                </Trigger>
-            </Style.Triggers>
-        </Style>
-
-        <Style x:Key="ButtonPrimary" TargetType="Button" BasedOn="{StaticResource DialogButtonBase}">
-            <Setter Property="Background" Value="{StaticResource BInkBrush}"/>
-            <Setter Property="BorderBrush" Value="{StaticResource BInkBrush}"/>
-            <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="Foreground" Value="{StaticResource BPaperBrush}"/>
-            <Style.Triggers>
-                <Trigger Property="IsMouseOver" Value="True">
-                    <Setter Property="Background" Value="#2E3A35"/>
-                </Trigger>
-            </Style.Triggers>
-        </Style>
-
-        <Style x:Key="ButtonDanger" TargetType="Button" BasedOn="{StaticResource DialogButtonBase}">
-            <Setter Property="Background" Value="{StaticResource BRedBrush}"/>
-            <Setter Property="BorderBrush" Value="{StaticResource BRedBrush}"/>
-            <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="Foreground" Value="{StaticResource BPaperBrush}"/>
-            <Style.Triggers>
-                <Trigger Property="IsMouseOver" Value="True">
-                    <Setter Property="Background" Value="#8F3A2E"/>
-                </Trigger>
-            </Style.Triggers>
-        </Style>
+        <Style x:Key="ButtonGhost" TargetType="Button"
+               BasedOn="{StaticResource WGhostButtonStyle}"/>
+        <Style x:Key="ButtonPrimary" TargetType="Button"
+               BasedOn="{StaticResource WPrimaryButtonStyle}"/>
+        <Style x:Key="ButtonDanger" TargetType="Button"
+               BasedOn="{StaticResource WCoralButtonStyle}"/>
     </Window.Resources>
 
     <Window.Triggers>
@@ -94,17 +35,17 @@
         </EventTrigger>
     </Window.Triggers>
 
-    <Border Background="{StaticResource BWhiteBrush}"
-            CornerRadius="4"
-            BorderBrush="{StaticResource BControlBrush}"
+    <Border Background="{StaticResource WSurfaceBrush}"
+            CornerRadius="16"
+            BorderBrush="{StaticResource WBorderBrush}"
             BorderThickness="1"
             Margin="12">
         <Border.Effect>
-            <DropShadowEffect Color="#1F2724"
-                              BlurRadius="24" ShadowDepth="6" Opacity="0.24"/>
+            <DropShadowEffect Color="#5A3C28"
+                              BlurRadius="26" ShadowDepth="6" Opacity="0.18"/>
         </Border.Effect>
 
-        <Grid Margin="24">
+        <Grid Margin="26,24,26,22">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
@@ -114,17 +55,13 @@
             <TextBlock Grid.Row="0"
                        x:Name="TitleText"
                        Text="确认操作"
-                       FontSize="15"
-                       FontWeight="SemiBold"
-                       Foreground="{StaticResource BInkBrush}"
+                       Style="{StaticResource WPanelTitleStyle}"
                        Margin="0,0,0,10"/>
 
             <TextBlock Grid.Row="1"
                        x:Name="MessageText"
                        Text=""
-                       FontSize="13"
-                       Foreground="{StaticResource BMutedBrush}"
-                       TextWrapping="Wrap"
+                       Style="{StaticResource WBodyStyle}"
                        Margin="0,0,0,20"/>
 
             <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right">

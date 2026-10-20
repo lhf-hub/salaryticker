@@ -204,6 +204,19 @@
 - 验证：`dotnet build` 通过、`dotnet test` 231 全绿、`dotnet run -- smoke` 全部 OK；截图 `warm-main-v4-quiet.png`（对比 `warm-main-v3.png`）。
 - 设置页 / 启动页 / 迷你窗 / 摸鱼历史仍为 B；未部署。
 
+## Warm 全面统一（2026-10-20）
+
+- 主窗方向确认后，把设置页、启动页、迷你窗、摸鱼历史、确认弹窗，以及主窗的配置损坏提示 / 位置提示 / 更新提示一起统一到 Warm 语言。
+- 设置页：本地资源字典整体替换为 Warm（暖白卡片 12px、衬线页标题 28 / 卡片标题 18、珊瑚选中导航、绿色保存、珊瑚删除）；补齐 ComboBox、CheckBox、RadioButton、DatePicker（含日历日期/年月按钮）、Calendar、Slider、ToolTip 的 Warm 模板。
+- 启动页：暖白卡片 + 顶部四色线 + 应用图标 + Noto Serif SC 品牌 + 绿色胶囊「开始使用」；三段说明改用 Warm 正文。
+- 迷你窗：暖白卡片 + 2px 四色线 + 绿色 26px 读数 + 绿色滑块拇指 + Warm 切换/返回按钮。
+- 摸鱼历史：汇总改为今日/本周/本月三张色条统计卡（绿/琥珀/蓝），记录区改为暖白卡片 + 细分隔线，页脚保留口径与隐私说明。
+- 确认弹窗：暖白 16px 卡片、衬线标题；危险操作使用珊瑚实心胶囊。
+- 主窗提示条：配置损坏 / 位置提示 / 更新提示改为珊瑚 / 雾蓝 / 薄荷淡底，emoji 换成 Path 图标，按钮与进度条使用 Warm 样式。
+- 开发用的旧 StyleGalleryWindow / DesignSpikeWindow 未改，仍作为旧设计系统与 spike 的参考；所有用户可见界面已无旧 B / 旧设计系统引用。
+- 验证：`dotnet build` 通过、`dotnet test` 231 全绿、`dotnet run -- smoke` 全部 OK；截图 `warm-settings*.png` / `warm-splash.png` / `warm-mini.png` / `warm-history.png` / `warm-confirm.png` / `warm-datepicker.png`。
+- 未部署。
+
 ## Phase 0 基线
 
 - `dotnet build`：通过。
