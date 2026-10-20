@@ -166,6 +166,16 @@
 - 用真实 `pointermove` 验证：诊断条显示 `reduce=true` 时 transform 仍生效；截图 `card-3d-real-zoom2.png` 可见明显倾斜/放大。
 - 应用不变；测试 231 全绿；未部署。
 
+## 官网动效细化（2026-10-20）
+
+- 用户反馈：卡片弹起瞬间不够丝滑；卡片之外的动效偏平；要求整体优雅、不花哨、不做无用动效。
+- 卡片 3D 从「每次 pointermove 直接赋值」改为逐卡 rAF 状态机：指针只更新目标值，帧内用帧率无关的指数插值逼近；进入时抬升慢于倾斜（tau 0.085s / 0.055s），离开回正 0.10–0.11s；柔光与倾斜在同一帧更新；回正收敛后清理内联样式与 `.is-lifting`。移除 `.card:hover` / `.step:hover` 的 CSS transform，消除第一帧跳变；卡片 3D 仍只对 `(pointer:fine)` 启用。
+- 非卡片动效：首屏逐项错峰淡入、章节标题下划线展开、多列卡片渐入错峰（bento 50ms、三列 60ms）、FAQ 箭头旋转（仅 `.faq-panel`，不动移动端菜单与历史弹窗的 `+` / `−`）、代码窗末尾光标闪烁、导航 hover 变色过渡、卡片图标微抬 2px。
+- **不做按钮扫光**：深绿实心 CTA 上的移动高光容易被误读为 loading，现有抬升 / 阴影 / 变色已足够。
+- reduce 策略：用户主动触发的短交互（卡片 3D / 柔光、图标微抬、导航变色、FAQ 箭头旋转）保留；自动 / 循环动画（首屏进场、滚动渐入、下划线、光标闪烁、光晕、圆点、迷你窗浮动）关闭。修正了媒体查询仍指向 `.hero-copy` 而非 `.hero-copy > *` 的漏洞。
+- 验证：本地 staged 页面 23/23 自动化检查通过（卡片插值进入 / 离开、FAQ 箭头旋转、历史弹窗仍为 `+`、移动端无横向溢出、reduce 下卡片 3D 仍生效）；截图 `anim-desktop-hero.png` / `anim-desktop-full.png` / `anim-card-hover.png` / `anim-mobile-hero.png` / `anim-mobile-full.png`。
+- 应用不变；测试 231 全绿；未部署。
+
 ## Phase 0 基线
 
 - `dotnet build`：通过。

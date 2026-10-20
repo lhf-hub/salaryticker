@@ -130,6 +130,7 @@ b{font-weight:600}
 .nav-links a{
   color:var(--muted);font-size:12.5px;padding:6px 11px;border-radius:980px;
   white-space:nowrap;
+  transition:color .18s ease,background-color .18s ease;
 }
 .nav-links a:hover{color:var(--ink);background:var(--coral-soft);text-decoration:none}
 .nav-mobile{display:none;margin-left:auto}
@@ -166,9 +167,24 @@ b{font-weight:600}
 .btn:active{transform:translateY(0) scale(.98)}
 
 /* 滚动渐入 */
-.reveal{opacity:0;translate:0 16px;transition:opacity .55s cubic-bezier(.2,.7,.2,1),translate .55s cubic-bezier(.2,.7,.2,1)}
+.reveal{opacity:0;translate:0 16px;transition:opacity .55s cubic-bezier(.2,.7,.2,1),translate .55s cubic-bezier(.2,.7,.2,1);transition-delay:var(--rd,0s),var(--rd,0s)}
 .reveal.in{opacity:1;translate:0 0}
-.card.reveal,.step.reveal{transition:opacity .55s cubic-bezier(.2,.7,.2,1),translate .55s cubic-bezier(.2,.7,.2,1),transform .18s cubic-bezier(.2,.7,.2,1),box-shadow .28s cubic-bezier(.2,.7,.2,1),border-color .28s ease}
+.card.reveal,.step.reveal{transition:opacity .55s cubic-bezier(.2,.7,.2,1),translate .55s cubic-bezier(.2,.7,.2,1),box-shadow .28s cubic-bezier(.2,.7,.2,1),border-color .28s ease;transition-delay:var(--rd,0s),var(--rd,0s),0s,0s}
+
+/* 卡片渐入错峰：只在多列布局生效，单列移动端保持同时出现 */
+@media (min-width:601px){
+  .bento > .card:nth-child(1){--rd:0s}
+  .bento > .card:nth-child(2){--rd:.05s}
+  .bento > .card:nth-child(3){--rd:.10s}
+  .bento > .card:nth-child(4){--rd:.15s}
+  .bento > .card:nth-child(5){--rd:.20s}
+  .bento > .card:nth-child(6){--rd:.25s}
+}
+@media (min-width:901px){
+  .tri > .card:nth-child(1),.steps > .step:nth-child(1),.support > .card:nth-child(1){--rd:0s}
+  .tri > .card:nth-child(2),.steps > .step:nth-child(2),.support > .card:nth-child(2){--rd:.06s}
+  .tri > .card:nth-child(3),.steps > .step:nth-child(3){--rd:.12s}
+}
 .btn small{font-family:var(--font-mono);font-weight:400;font-size:12px;opacity:.82}
 .btn.ghost{background:var(--surface);color:var(--ink);border-color:var(--border);box-shadow:none}
 .btn.ghost:hover{background:var(--bg-soft);border-color:var(--border-strong)}
@@ -273,7 +289,13 @@ b{font-weight:600}
 }
 .device-mini img{display:block;width:100%;height:auto;border-radius:14px}
 .device-caption{margin-top:16px;text-align:center;font-size:11.5px;color:var(--muted);font-family:var(--font-mono)}
-.hero-copy{animation:hero-rise .8s cubic-bezier(.2,.7,.2,1) both}
+.hero-copy > *{animation:hero-rise .7s cubic-bezier(.2,.7,.2,1) both}
+.hero-copy > :nth-child(1){animation-delay:.02s}
+.hero-copy > :nth-child(2){animation-delay:.08s}
+.hero-copy > :nth-child(3){animation-delay:.14s}
+.hero-copy > :nth-child(4){animation-delay:.20s}
+.hero-copy > :nth-child(5){animation-delay:.26s}
+.hero-copy > :nth-child(6){animation-delay:.32s}
 @keyframes hero-rise{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:none}}
 @keyframes mini-float{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
 
@@ -298,6 +320,8 @@ section{padding:88px 0}
 .sec-head{text-align:center;max-width:780px;margin:0 auto 42px}
 .sec-head h2{font-size:clamp(30px,3.6vw,40px);font-weight:500;letter-spacing:-.035em;margin-bottom:12px;color:var(--ink-strong)}
 .sec-head h2::after{content:"";display:block;width:46px;height:2px;border-radius:2px;margin:12px auto 0;background:linear-gradient(90deg,var(--coral),var(--amber),var(--green),var(--blue));opacity:.85}
+.sec-head.reveal h2::after{transform:scaleX(0);transform-origin:center;transition:transform .6s cubic-bezier(.2,.7,.2,1) .12s}
+.sec-head.reveal.in h2::after{transform:scaleX(1)}
 .sec-head p{font-size:16px;color:var(--muted);line-height:1.75}
 
 /* ---------- bento ---------- */
@@ -309,9 +333,10 @@ section{padding:88px 0}
   border:1px solid var(--border);
   padding:24px;
   box-shadow:0 10px 30px rgba(90,60,40,.05);
-  transition:transform .18s cubic-bezier(.2,.7,.2,1),box-shadow .28s cubic-bezier(.2,.7,.2,1),border-color .28s ease;
+  transition:box-shadow .28s cubic-bezier(.2,.7,.2,1),border-color .28s ease;
 }
-.card:hover{transform:translateY(-5px) scale(1.025);box-shadow:0 24px 56px rgba(90,60,40,.15);z-index:2}
+.card:hover{box-shadow:0 24px 56px rgba(90,60,40,.15)}
+.card.is-lifting{z-index:3;will-change:transform}
 .card h3{font-size:18px;font-weight:600;letter-spacing:-.02em;margin-bottom:7px;color:var(--ink-strong)}
 .card p,.card li{font-size:13.5px;color:var(--muted);line-height:1.75}
 .card ul{margin:8px 0 0;padding-left:17px;font-size:13.5px;color:var(--muted)}
@@ -352,8 +377,12 @@ section{padding:88px 0}
   display:flex;align-items:center;justify-content:center;
   margin-bottom:14px;border:1px solid rgba(224,122,95,.45);
   background:#F7DCD2;color:var(--coral-strong);
+  transition:transform .24s cubic-bezier(.2,.7,.2,1);
 }
 .icon-tile svg{width:19px;height:19px}
+@media (hover:hover) and (pointer:fine){
+  .card:hover .icon-tile{transform:translateY(-2px)}
+}
 .bento .card:nth-child(2) .icon-tile{border-color:rgba(244,162,97,.50);background:#FCE9D3;color:var(--amber-strong)}
 .bento .card:nth-child(3) .icon-tile{border-color:rgba(4,120,87,.32);background:#D8F0E4;color:var(--green)}
 .bento .card:nth-child(4) .icon-tile{border-color:rgba(91,141,184,.42);background:#DCEAF6;color:var(--blue-strong)}
@@ -399,6 +428,12 @@ section{padding:88px 0}
 .formula .c{color:#A79C8F}
 .formula .k{color:#FF9A80;font-weight:500}
 .formula .v{color:#6EE7B7;font-weight:500}
+.formula .caret{
+  display:inline-block;width:.5em;height:1.05em;margin-left:.16em;
+  vertical-align:-.18em;border-radius:1px;background:#6EE7B7;
+  opacity:.85;animation:caret-blink 1.15s infinite;
+}
+@keyframes caret-blink{0%,49.9%{opacity:.85}50%,100%{opacity:0}}
 .notes{display:flex;flex-direction:column}
 .note{padding:14px 0;border-top:1px solid var(--border)}
 .note:first-child{border-top:0;padding-top:0}
@@ -419,6 +454,8 @@ section{padding:88px 0}
 }
 .muyu-panel h2{font-size:clamp(26px,3vw,34px);font-weight:500;color:var(--ink-strong);margin-bottom:11px}
 .muyu-panel h2::after{content:"";display:block;width:46px;height:2px;border-radius:2px;margin:12px 0 0;background:linear-gradient(90deg,var(--coral),var(--amber),var(--green),var(--blue));opacity:.85}
+.muyu-panel.reveal h2::after{transform:scaleX(0);transform-origin:left;transition:transform .6s cubic-bezier(.2,.7,.2,1) .12s}
+.muyu-panel.reveal.in h2::after{transform:scaleX(1)}
 .muyu-panel p{font-size:14.5px;color:var(--muted);max-width:760px;line-height:1.8}
 .muyu-panel .quotes{display:flex;flex-wrap:wrap;gap:9px;margin-top:17px}
 .muyu-panel .quotes div{
@@ -454,9 +491,10 @@ section{padding:88px 0}
   border-radius:20px;padding:24px;
   background:var(--surface);border:1px solid var(--border);
   box-shadow:0 10px 30px rgba(90,60,40,.05);
-  transition:transform .18s cubic-bezier(.2,.7,.2,1),box-shadow .28s cubic-bezier(.2,.7,.2,1),border-color .28s ease;
+  transition:box-shadow .28s cubic-bezier(.2,.7,.2,1),border-color .28s ease;
 }
-.step:hover{transform:translateY(-4px) scale(1.02);box-shadow:0 20px 46px rgba(90,60,40,.12);z-index:2}
+.step:hover{box-shadow:0 20px 46px rgba(90,60,40,.12)}
+.step.is-lifting{z-index:3;will-change:transform}
 .step .n{font-family:var(--font-mono);font-size:12px;color:var(--green);font-weight:500;letter-spacing:.04em}
 .step h3{font-size:17px;font-weight:600;margin:7px 0 8px;color:var(--ink-strong)}
 .step p{font-size:13px;color:var(--muted);line-height:1.8}
@@ -493,6 +531,17 @@ details::details-content{
   transition:height .26s cubic-bezier(.2,.7,.2,1),opacity .22s ease,translate .22s ease,content-visibility .26s allow-discrete;
 }
 details[open]::details-content{height:auto;opacity:1;translate:0 0}
+
+/* FAQ 专用旋转箭头；不要影响 .nav-mobile 与历史版本弹窗的 summary */
+.faq-panel summary::after{
+  content:"";width:9px;height:9px;flex:0 0 auto;margin:0 2px 1px 0;
+  border-right:1.5px solid currentColor;border-bottom:1.5px solid currentColor;
+  opacity:.55;transform:rotate(45deg);
+  transition:transform .22s cubic-bezier(.2,.7,.2,1),opacity .22s ease;
+}
+.faq-panel details[open] summary::after{
+  content:"";transform:rotate(-135deg);opacity:.8;
+}
 
 /* ---------- 更新日志 ---------- */
 .changelog{
@@ -615,9 +664,11 @@ footer .fine{margin-top:20px;padding-top:15px;border-top:1px solid var(--border-
 }
 @media (prefers-reduced-motion:reduce){
   html{scroll-behavior:auto}
-  .hero-copy,.device,.device-mini,.device::before,.version-pill .dot{animation:none}
+  .hero-copy > *,.device,.device-mini,.device::before,.version-pill .dot{animation:none}
   .card,.step,.btn,.device-frame,.nav,.modal,.modal-box,.nav-mobile-links,details::details-content{transition:none}
   .btn:hover{transform:none}
+  .formula .caret{animation:none;opacity:.8}
+  .sec-head.reveal h2::after,.muyu-panel.reveal h2::after{transform:none;transition:none}
   .reveal{opacity:1;translate:0 0;transition:none}
 }
 </style>
@@ -836,7 +887,7 @@ footer .fine{margin-top:20px;padding-top:15px;border-top:1px solid var(--border-
 
 <span class="c">// 个税（累计预扣法，按当前月自动累计）</span>
 累计应纳税所得额 = 累计收入 − 5000×月份数 − 累计五险一金 − 累计专项附加扣除
-当月个税 = 累计应纳税额 × 预扣率 − 速算扣除数 − 已预扣税额
+当月个税 = 累计应纳税额 × 预扣率 − 速算扣除数 − 已预扣税额<span class="caret" aria-hidden="true"></span>
         </div>
       </div>
 
@@ -1439,26 +1490,144 @@ footer .fine{margin-top:20px;padding-top:15px;border-top:1px solid var(--border-
     device.addEventListener('pointerleave', function () { frame.style.transform = ''; });
   }
 
-  /* 卡片柔光与 3D 聚焦 */
-  var glowCards = document.querySelectorAll('.bento .card, .tri .card, .steps .step, .support .card');
-  glowCards.forEach(function (card) {
-    card.addEventListener('pointermove', function (e) {
-      var r = card.getBoundingClientRect();
-      var px = (e.clientX - r.left) / r.width - .5;
-      var py = (e.clientY - r.top) / r.height - .5;
+  /* 卡片柔光与 3D 聚焦
+     - 用户主动触发；按 docs/ui-refresh/decision.md，卡片 3D 不受 reduce 限制
+     - 指针只写目标值，rAF 内用帧率无关的指数插值逼近，避免直接赋值跳变
+     - 仅 (pointer:fine)；触屏事件直接忽略，不 preventDefault */
+  var finePointer = window.matchMedia &&
+    window.matchMedia('(pointer:fine)').matches;
+  var focusCards = document.querySelectorAll(
+    '.bento .card, .tri .card, .steps .step, .support .card'
+  );
 
-      card.style.setProperty('--mx', ((px + .5) * 100).toFixed(1) + '%');
-      card.style.setProperty('--my', ((py + .5) * 100).toFixed(1) + '%');
+  if (finePointer && window.requestAnimationFrame) {
+    focusCards.forEach(function (card) {
+      var s = {
+        raf: null, last: 0, hovering: false, rect: null,
+        px: 0, py: 0, lift: 0, mx: 50, my: 50,
+        tpx: 0, tpy: 0, tlift: 0, tmx: 50, tmy: 50,
+        lastX: 0, lastY: 0, hasPointer: false
+      };
 
-      card.style.transform = 'perspective(900px) translateY(-8px) rotateX(' +
-        (-py * 12).toFixed(2) + 'deg) rotateY(' + (px * 13).toFixed(2) + 'deg) scale(1.04)';
-      card.style.zIndex = '3';
+      function measure() { s.rect = card.getBoundingClientRect(); }
+
+      function aimAt(x, y) {
+        var r = s.rect;
+        if (!r || !r.width || !r.height) return;
+        s.tpx = Math.max(-0.5, Math.min(0.5, (x - r.left) / r.width - 0.5));
+        s.tpy = Math.max(-0.5, Math.min(0.5, (y - r.top) / r.height - 0.5));
+        s.tmx = (s.tpx + 0.5) * 100;
+        s.tmy = (s.tpy + 0.5) * 100;
+      }
+
+      function start() {
+        if (s.raf !== null) return;
+        s.last = 0;
+        s.raf = requestAnimationFrame(step);
+      }
+
+      function step(now) {
+        s.raf = null;
+        var dt = s.last ? Math.min((now - s.last) / 1000, 0.05) : 1 / 60;
+        s.last = now;
+
+        var k = 1 - Math.exp(-dt / (s.hovering ? 0.055 : 0.10));
+        var kl = 1 - Math.exp(-dt / (s.hovering ? 0.085 : 0.11));
+
+        s.px += (s.tpx - s.px) * k;
+        s.py += (s.tpy - s.py) * k;
+        s.lift += (s.tlift - s.lift) * kl;
+        s.mx += (s.tmx - s.mx) * k;
+        s.my += (s.tmy - s.my) * k;
+
+        card.style.setProperty('--mx', s.mx.toFixed(1) + '%');
+        card.style.setProperty('--my', s.my.toFixed(1) + '%');
+        card.style.transform =
+          'perspective(900px) translateY(' + (-8 * s.lift).toFixed(2) + 'px) ' +
+          'rotateX(' + (-s.py * 12).toFixed(2) + 'deg) ' +
+          'rotateY(' + (s.px * 13).toFixed(2) + 'deg) ' +
+          'scale(' + (1 + 0.04 * s.lift).toFixed(4) + ')';
+
+        if (!s.hovering && Math.abs(s.px) < 0.004 &&
+            Math.abs(s.py) < 0.004 && s.lift < 0.012) {
+          s.px = s.py = s.lift = 0;
+          card.style.removeProperty('transform');
+          card.style.removeProperty('--mx');
+          card.style.removeProperty('--my');
+          card.classList.remove('is-lifting');
+          s.last = 0;
+          return;
+        }
+
+        var moving =
+          Math.abs(s.tpx - s.px) > 0.0003 ||
+          Math.abs(s.tpy - s.py) > 0.0003 ||
+          Math.abs(s.tlift - s.lift) > 0.0008 ||
+          Math.abs(s.tmx - s.mx) > 0.05 ||
+          Math.abs(s.tmy - s.my) > 0.05;
+        if (moving) {
+          s.raf = requestAnimationFrame(step);
+        } else {
+          s.last = 0;
+        }
+      }
+
+      function release() {
+        s.hovering = false;
+        s.tlift = 0;
+        s.tpx = 0;
+        s.tpy = 0;
+        start();
+      }
+
+      function enter(e) {
+        if (e.pointerType === 'touch') return;
+        measure();
+        s.lastX = e.clientX;
+        s.lastY = e.clientY;
+        s.hasPointer = true;
+        aimAt(e.clientX, e.clientY);
+        s.hovering = true;
+        s.tlift = 1;
+        card.classList.add('is-lifting');
+        start();
+      }
+
+      function move(e) {
+        if (e.pointerType === 'touch' || !s.hovering) return;
+        s.lastX = e.clientX;
+        s.lastY = e.clientY;
+        s.hasPointer = true;
+        aimAt(e.clientX, e.clientY);
+        start();
+      }
+
+      function leave(e) {
+        if (e.pointerType === 'touch') return;
+        release();
+      }
+
+      function refresh() {
+        if (!s.hovering) return;
+        measure();
+        var r = s.rect;
+        if (s.hasPointer && r && (s.lastX < r.left || s.lastX > r.right ||
+            s.lastY < r.top || s.lastY > r.bottom)) {
+          release();
+          return;
+        }
+        if (s.hasPointer) aimAt(s.lastX, s.lastY);
+        start();
+      }
+
+      card.addEventListener('pointerenter', enter);
+      card.addEventListener('pointermove', move);
+      card.addEventListener('pointerleave', leave);
+      card.addEventListener('pointercancel', leave);
+      window.addEventListener('scroll', refresh, { passive: true });
+      window.addEventListener('resize', refresh, { passive: true });
     });
-    card.addEventListener('pointerleave', function () {
-      card.style.transform = '';
-      card.style.zIndex = '';
-    });
-  });
+  }
 })();
 </script>
 </body>
