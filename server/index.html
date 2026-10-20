@@ -311,7 +311,7 @@ section{padding:88px 0}
   box-shadow:0 10px 30px rgba(90,60,40,.05);
   transition:transform .18s cubic-bezier(.2,.7,.2,1),box-shadow .28s cubic-bezier(.2,.7,.2,1),border-color .28s ease;
 }
-.card:hover{transform:translateY(-3px);box-shadow:0 18px 44px rgba(90,60,40,.10)}
+.card:hover{transform:translateY(-5px) scale(1.025);box-shadow:0 24px 56px rgba(90,60,40,.15);z-index:2}
 .card h3{font-size:18px;font-weight:600;letter-spacing:-.02em;margin-bottom:7px;color:var(--ink-strong)}
 .card p,.card li{font-size:13.5px;color:var(--muted);line-height:1.75}
 .card ul{margin:8px 0 0;padding-left:17px;font-size:13.5px;color:var(--muted)}
@@ -456,7 +456,7 @@ section{padding:88px 0}
   box-shadow:0 10px 30px rgba(90,60,40,.05);
   transition:transform .18s cubic-bezier(.2,.7,.2,1),box-shadow .28s cubic-bezier(.2,.7,.2,1),border-color .28s ease;
 }
-.step:hover{transform:translateY(-2px);box-shadow:0 16px 38px rgba(90,60,40,.09)}
+.step:hover{transform:translateY(-4px) scale(1.02);box-shadow:0 20px 46px rgba(90,60,40,.12);z-index:2}
 .step .n{font-family:var(--font-mono);font-size:12px;color:var(--green);font-weight:500;letter-spacing:.04em}
 .step h3{font-size:17px;font-weight:600;margin:7px 0 8px;color:var(--ink-strong)}
 .step p{font-size:13px;color:var(--muted);line-height:1.8}
@@ -617,7 +617,7 @@ footer .fine{margin-top:20px;padding-top:15px;border-top:1px solid var(--border-
   html{scroll-behavior:auto}
   .hero-copy,.device,.device-mini,.device::before,.version-pill .dot{animation:none}
   .card,.step,.btn,.device-frame,.nav,.modal,.modal-box,.nav-mobile-links,details::details-content{transition:none}
-  .card:hover,.step:hover,.btn:hover{transform:none}
+  .btn:hover{transform:none}
   .reveal{opacity:1;translate:0 0;transition:none}
 }
 </style>
@@ -1440,7 +1440,6 @@ footer .fine{margin-top:20px;padding-top:15px;border-top:1px solid var(--border-
   }
 
   /* 卡片柔光与 3D 聚焦 */
-  var finePointer = window.matchMedia('(pointer:fine)').matches;
   var glowCards = document.querySelectorAll('.bento .card, .tri .card, .steps .step, .support .card');
   glowCards.forEach(function (card) {
     card.addEventListener('pointermove', function (e) {
@@ -1451,13 +1450,13 @@ footer .fine{margin-top:20px;padding-top:15px;border-top:1px solid var(--border-
       card.style.setProperty('--mx', ((px + .5) * 100).toFixed(1) + '%');
       card.style.setProperty('--my', ((py + .5) * 100).toFixed(1) + '%');
 
-      if (!reduceMotion && finePointer) {
-        card.style.transform = 'perspective(900px) translateY(-4px) rotateX(' +
-          (-py * 4).toFixed(2) + 'deg) rotateY(' + (px * 5).toFixed(2) + 'deg) scale(1.02)';
-      }
+      card.style.transform = 'perspective(900px) translateY(-8px) rotateX(' +
+        (-py * 12).toFixed(2) + 'deg) rotateY(' + (px * 13).toFixed(2) + 'deg) scale(1.04)';
+      card.style.zIndex = '3';
     });
     card.addEventListener('pointerleave', function () {
       card.style.transform = '';
+      card.style.zIndex = '';
     });
   });
 })();

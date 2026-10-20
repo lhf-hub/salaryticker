@@ -159,6 +159,13 @@
 - 演示截图：`card-3d-hover-crop.png`（第三张卡片处于悬停态）。
 - 应用不变；测试 231 全绿；未部署。
 
+## 卡片 3D 聚焦修正（2026-10-20）
+
+- 用户反馈「完全没有变化」。诊断结果：本机/浏览器 `prefers-reduced-motion: reduce` 为 `true`（系统关闭动画效果），旧代码在 reduce 下同时跳过 JS 3D 与 CSS hover；且实际旋转幅度只有 ±2°、scale 1.02（公式在光标边缘也只到一半），肉眼几乎不可见。页面本身加载正常，无 JS 报错。
+- 修正：卡片悬停的 3D 不再受 reduce 影响（这是用户主动触发的交互；光晕、圆点、滚动渐入等自动动画仍尊重 reduce）；幅度提高到 `rotateX/rotateY` 约 ±6°、`scale(1.04)`、上浮 8px、`z-index:3`，聚焦卡片盖到邻卡上方；CSS hover 兜底 `scale(1.025)` + 上浮 5px。
+- 用真实 `pointermove` 验证：诊断条显示 `reduce=true` 时 transform 仍生效；截图 `card-3d-real-zoom2.png` 可见明显倾斜/放大。
+- 应用不变；测试 231 全绿；未部署。
+
 ## Phase 0 基线
 
 - `dotnet build`：通过。
