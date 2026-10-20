@@ -235,6 +235,14 @@
 - 验证：`dotnet build` 通过、`dotnet test` 231 全绿、`dotnet run -- smoke` 全部 OK；截图 `warm-v2-splash-restored.png`。
 - 未部署。
 
+## 官网应用截图更新（2026-10-20）
+
+- 主窗与迷你窗切到 Warm v2 后，同步替换官网 `server/assets/app-shot.png/webp` 与 `mini-shot.png/webp`。
+- 新增开发用 `shot-main` / `shot-mini` 启动模式：用 WPF `RenderTargetBitmap` 以 1.25x 渲染客户区（不含 Windows 标题栏），输出 PNG；主窗 1455×1051，迷你窗 302×120。官网 HTML 的 `width` / `height` 同步更新。
+- 新增 `SALARYTICKER_DATA_DIR` 环境变量覆盖数据目录；截图时指向独立的 demo 配置（税前 20000、五险一金按工资基数、公积金基数 5600 / 5%、专项扣除 0、历史月收入留空），避免读取或写回真实用户工资数据。
+- 官网首屏已用新截图验证：`site-warm-shots.png`；图片无 404，设备框与迷你浮层布局正常。
+- `dotnet build` 通过、`dotnet test` 231 全绿、`dotnet run -- smoke` 全部 OK；未部署。
+
 ## Phase 0 基线
 
 - `dotnet build`：通过。

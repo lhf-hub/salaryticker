@@ -41,10 +41,13 @@ public static class AppServices
     /// <summary>时间提供者（生产环境使用系统时间）</summary>
     public static TimeProvider TimeProvider { get; private set; } = TimeProvider.System;
 
-    /// <summary>应用数据目录：%AppData%\SalaryTicker\</summary>
-    public static string AppDataDir { get; } = Path.Combine(
-        Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
-        "SalaryTicker");
+    /// <summary>
+    /// 应用数据目录：默认 %AppData%\SalaryTicker\；
+    /// 可用 SALARYTICKER_DATA_DIR 覆盖（仅开发/截图用，避免读到或写回真实用户数据）。
+    /// </summary>
+    public static string AppDataDir { get; } =
+        Environment.GetEnvironmentVariable("SALARYTICKER_DATA_DIR")
+        ?? Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "SalaryTicker");
 
     /// <summary>
     /// 初始化所有服务（应用启动时调用一次）

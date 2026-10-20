@@ -3,8 +3,13 @@
 // 功能描述：应用入口与组合根（单实例保护、服务装配、窗口流编排）
 // ============================================================================
 
+using System.IO;
 using System.Threading;
 using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Media;
+using System.Windows.Media.Imaging;
+using System.Windows.Threading;
 using SalaryTicker.Dialogs;
 using SalaryTicker.Services;
 using SalaryTicker.ViewModels;
@@ -84,6 +89,11 @@ public partial class App : Application
             ShowSingleWindow(new WarmGalleryWindow());
             return;
         }
+        if (e.Args.Contains("shot-main") || e.Args.Contains("shot-mini"))
+        {
+            RunScreenshot(e.Args);
+            return;
+        }
         if (e.Args.Contains("main"))
         {
             ShowSingleWindow(new MainWindow());
@@ -148,6 +158,84 @@ public partial class App : Application
     {
         window.Closed += (_, _) => Shutdown();
         window.Show();
+    }
+
+    /// <summary>
+    /// 开发用：把主窗 / 迷你窗以 1.25x 渲染为 PNG（不含 Windows 标题栏），供官网素材使用。
+    /// 用法：SalaryTicker.exe shot-main &lt;输出路径&gt; / shot-mini &lt;输出路径&gt;
+    /// </summary>
+    private void RunScreenshot(string[] args)
+    {
+        bool isMini = args.Contains("shot-mini");
+        string mode = isMini ? "shot-mini" : "shot-main";
+        int index = Array.IndexOf(args, mode);
+        string output = index >= 0 && index + 1 < args.Length
+            ? args[index + 1]
+            : Path.Combine(Path.GetTempPath(), isMini ? "SalaryTicker-mini.png" : "SalaryTicker-main.png");
+
+        Window window;
+        if (isMini)
+        {
+            AppServices.Ticker.Start();
+            AppServices.Ticker.RefreshNow();
+            window = new MiniWindow { Opacity = 1.0 };
+        }
+        else
+        {
+            window = new MainWindow();
+        }
+
+        window.ShowInTaskbar = false;
+        window.Show();
+        // WindowFit 会在 Loaded 中居中；这里再移到屏幕外，截图时不打扰桌面。
+        window.Left = -2400;
+        window.Top = 40;
+        window.UpdateLayout();
+
+        var timer = new DispatcherTimer
+        {
+            Interval = TimeSpan.FromMilliseconds(isMini ? 700 : 1800)
+        };
+        timer.Tick += (_, _) =>
+        {
+            timer.Stop();
+            if (!isMini)
+                HideScrollBars(window);
+            window.UpdateLayout();
+
+            var root = (FrameworkElement)window.Content;
+            if (!isMini && root is Panel panel && panel.Background == null)
+                panel.Background = window.Background;
+
+            // 渲染 root 的父级（客户区），这样迷你窗 6px 的外边距也会保留。
+            var visual = VisualTreeHelper.GetParent(root) as FrameworkElement ?? root;
+
+            const double scale = 1.25;
+            int width = (int)Math.Round(visual.ActualWidth * scale);
+            int height = (int)Math.Round(visual.ActualHeight * scale);
+            var bitmap = new RenderTargetBitmap(width, height, 96 * scale, 96 * scale, PixelFormats.Pbgra32);
+            bitmap.Render(visual);
+
+            var encoder = new PngBitmapEncoder();
+            encoder.Frames.Add(BitmapFrame.Create(bitmap));
+            using (var stream = File.Create(output))
+                encoder.Save(stream);
+
+            window.Close();
+            Shutdown();
+        };
+        timer.Start();
+    }
+
+    private static void HideScrollBars(DependencyObject root)
+    {
+        for (int i = 0; i < VisualTreeHelper.GetChildrenCount(root); i++)
+        {
+            var child = VisualTreeHelper.GetChild(root, i);
+            if (child is ScrollViewer viewer)
+                viewer.VerticalScrollBarVisibility = ScrollBarVisibility.Hidden;
+            HideScrollBars(child);
+        }
     }
 
     /// <summary>
