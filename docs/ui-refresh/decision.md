@@ -217,6 +217,16 @@
 - 验证：`dotnet build` 通过、`dotnet test` 231 全绿、`dotnet run -- smoke` 全部 OK；截图 `warm-settings*.png` / `warm-splash.png` / `warm-mini.png` / `warm-history.png` / `warm-confirm.png` / `warm-datepicker.png`。
 - 未部署。
 
+## Warm 回到 v2 彩色版（2026-10-20）
+
+- 用户反馈更想要 `warm-main-v2` 的整体效果；上一轮「收一档」的安静白卡版本不再作为主方向。
+- 主窗 Dashboard 恢复 v2：双层珊瑚/薄荷光、四色顶线、工资在涨 pill、脉冲点、计薪日刻度、渐变进度条、今日/小时整片薄荷/琥珀、6 项台账、雾蓝状态卡、8px 进度条、摸鱼渐变卡；顶栏恢复四色渐变线；英雄数字回到深绿 `WGreenStrongBrush`。
+- 修正绿色按钮文字对比：根因是全局隐式 TextBlock 样式覆盖按钮前景色；`WButtonBaseStyle` 改为显式 TextBlock 渲染字符串按钮，另加 `WContentButtonStyle` 处理「一键清空」这类复杂内容按钮；设置保存 / 启动开始 / 确认确定等按钮文字恢复白色。
+- 技术说明按用户要求从「计薪日按当月实际工作日 + 节假日/补班日计算」改为「计薪日按当月实际工作日」。
+- 其余页面统一为 v2 的彩色语言：设置页卡片按绿/琥珀/蓝/桃色淡底分区并恢复轻阴影；启动页加珊瑚/薄荷光与三段彩色说明块；迷你窗改薄荷底；摸鱼历史汇总改三张彩色统计卡；确认弹窗加四色顶线。
+- 验证：`dotnet build` 通过、`dotnet test` 231 全绿、`dotnet run -- smoke` 全部 OK；截图 `warm-v2-main.png` / `warm-v2-settings.png` / `warm-v2-splash.png` / `warm-v2-mini.png` / `warm-v2-history.png` / `warm-v2-confirm.png`。
+- 未部署。
+
 ## Phase 0 基线
 
 - `dotnet build`：通过。

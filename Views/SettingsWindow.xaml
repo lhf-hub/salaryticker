@@ -25,6 +25,28 @@
             <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="CornerRadius" Value="12"/>
             <Setter Property="Padding" Value="20,16"/>
+            <Setter Property="Effect">
+                <Setter.Value>
+                    <DropShadowEffect BlurRadius="18" ShadowDepth="2" Direction="270"
+                                      Opacity="0.07" Color="#5A3C28"/>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style x:Key="GreenCard" TargetType="Border" BasedOn="{StaticResource Card}">
+            <Setter Property="Background" Value="{StaticResource WGreenSoftBrush}"/>
+            <Setter Property="BorderBrush" Value="#B6DCC9"/>
+        </Style>
+        <Style x:Key="AmberCard" TargetType="Border" BasedOn="{StaticResource Card}">
+            <Setter Property="Background" Value="{StaticResource WAmberSoftBrush}"/>
+            <Setter Property="BorderBrush" Value="#EBCFAA"/>
+        </Style>
+        <Style x:Key="BlueCard" TargetType="Border" BasedOn="{StaticResource Card}">
+            <Setter Property="Background" Value="{StaticResource WBlueSoftBrush}"/>
+            <Setter Property="BorderBrush" Value="#B8D2E5"/>
+        </Style>
+        <Style x:Key="PeachCard" TargetType="Border" BasedOn="{StaticResource Card}">
+            <Setter Property="Background" Value="{StaticResource WCoralSoftBrush}"/>
+            <Setter Property="BorderBrush" Value="#EFC9B8"/>
         </Style>
 
         <Style x:Key="TextPageTitle" TargetType="TextBlock">
@@ -162,7 +184,7 @@
             <StackPanel Grid.Row="1" Visibility="{Binding SelectedPageIndex, Converter={StaticResource IndexToVisibility}, ConverterParameter=0}">
                 <TextBlock Text="工资与五险一金" Style="{StaticResource TextPageTitle}" Margin="0,0,0,16"/>
 
-                <Border Style="{StaticResource Card}" Margin="0,0,0,16">
+                <Border Style="{StaticResource GreenCard}" Margin="0,0,0,16">
                     <StackPanel>
                         <TextBlock Text="工资模式" Style="{StaticResource TextCardTitle}" Margin="0,0,0,12"/>
                         <RadioButton Content="税前模式（计算五险一金与个税）" IsChecked="{Binding IsGrossMode}"
@@ -196,7 +218,7 @@
                 </Border>
 
                 <!-- 养老保险 -->
-                <Border Style="{StaticResource Card}" Margin="0,0,0,16"
+                <Border Style="{StaticResource AmberCard}" Margin="0,0,0,16"
                         IsEnabled="{Binding IsGrossMode}">
                     <StackPanel>
                         <TextBlock Text="养老保险" Style="{StaticResource TextCardTitle}" Margin="0,0,0,4"/>
@@ -223,7 +245,7 @@
                 </Border>
 
                 <!-- 医疗保险 -->
-                <Border Style="{StaticResource Card}" Margin="0,0,0,16"
+                <Border Style="{StaticResource BlueCard}" Margin="0,0,0,16"
                         IsEnabled="{Binding IsGrossMode}">
                     <StackPanel>
                         <TextBlock Text="医疗保险" Style="{StaticResource TextCardTitle}" Margin="0,0,0,4"/>
@@ -253,7 +275,7 @@
                 </Border>
 
                 <!-- 失业保险 -->
-                <Border Style="{StaticResource Card}" Margin="0,0,0,16"
+                <Border Style="{StaticResource GreenCard}" Margin="0,0,0,16"
                         IsEnabled="{Binding IsGrossMode}">
                     <StackPanel>
                         <TextBlock Text="失业保险" Style="{StaticResource TextCardTitle}" Margin="0,0,0,4"/>
@@ -278,7 +300,7 @@
                 </Border>
 
                 <!-- 公积金 -->
-                <Border Style="{StaticResource Card}" Margin="0,0,0,16"
+                <Border Style="{StaticResource AmberCard}" Margin="0,0,0,16"
                         IsEnabled="{Binding IsGrossMode}">
                     <StackPanel>
                         <TextBlock Text="住房公积金" Style="{StaticResource TextCardTitle}" Margin="0,0,0,12"/>
@@ -319,7 +341,7 @@
                 </Border>
 
                 <!-- 其他扣款 -->
-                <Border Style="{StaticResource Card}" IsEnabled="{Binding IsGrossMode}">
+                <Border Style="{StaticResource PeachCard}" IsEnabled="{Binding IsGrossMode}">
                     <StackPanel>
                         <Grid Margin="0,0,0,12">
                             <TextBlock Text="其他扣款（企业年金等）" Style="{StaticResource TextCardTitle}"/>
@@ -355,7 +377,7 @@
             <StackPanel Grid.Row="1" Visibility="{Binding SelectedPageIndex, Converter={StaticResource IndexToVisibility}, ConverterParameter=1}">
                 <TextBlock Text="个税参数" Style="{StaticResource TextPageTitle}" Margin="0,0,0,16"/>
 
-                <Border Style="{StaticResource Card}">
+                <Border Style="{StaticResource BlueCard}">
                     <StackPanel>
                         <Grid Margin="0,0,0,12">
                             <Grid.ColumnDefinitions>
@@ -386,7 +408,7 @@
                 </Border>
 
                 <!-- 本年度各月税前收入：修正累计预扣法"假设每月工资相同"带来的偏差 -->
-                <Border Style="{StaticResource Card}" Margin="0,16,0,0"
+                <Border Style="{StaticResource GreenCard}" Margin="0,16,0,0"
                         Visibility="{Binding IsMonthlyIncomeVisible, Converter={StaticResource BoolToVisibility}}">
                     <StackPanel>
                         <TextBlock Text="本年度各月税前收入（可选）" Style="{StaticResource TextCardTitle}" Margin="0,0,0,12"/>
@@ -429,7 +451,7 @@
             <StackPanel Grid.Row="1" Visibility="{Binding SelectedPageIndex, Converter={StaticResource IndexToVisibility}, ConverterParameter=2}">
                 <TextBlock Text="班制设置" Style="{StaticResource TextPageTitle}" Margin="0,0,0,16"/>
 
-                <Border Style="{StaticResource Card}" Margin="0,0,0,16">
+                <Border Style="{StaticResource GreenCard}" Margin="0,0,0,16">
                     <StackPanel>
                         <TextBlock Text="班制预设" Style="{StaticResource TextCardTitle}" Margin="0,0,0,12"/>
                         <StackPanel Orientation="Horizontal">
@@ -445,7 +467,7 @@
                     </StackPanel>
                 </Border>
 
-                <Border Style="{StaticResource Card}" Margin="0,0,0,16">
+                <Border Style="{StaticResource AmberCard}" Margin="0,0,0,16">
                     <StackPanel>
                         <TextBlock Text="工作时间" Style="{StaticResource TextCardTitle}" Margin="0,0,0,12"/>
 
@@ -525,7 +547,7 @@
                     </StackPanel>
                 </Border>
 
-                <Border Style="{StaticResource Card}" Margin="0,0,0,16">
+                <Border Style="{StaticResource BlueCard}" Margin="0,0,0,16">
                     <StackPanel>
                         <TextBlock Text="每周工作日" Style="{StaticResource TextCardTitle}" Margin="0,0,0,12"/>
                         <WrapPanel>
@@ -550,7 +572,7 @@
                 </Border>
 
                 <!-- ══════ 下班提醒 ══════ -->
-                <Border Style="{StaticResource Card}" Margin="0,0,0,16">
+                <Border Style="{StaticResource PeachCard}" Margin="0,0,0,16">
                     <StackPanel>
                         <TextBlock Text="下班提醒" Style="{StaticResource TextCardTitle}" Margin="0,0,0,12"/>
                         <CheckBox Content="到点后播放系统提示音提醒下班（默认关闭）"
@@ -565,7 +587,7 @@
             <StackPanel Grid.Row="1" Visibility="{Binding SelectedPageIndex, Converter={StaticResource IndexToVisibility}, ConverterParameter=3}">
                 <TextBlock Text="摸鱼按钮与历史" Style="{StaticResource TextPageTitle}" Margin="0,0,0,16"/>
 
-                <Border Style="{StaticResource Card}" Margin="0,0,0,16">
+                <Border Style="{StaticResource AmberCard}" Margin="0,0,0,16">
                     <StackPanel>
                         <CheckBox Content="启用摸鱼历史记录（只存本地，不上传）"
                                   IsChecked="{Binding MuyuHistoryEnabled}" Margin="0,0,0,12"/>
@@ -609,7 +631,7 @@
             <StackPanel Grid.Row="1" Visibility="{Binding SelectedPageIndex, Converter={StaticResource IndexToVisibility}, ConverterParameter=4}">
                 <TextBlock Text="政策参数" Style="{StaticResource TextPageTitle}" Margin="0,0,0,16"/>
 
-                <Border Style="{StaticResource Card}" Margin="0,0,0,16">
+                <Border Style="{StaticResource BlueCard}" Margin="0,0,0,16">
                     <StackPanel>
                         <Grid Margin="0,0,0,12">
                             <TextBlock Text="社保参数（深圳 2026 示例值，可自行更新）" Style="{StaticResource TextCardTitle}"/>
@@ -672,7 +694,7 @@
                     </StackPanel>
                 </Border>
 
-                <Border Style="{StaticResource Card}">
+                <Border Style="{StaticResource AmberCard}">
                     <StackPanel>
                         <TextBlock Text="节假日（强制休息，不计薪）" Style="{StaticResource TextCardTitle}" Margin="0,0,0,8"/>
                         <TextBlock Text="预置 2026 年法定节假日，连休安排为推定值，请以国务院办公厅通知为准，可自行增删。"
@@ -721,7 +743,7 @@
                 </Border>
 
                 <!-- 补班日 -->
-                <Border Style="{StaticResource Card}" Margin="0,16,0,0">
+                <Border Style="{StaticResource GreenCard}" Margin="0,16,0,0">
                     <StackPanel>
                         <TextBlock Text="补班日（国家调休补班，正常上班计薪）" Style="{StaticResource TextCardTitle}" Margin="0,0,0,8"/>
                         <TextBlock Text="调休补班的周末按正常工作日计算工资，不做强制休息。预置 2026 年推定补班日，请以国务院办公厅通知为准，可自行增删。"
@@ -774,7 +796,7 @@
             <StackPanel Grid.Row="1" Visibility="{Binding SelectedPageIndex, Converter={StaticResource IndexToVisibility}, ConverterParameter=5}">
                 <TextBlock Text="更新" Style="{StaticResource TextPageTitle}" Margin="0,0,0,16"/>
 
-                <Border Style="{StaticResource Card}" Margin="0,0,0,16">
+                <Border Style="{StaticResource GreenCard}" Margin="0,0,0,16">
                     <StackPanel>
                         <Grid Margin="0,0,0,14">
                             <TextBlock Text="当前版本" Style="{StaticResource TextCardTitle}" VerticalAlignment="Center"/>
@@ -827,7 +849,7 @@
                     </StackPanel>
                 </Border>
 
-                <Border Style="{StaticResource Card}">
+                <Border Style="{StaticResource BlueCard}">
                     <StackPanel>
                         <TextBlock Text="关于联网" Style="{StaticResource TextCardTitle}" Margin="0,0,0,8"/>
                         <TextBlock Text="本应用不会上传任何数据。开启「检查新版本」后，启动时会请求上面的版本清单（几百字节）以判断是否有更新；下载安装包只在你点击「立即更新」后发生。"
@@ -842,7 +864,7 @@
             <StackPanel Grid.Row="1" Visibility="{Binding SelectedPageIndex, Converter={StaticResource IndexToVisibility}, ConverterParameter=6}">
                 <TextBlock Text="关于 SalaryTicker" Style="{StaticResource TextPageTitle}" Margin="0,0,0,16"/>
 
-                <Border Style="{StaticResource Card}" Margin="0,0,0,16">
+                <Border Style="{StaticResource PeachCard}" Margin="0,0,0,16">
                     <StackPanel>
                         <TextBlock Text="参数与联系" Style="{StaticResource TextCardTitle}" Margin="0,0,0,8"/>
                         <TextBlock Text="SalaryTicker 内置深圳市的社保、公积金、个税参数。其他城市可在「设置 → 政策参数」中按当地政策调整。"
@@ -852,7 +874,7 @@
                     </StackPanel>
                 </Border>
 
-                <Border Style="{StaticResource Card}" Margin="0,0,0,16">
+                <Border Style="{StaticResource GreenCard}" Margin="0,0,0,16">
                     <StackPanel>
                         <TextBlock Text="参数可配置" Style="{StaticResource TextCardTitle}" Margin="0,0,0,8"/>
                         <TextBlock Text="社保基数上下限、公积金比例、个税税率等参数已做成可配置项，政策调整后可在设置中手动更新。"
@@ -862,7 +884,7 @@
                     </StackPanel>
                 </Border>
 
-                <Border Style="{StaticResource Card}" Margin="0,0,0,16">
+                <Border Style="{StaticResource AmberCard}" Margin="0,0,0,16">
                     <StackPanel>
                         <TextBlock Text="计算结果仅供参考" Style="{StaticResource TextCardTitle}" Margin="0,0,0,8"/>
                         <TextBlock Text="计算结果仅供参考，以实际工资条为准。"
@@ -870,7 +892,7 @@
                     </StackPanel>
                 </Border>
 
-                <Border Style="{StaticResource Card}">
+                <Border Style="{StaticResource BlueCard}">
                     <StackPanel>
                         <TextBlock Text="启动页" Style="{StaticResource TextCardTitle}" Margin="0,0,0,12"/>
                         <CheckBox Content="每次启动显示使用提示" IsChecked="{Binding ShowSplashOnStartup}"/>
@@ -889,7 +911,7 @@
                 </Border>
 
                 <!-- 开源许可：单文件 exe 里含第三方组件，分发时必须保留其版权声明 -->
-                <Border Style="{StaticResource Card}" Margin="0,16,0,0">
+                <Border Style="{StaticResource PeachCard}" Margin="0,16,0,0">
                     <StackPanel>
                         <TextBlock Text="开源许可" Style="{StaticResource TextCardTitle}" Margin="0,0,0,8"/>
                         <TextBlock Text="本项目基于 Apache License 2.0 开源。"

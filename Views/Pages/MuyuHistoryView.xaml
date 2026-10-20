@@ -70,7 +70,7 @@
                            VerticalAlignment="Center"/>
 
                 <Button Grid.Column="2"
-                        Style="{StaticResource WDangerButtonStyle}"
+                        Style="{StaticResource WContentButtonStyle}"
                         Command="{Binding ClearAllCommand}"
                         Padding="12,7">
                     <StackPanel Orientation="Horizontal">
@@ -89,16 +89,26 @@
                        Style="{StaticResource WBodyStyle}"
                        Margin="0,0,0,14"/>
 
-            <!-- 汇总卡 -->
-            <Border Style="{StaticResource WPanelCardStyle}" Padding="0">
-                <UniformGrid Columns="3">
-                    <StackPanel Margin="20,16">
+            <!-- 汇总卡：今日 / 本周 / 本月 -->
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="14"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="14"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <Border Grid.Column="0" Style="{StaticResource WStatCardStyle}"
+                        Background="{StaticResource WGreenSoftBrush}"
+                        BorderBrush="#B6DCC9">
+                    <StackPanel>
                         <Border Height="2" Background="{StaticResource WGreenBrush}"
                                 CornerRadius="1" Margin="0,0,0,10"/>
                         <TextBlock Text="今日" Style="{StaticResource WStatLabelStyle}"/>
                         <TextBlock Text="{Binding TodayCostText}"
                                    Style="{StaticResource WStatValueStyle}"
-                                   FontSize="30" Foreground="{StaticResource WGreenBrush}"
+                                   FontSize="30" Foreground="{StaticResource WGreenStrongBrush}"
                                    Margin="0,4,0,2"/>
                         <TextBlock Style="{StaticResource WSmallStyle}" TextWrapping="NoWrap">
                             <Run Text="{Binding TodayCount, Mode=OneWay}"/>
@@ -106,7 +116,12 @@
                             <Run Text="{Binding TodayDurationText, Mode=OneWay}"/>
                         </TextBlock>
                     </StackPanel>
-                    <StackPanel Margin="20,16">
+                </Border>
+
+                <Border Grid.Column="2" Style="{StaticResource WStatCardStyle}"
+                        Background="{StaticResource WAmberSoftBrush}"
+                        BorderBrush="#EBCFAA">
+                    <StackPanel>
                         <Border Height="2" Background="{StaticResource WAmberBrush}"
                                 CornerRadius="1" Margin="0,0,0,10"/>
                         <TextBlock Text="本周" Style="{StaticResource WStatLabelStyle}"/>
@@ -120,7 +135,12 @@
                             <Run Text="{Binding WeekDurationText, Mode=OneWay}"/>
                         </TextBlock>
                     </StackPanel>
-                    <StackPanel Margin="20,16">
+                </Border>
+
+                <Border Grid.Column="4" Style="{StaticResource WStatCardStyle}"
+                        Background="{StaticResource WBlueSoftBrush}"
+                        BorderBrush="#B8D2E5">
+                    <StackPanel>
                         <Border Height="2" Background="{StaticResource WBlueBrush}"
                                 CornerRadius="1" Margin="0,0,0,10"/>
                         <TextBlock Text="本月" Style="{StaticResource WStatLabelStyle}"/>
@@ -134,8 +154,8 @@
                             <Run Text="{Binding MonthDurationText, Mode=OneWay}"/>
                         </TextBlock>
                     </StackPanel>
-                </UniformGrid>
-            </Border>
+                </Border>
+            </Grid>
 
             <!-- 历史记录 -->
             <Border Style="{StaticResource WPanelCardStyle}" Margin="0,14,0,0" Padding="18">

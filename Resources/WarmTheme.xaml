@@ -189,11 +189,15 @@
                             BorderBrush="{TemplateBinding BorderBrush}"
                             BorderThickness="{TemplateBinding BorderThickness}"
                             CornerRadius="999"
+                            Padding="{TemplateBinding Padding}"
                             SnapsToDevicePixels="True">
-                        <ContentPresenter Margin="{TemplateBinding Padding}"
-                                          HorizontalAlignment="Center"
-                                          VerticalAlignment="Center"
-                                          RecognizesAccessKey="True"/>
+                        <TextBlock Text="{TemplateBinding Content}"
+                                   Foreground="{TemplateBinding Foreground}"
+                                   FontFamily="{TemplateBinding FontFamily}"
+                                   FontSize="{TemplateBinding FontSize}"
+                                   FontWeight="{TemplateBinding FontWeight}"
+                                   HorizontalAlignment="Center"
+                                   VerticalAlignment="Center"/>
                     </Border>
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsMouseOver" Value="True">
@@ -201,6 +205,46 @@
                         </Trigger>
                         <Trigger Property="IsPressed" Value="True">
                             <Setter TargetName="Bd" Property="Opacity" Value="0.8"/>
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter Property="Opacity" Value="0.5"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="WContentButtonStyle" TargetType="Button">
+        <Setter Property="FontFamily" Value="{StaticResource WFontBody}"/>
+        <Setter Property="FontSize" Value="13"/>
+        <Setter Property="FontWeight" Value="SemiBold"/>
+        <Setter Property="Padding" Value="14,8"/>
+        <Setter Property="Cursor" Value="Hand"/>
+        <Setter Property="FocusVisualStyle" Value="{StaticResource WFocusVisual}"/>
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="BorderBrush" Value="{StaticResource WCoralBrush}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="Foreground" Value="{StaticResource WCoralStrongBrush}"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Border x:Name="Bd"
+                            Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}"
+                            CornerRadius="999"
+                            Padding="{TemplateBinding Padding}"
+                            SnapsToDevicePixels="True">
+                        <ContentPresenter HorizontalAlignment="Center"
+                                          VerticalAlignment="Center"/>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Bd" Property="Opacity" Value="0.85"/>
+                        </Trigger>
+                        <Trigger Property="IsPressed" Value="True">
+                            <Setter TargetName="Bd" Property="Opacity" Value="0.7"/>
                         </Trigger>
                         <Trigger Property="IsEnabled" Value="False">
                             <Setter Property="Opacity" Value="0.5"/>
@@ -291,14 +335,21 @@
     </LinearGradientBrush>
 
     <LinearGradientBrush x:Key="WMuyuCardBrush" StartPoint="0,0" EndPoint="1,1">
-        <GradientStop Color="#FFF9F1" Offset="0"/>
+        <GradientStop Color="#FDF1E4" Offset="0"/>
+        <GradientStop Color="#FBEDE6" Offset="0.55"/>
         <GradientStop Color="#FFFCF7" Offset="1"/>
     </LinearGradientBrush>
 
     <RadialGradientBrush x:Key="WHeroGlowCoralBrush" Center="0.08,0" GradientOrigin="0.08,0"
                          RadiusX="0.75" RadiusY="0.9">
-        <GradientStop Color="#24E07A5F" Offset="0"/>
+        <GradientStop Color="#33E07A5F" Offset="0"/>
         <GradientStop Color="#00E07A5F" Offset="0.72"/>
+    </RadialGradientBrush>
+
+    <RadialGradientBrush x:Key="WHeroGlowGreenBrush" Center="0.92,0.9" GradientOrigin="0.92,0.9"
+                         RadiusX="0.8" RadiusY="1">
+        <GradientStop Color="#26047857" Offset="0"/>
+        <GradientStop Color="#00047857" Offset="0.70"/>
     </RadialGradientBrush>
 
     <Style x:Key="WHeroCardStyle" TargetType="Border">
@@ -308,8 +359,8 @@
         <Setter Property="CornerRadius" Value="18"/>
         <Setter Property="Effect">
             <Setter.Value>
-                <DropShadowEffect BlurRadius="20" ShadowDepth="2" Direction="270"
-                                  Opacity="0.06" Color="#5A3C28"/>
+                <DropShadowEffect BlurRadius="26" ShadowDepth="3" Direction="270"
+                                  Opacity="0.10" Color="#5A3C28"/>
             </Setter.Value>
         </Setter>
     </Style>
@@ -322,8 +373,8 @@
         <Setter Property="Padding" Value="18"/>
         <Setter Property="Effect">
             <Setter.Value>
-                <DropShadowEffect BlurRadius="14" ShadowDepth="1" Direction="270"
-                                  Opacity="0.04" Color="#5A3C28"/>
+                <DropShadowEffect BlurRadius="18" ShadowDepth="2" Direction="270"
+                                  Opacity="0.07" Color="#5A3C28"/>
             </Setter.Value>
         </Setter>
     </Style>
@@ -336,8 +387,8 @@
         <Setter Property="Padding" Value="20,18"/>
         <Setter Property="Effect">
             <Setter.Value>
-                <DropShadowEffect BlurRadius="14" ShadowDepth="1" Direction="270"
-                                  Opacity="0.04" Color="#5A3C28"/>
+                <DropShadowEffect BlurRadius="18" ShadowDepth="2" Direction="270"
+                                  Opacity="0.07" Color="#5A3C28"/>
             </Setter.Value>
         </Setter>
     </Style>
@@ -352,7 +403,7 @@
     <Style x:Key="WLiveAmountStyle" TargetType="TextBlock" BasedOn="{StaticResource WHeroNumberStyle}">
         <Setter Property="FontSize" Value="72"/>
         <Setter Property="FontWeight" Value="Bold"/>
-        <Setter Property="Foreground" Value="{StaticResource WGreenBrush}"/>
+        <Setter Property="Foreground" Value="{StaticResource WGreenStrongBrush}"/>
         <Setter Property="HorizontalAlignment" Value="Left"/>
         <Style.Triggers>
             <DataTrigger Binding="{Binding IsPulse}" Value="True">
@@ -376,7 +427,7 @@
 
     <Style x:Key="WStatValueStyle" TargetType="TextBlock" BasedOn="{StaticResource WNumberStyle}">
         <Setter Property="FontSize" Value="38"/>
-        <Setter Property="FontWeight" Value="SemiBold"/>
+        <Setter Property="FontWeight" Value="Bold"/>
         <Setter Property="HorizontalAlignment" Value="Left"/>
     </Style>
 
@@ -403,7 +454,7 @@
     <Style x:Key="WCountdownStyle" TargetType="TextBlock">
         <Setter Property="FontFamily" Value="{StaticResource WFontMono}"/>
         <Setter Property="FontSize" Value="30"/>
-        <Setter Property="FontWeight" Value="SemiBold"/>
+        <Setter Property="FontWeight" Value="Bold"/>
         <Setter Property="Foreground" Value="{StaticResource WBlueStrongBrush}"/>
         <Setter Property="Typography.NumeralAlignment" Value="Tabular"/>
         <Setter Property="HorizontalAlignment" Value="Left"/>
@@ -442,6 +493,24 @@
                 </ControlTemplate>
             </Setter.Value>
         </Setter>
+    </Style>
+
+    <Style x:Key="WLiveDotStyle" TargetType="Ellipse">
+        <Setter Property="Width" Value="6"/>
+        <Setter Property="Height" Value="6"/>
+        <Setter Property="Fill" Value="{StaticResource WGreenBrush}"/>
+        <Setter Property="VerticalAlignment" Value="Center"/>
+        <Style.Triggers>
+            <EventTrigger RoutedEvent="Loaded">
+                <BeginStoryboard>
+                    <Storyboard>
+                        <DoubleAnimation Storyboard.TargetProperty="Opacity"
+                                         From="1" To="0.25" Duration="0:0:0.9"
+                                         AutoReverse="True" RepeatBehavior="Forever"/>
+                    </Storyboard>
+                </BeginStoryboard>
+            </EventTrigger>
+        </Style.Triggers>
     </Style>
 
     <Style x:Key="WStatusDotStyle" TargetType="Ellipse">
@@ -511,7 +580,7 @@
     </Style>
 
     <Style x:Key="WProgressBarStyle" TargetType="ProgressBar">
-        <Setter Property="Height" Value="6"/>
+        <Setter Property="Height" Value="8"/>
         <Setter Property="Minimum" Value="0"/>
         <Setter Property="Maximum" Value="1"/>
         <Setter Property="Template">

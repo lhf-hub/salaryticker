@@ -45,37 +45,47 @@
                               BlurRadius="26" ShadowDepth="6" Opacity="0.18"/>
         </Border.Effect>
 
-        <Grid Margin="26,24,26,22">
+        <Grid>
             <Grid.RowDefinitions>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="3"/>
+                <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
 
-            <TextBlock Grid.Row="0"
-                       x:Name="TitleText"
-                       Text="确认操作"
-                       Style="{StaticResource WPanelTitleStyle}"
-                       Margin="0,0,0,10"/>
+            <Border Grid.Row="0" Background="{StaticResource WBrandGradientBrush}"
+                    CornerRadius="16,16,0,0"/>
 
-            <TextBlock Grid.Row="1"
-                       x:Name="MessageText"
-                       Text=""
-                       Style="{StaticResource WBodyStyle}"
-                       Margin="0,0,0,20"/>
+            <Grid Grid.Row="1" Margin="26,26,26,22">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
 
-            <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right">
-                <Button Content="取消"
-                        Style="{StaticResource ButtonGhost}"
-                        Click="Cancel_Click"
-                        IsCancel="True"
-                        Margin="0,0,10,0"/>
-                <Button Content="确定"
-                        x:Name="OkButton"
-                        Style="{StaticResource ButtonPrimary}"
-                        Click="Ok_Click"
-                        IsDefault="True"/>
-            </StackPanel>
+                <TextBlock Grid.Row="0"
+                           x:Name="TitleText"
+                           Text="确认操作"
+                           Style="{StaticResource WPanelTitleStyle}"
+                           Margin="0,0,0,10"/>
+
+                <TextBlock Grid.Row="1"
+                           x:Name="MessageText"
+                           Text=""
+                           Style="{StaticResource WBodyStyle}"
+                           Margin="0,0,0,20"/>
+
+                <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right">
+                    <Button Content="取消"
+                            Style="{StaticResource ButtonGhost}"
+                            Click="Cancel_Click"
+                            IsCancel="True"
+                            Margin="0,0,10,0"/>
+                    <Button Content="确定"
+                            x:Name="OkButton"
+                            Style="{StaticResource ButtonPrimary}"
+                            Click="Ok_Click"
+                            IsDefault="True"/>
+                </StackPanel>
+            </Grid>
         </Grid>
     </Border>
 </Window>

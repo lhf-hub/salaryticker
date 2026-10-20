@@ -23,8 +23,8 @@
                BasedOn="{StaticResource WSliderStyle}"/>
     </Window.Resources>
 
-    <Border Background="{StaticResource WSurfaceBrush}"
-            BorderBrush="{StaticResource WBorderBrush}"
+    <Border Background="{StaticResource WGreenSoftBrush}"
+            BorderBrush="#B6DCC9"
             BorderThickness="1"
             CornerRadius="12"
             Margin="6">
@@ -95,7 +95,7 @@
                            Text="¥0.00"
                            FontFamily="{StaticResource WFontMono}"
                            FontSize="26" FontWeight="SemiBold"
-                           Foreground="{StaticResource WGreenBrush}"
+                           Foreground="{StaticResource WGreenStrongBrush}"
                            Typography.NumeralAlignment="Tabular"
                            HorizontalAlignment="Right"
                            VerticalAlignment="Center"/>

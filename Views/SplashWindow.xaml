@@ -55,6 +55,9 @@
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
 
+            <Border Grid.RowSpan="2" Background="{StaticResource WHeroGlowCoralBrush}"/>
+            <Border Grid.RowSpan="2" Background="{StaticResource WHeroGlowGreenBrush}"/>
+
             <Border Grid.Row="0" Background="{StaticResource WBrandGradientBrush}"
                     CornerRadius="18,18,0,0"/>
 
@@ -87,15 +90,27 @@
                 <!-- 三段说明 -->
                 <StackPanel Grid.Row="1" Margin="0,18,0,0">
                     <TextBlock Text="使用说明" Style="{StaticResource WPanelTitleStyle}"/>
-                    <TextBlock Text="内置深圳社保、公积金与个税参数；其他城市可在「设置 → 政策参数」中调整。"
-                               Style="{StaticResource WBodyStyle}"
-                               Margin="0,10,0,0"/>
-                    <TextBlock Text="应用不上传数据。开启更新检查后，启动时只请求版本清单；下载只在你点「立即更新」后发生。"
-                               Style="{StaticResource WBodyStyle}"
-                               Margin="0,10,0,0"/>
-                    <TextBlock Text="计算结果仅供参考，以实际工资条为准。"
-                               Style="{StaticResource WBodyStyle}"
-                               Margin="0,10,0,0"/>
+                    <Border Background="{StaticResource WGreenSoftBrush}"
+                            BorderBrush="{StaticResource WGreenBrush}"
+                            BorderThickness="2,0,0,0" CornerRadius="6"
+                            Padding="12,9" Margin="0,10,0,0">
+                        <TextBlock Text="内置深圳社保、公积金与个税参数；其他城市可在「设置 → 政策参数」中调整。"
+                                   Style="{StaticResource WBodyStyle}"/>
+                    </Border>
+                    <Border Background="{StaticResource WAmberSoftBrush}"
+                            BorderBrush="{StaticResource WAmberBrush}"
+                            BorderThickness="2,0,0,0" CornerRadius="6"
+                            Padding="12,9" Margin="0,8,0,0">
+                        <TextBlock Text="应用不上传数据。开启更新检查后，启动时只请求版本清单；下载只在你点「立即更新」后发生。"
+                                   Style="{StaticResource WBodyStyle}"/>
+                    </Border>
+                    <Border Background="{StaticResource WBlueSoftBrush}"
+                            BorderBrush="{StaticResource WBlueBrush}"
+                            BorderThickness="2,0,0,0" CornerRadius="6"
+                            Padding="12,9" Margin="0,8,0,0">
+                        <TextBlock Text="计算结果仅供参考，以实际工资条为准。"
+                                   Style="{StaticResource WBodyStyle}"/>
+                    </Border>
                 </StackPanel>
 
                 <!-- 确认区 -->
