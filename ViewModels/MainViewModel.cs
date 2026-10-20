@@ -59,6 +59,10 @@ public partial class MainViewModel : ObservableObject
     /// <summary>本月进度刻度（每格一个计薪日）</summary>
     public ObservableCollection<PayDayTick> PayDayTicks { get; } = new();
 
+    /// <summary>离下一个假期还有多少天（或正在假期中）</summary>
+    [ObservableProperty]
+    private string _nextHolidayText = "正在计算…";
+
     // ========== 状态显示 ==========
 
     /// <summary>状态文案</summary>
@@ -275,6 +279,9 @@ public partial class MainViewModel : ObservableObject
         MonthContextText = $"{snapshot.Now.Year} 年 {snapshot.Now.Month} 月";
         PayDaysContextText = $"{snapshot.PayableDaysInMonth} 个计薪日";
         UpdatePayDayTicks(snapshot);
+        NextHolidayText = NextHolidayCalculator.Describe(
+            DateOnly.FromDateTime(snapshot.Now.DateTime),
+            AppServices.Config.Settings.HolidayDates);
 
         Status = snapshot.Status;
         StatusText = GetStatusText(snapshot.Status, snapshot.IsMuyu);

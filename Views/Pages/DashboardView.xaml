@@ -22,6 +22,24 @@
                            Style="{StaticResource WMonoSmallStyle}"
                            VerticalAlignment="Center"/>
                 <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Center">
+                    <Border Background="{StaticResource WAmberSoftBrush}"
+                            BorderBrush="{StaticResource WAmberBrush}"
+                            BorderThickness="1" CornerRadius="999"
+                            Padding="9,3" Margin="0,0,10,0"
+                            VerticalAlignment="Center">
+                        <StackPanel Orientation="Horizontal">
+                            <Path Data="{StaticResource IconHistory}"
+                                  Fill="{StaticResource WAmberStrongBrush}"
+                                  Width="12" Height="12" Stretch="Uniform"
+                                  VerticalAlignment="Center"/>
+                            <TextBlock Text="{Binding NextHolidayText}"
+                                       FontFamily="{StaticResource WFontBody}"
+                                       FontSize="11.5"
+                                       Foreground="{StaticResource WAmberStrongBrush}"
+                                       Margin="6,0,0,0"
+                                       VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Border>
                     <Ellipse Style="{StaticResource WLiveDotStyle}" Margin="0,0,6,0"/>
                     <TextBlock Text="实时计算中"
                                Style="{StaticResource WMonoSmallStyle}"

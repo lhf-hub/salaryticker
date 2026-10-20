@@ -243,6 +243,20 @@
 - 官网首屏已用新截图验证：`site-warm-shots.png`；图片无 404，设备框与迷你浮层布局正常。
 - `dotnet build` 通过、`dotnet test` 231 全绿、`dotnet run -- smoke` 全部 OK；未部署。
 
+## 下一个假期倒计时（2026-10-20）
+
+- 用户希望在应用内看到「离下一个假期还有多少天」，例如「离元旦还有 73 天」，让用户有盼头。
+- 新增 `Services/NextHolidayCalculator.cs` 纯函数：
+  - 今天在假期中 → 「正在{名称}假期」
+  - 有未来节假日 → 「离{名称}还有 N 天」
+  - 当前年假期表已用完且包含元旦 → 推断下一年元旦
+  - 其他 → 「假期表待更新」
+- `MainViewModel.NextHolidayText` 随每个快照刷新；主窗顶部上下文行增加琥珀色胶囊（时钟图标 + 文案），例如「离元旦还有 73 天」。
+- 新增 5 个单元测试（`NextHolidayCalculatorTests`），测试总数 231 → 236。
+- 官网 `app-shot` 同步更新（顶部含假期倒计时）；`mini-shot` 不变。
+- 验证：`dotnet build` 通过、`dotnet test` 236 全绿、`dotnet run -- smoke` 全部 OK；截图 `app-shot-new.png`。
+- 未部署。
+
 ## Phase 0 基线
 
 - `dotnet build`：通过。
