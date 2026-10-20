@@ -1,6 +1,6 @@
 <!-- ============================================================================
      文件名：SplashWindow.xaml
-     功能描述：启动提示页（Warm：暖白卡片、衬线品牌、三段说明、一个开始按钮）
+     功能描述：启动温馨提示页（Warm：暖白卡片、四段原文说明、一个开始按钮）
      ============================================================================ -->
 <Window x:Class="SalaryTicker.Views.SplashWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
@@ -8,7 +8,7 @@
         Icon="/Assets/SalaryTicker.ico"
         xmlns:vm="clr-namespace:SalaryTicker.ViewModels"
         Title="SalaryTicker - 实时计算器"
-        Width="880" Height="460"
+        Width="880" Height="780"
         WindowStartupLocation="CenterScreen"
         WindowStyle="None"
         AllowsTransparency="True"
@@ -21,7 +21,7 @@
 
     <Window.Resources>
         <Style TargetType="CheckBox" BasedOn="{StaticResource WCheckBoxStyle}"/>
-        <Style x:Key="SplashPrimary" TargetType="Button" BasedOn="{StaticResource WPrimaryButtonStyle}">
+        <Style x:Key="SplashPrimary" TargetType="Button" BasedOn="{StaticResource WCoralButtonStyle}">
             <Setter Property="FontSize" Value="14"/>
             <Setter Property="Padding" Value="24,12"/>
             <Setter Property="HorizontalAlignment" Value="Stretch"/>
@@ -61,64 +61,159 @@
             <Border Grid.Row="0" Background="{StaticResource WBrandGradientBrush}"
                     CornerRadius="18,18,0,0"/>
 
-            <Grid Grid.Row="1" Margin="40,30,40,28">
+            <Grid Grid.Row="1" Margin="38,26,38,24">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="*"/>
                     <RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
 
-                <!-- 品牌 -->
-                <StackPanel Grid.Row="0">
-                    <StackPanel Orientation="Horizontal">
-                        <Image Source="/Assets/icon-preview-48.png"
-                               Width="34" Height="34"
-                               RenderOptions.BitmapScalingMode="HighQuality"
-                               VerticalAlignment="Center"/>
-                        <TextBlock Text="SalaryTicker"
-                                   FontFamily="{StaticResource WFontDisplay}"
-                                   FontSize="26" FontWeight="SemiBold"
-                                   Foreground="{StaticResource WInkStrongBrush}"
-                                   Margin="12,0,0,0" VerticalAlignment="Center"/>
-                        <TextBlock Text="实时计算器" FontSize="12"
-                                   Foreground="{StaticResource WMutedBrush}"
-                                   Margin="10,4,0,0" VerticalAlignment="Center"/>
-                    </StackPanel>
-                    <Border Height="1" Background="{StaticResource WBorderBrush}" Margin="0,18,0,0"/>
+                <!-- 标题 -->
+                <StackPanel Grid.Row="0" HorizontalAlignment="Center">
+                    <Image Source="/Assets/icon-preview-48.png"
+                           Width="44" Height="44"
+                           RenderOptions.BitmapScalingMode="HighQuality"
+                           HorizontalAlignment="Center"/>
+                    <TextBlock Text="欢迎使用 SalaryTicker"
+                               FontFamily="{StaticResource WFontDisplay}"
+                               FontSize="28" FontWeight="Medium"
+                               Foreground="{StaticResource WInkStrongBrush}"
+                               HorizontalAlignment="Center"
+                               Margin="0,10,0,0"/>
+                    <TextBlock Text="实时计算器 · 看着钱一秒一秒涨"
+                               FontFamily="{StaticResource WFontBody}"
+                               FontSize="13"
+                               Foreground="{StaticResource WMutedBrush}"
+                               HorizontalAlignment="Center"
+                               Margin="0,4,0,0"/>
                 </StackPanel>
 
-                <!-- 三段说明 -->
-                <StackPanel Grid.Row="1" Margin="0,18,0,0">
-                    <TextBlock Text="使用说明" Style="{StaticResource WPanelTitleStyle}"/>
-                    <Border Background="{StaticResource WGreenSoftBrush}"
-                            BorderBrush="{StaticResource WGreenBrush}"
-                            BorderThickness="2,0,0,0" CornerRadius="6"
-                            Padding="12,9" Margin="0,10,0,0">
-                        <TextBlock Text="内置深圳社保、公积金与个税参数；其他城市可在「设置 → 政策参数」中调整。"
-                                   Style="{StaticResource WBodyStyle}"/>
-                    </Border>
-                    <Border Background="{StaticResource WAmberSoftBrush}"
-                            BorderBrush="{StaticResource WAmberBrush}"
-                            BorderThickness="2,0,0,0" CornerRadius="6"
-                            Padding="12,9" Margin="0,8,0,0">
-                        <TextBlock Text="应用不上传数据。开启更新检查后，启动时只请求版本清单；下载只在你点「立即更新」后发生。"
-                                   Style="{StaticResource WBodyStyle}"/>
-                    </Border>
-                    <Border Background="{StaticResource WBlueSoftBrush}"
-                            BorderBrush="{StaticResource WBlueBrush}"
-                            BorderThickness="2,0,0,0" CornerRadius="6"
-                            Padding="12,9" Margin="0,8,0,0">
-                        <TextBlock Text="计算结果仅供参考，以实际工资条为准。"
-                                   Style="{StaticResource WBodyStyle}"/>
-                    </Border>
-                </StackPanel>
+                <!-- 四段原文说明 -->
+                <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto"
+                              Margin="0,16,0,0">
+                    <StackPanel>
+
+                        <Border Background="{StaticResource WBlueSoftBrush}"
+                                BorderBrush="{StaticResource WBlueBrush}"
+                                BorderThickness="2,0,0,0" CornerRadius="8"
+                                Padding="14,11" Margin="0,0,0,10">
+                            <StackPanel>
+                                <StackPanel Orientation="Horizontal">
+                                    <Border Width="26" Height="26" CornerRadius="8"
+                                            Background="{StaticResource WSurfaceRaisedBrush}"
+                                            BorderBrush="{StaticResource WBlueBrush}"
+                                            BorderThickness="1">
+                                        <Path Data="{StaticResource IconInfo}"
+                                              Fill="{StaticResource WBlueStrongBrush}"
+                                              Width="14" Height="14" Stretch="Uniform"
+                                              HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                    </Border>
+                                    <TextBlock Text="关于参数"
+                                               Style="{StaticResource WCardTitleStyle}"
+                                               Margin="9,0,0,0" VerticalAlignment="Center"/>
+                                </StackPanel>
+                                <TextBlock Style="{StaticResource WBodyStyle}" Margin="0,6,0,0">
+                                    <Run Text="本工具内置深圳市的社保、公积金、个税参数。"/>
+                                    <LineBreak/>
+                                    <Run Text="其他城市可在「设置 → 政策参数」中按当地政策自行调整。"/>
+                                    <LineBreak/>
+                                    <Run Text="有疑问或建议，欢迎联系 Lee 老师："/>
+                                    <Run Text="leemail208@163.com"
+                                         Foreground="{StaticResource WCoralStrongBrush}"
+                                         FontWeight="SemiBold"/>
+                                </TextBlock>
+                            </StackPanel>
+                        </Border>
+
+                        <Border Background="{StaticResource WGreenSoftBrush}"
+                                BorderBrush="{StaticResource WGreenBrush}"
+                                BorderThickness="2,0,0,0" CornerRadius="8"
+                                Padding="14,11" Margin="0,0,0,10">
+                            <StackPanel>
+                                <StackPanel Orientation="Horizontal">
+                                    <Border Width="26" Height="26" CornerRadius="8"
+                                            Background="{StaticResource WSurfaceRaisedBrush}"
+                                            BorderBrush="{StaticResource WGreenBrush}"
+                                            BorderThickness="1">
+                                        <Path Data="{StaticResource IconSettings}"
+                                              Fill="{StaticResource WGreenStrongBrush}"
+                                              Width="14" Height="14" Stretch="Uniform"
+                                              HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                    </Border>
+                                    <TextBlock Text="参数可配置"
+                                               Style="{StaticResource WCardTitleStyle}"
+                                               Margin="9,0,0,0" VerticalAlignment="Center"/>
+                                </StackPanel>
+                                <TextBlock Text="社保基数上下限、公积金比例、个税税率等参数已做成可配置项，政策调整后可在设置中手动更新。"
+                                           Style="{StaticResource WBodyStyle}" Margin="0,6,0,0"/>
+                            </StackPanel>
+                        </Border>
+
+                        <Border Background="{StaticResource WAmberSoftBrush}"
+                                BorderBrush="{StaticResource WAmberBrush}"
+                                BorderThickness="2,0,0,0" CornerRadius="8"
+                                Padding="14,11" Margin="0,0,0,10">
+                            <StackPanel>
+                                <StackPanel Orientation="Horizontal">
+                                    <Border Width="26" Height="26" CornerRadius="8"
+                                            Background="{StaticResource WSurfaceRaisedBrush}"
+                                            BorderBrush="{StaticResource WAmberBrush}"
+                                            BorderThickness="1">
+                                        <Path Data="{StaticResource IconCheck}"
+                                              Fill="{StaticResource WAmberStrongBrush}"
+                                              Width="14" Height="14" Stretch="Uniform"
+                                              HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                    </Border>
+                                    <TextBlock Text="计算结果仅供参考"
+                                               Style="{StaticResource WCardTitleStyle}"
+                                               Margin="9,0,0,0" VerticalAlignment="Center"/>
+                                </StackPanel>
+                                <TextBlock Style="{StaticResource WBodyStyle}" Margin="0,6,0,0">
+                                    <Run Text="计算结果仅供参考，以实际工资条为准。"/>
+                                    <LineBreak/>
+                                    <Run Text="愿你的付出都有回响，休息也理直气壮。"/>
+                                </TextBlock>
+                            </StackPanel>
+                        </Border>
+
+                        <Border Background="{StaticResource WCoralSoftBrush}"
+                                BorderBrush="{StaticResource WCoralBrush}"
+                                BorderThickness="2,0,0,0" CornerRadius="8"
+                                Padding="14,11">
+                            <StackPanel>
+                                <StackPanel Orientation="Horizontal">
+                                    <Border Width="26" Height="26" CornerRadius="8"
+                                            Background="{StaticResource WSurfaceRaisedBrush}"
+                                            BorderBrush="{StaticResource WCoralBrush}"
+                                            BorderThickness="1">
+                                        <Path Data="{StaticResource IconHeart}"
+                                              Fill="{StaticResource WCoralStrongBrush}"
+                                              Width="14" Height="14" Stretch="Uniform"
+                                              HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                    </Border>
+                                    <TextBlock Text="写在最后"
+                                               Style="{StaticResource WCardTitleStyle}"
+                                               Margin="9,0,0,0" VerticalAlignment="Center"/>
+                                </StackPanel>
+                                <TextBlock Style="{StaticResource WBodyStyle}" Margin="0,6,0,0">
+                                    <Run Text="希望每一个努力生活的人，都能被好好对待。"/>
+                                    <LineBreak/>
+                                    <Run Text="Lee 老师倡导全行业按法休息，不恶意内卷、不形式加班。"/>
+                                    <LineBreak/>
+                                    <Run Text="这个计算器也会在节假日强制休息，不计算工资和加班费。"/>
+                                </TextBlock>
+                            </StackPanel>
+                        </Border>
+
+                    </StackPanel>
+                </ScrollViewer>
 
                 <!-- 确认区 -->
-                <StackPanel Grid.Row="2">
+                <StackPanel Grid.Row="2" Margin="0,14,0,0">
                     <CheckBox Content="下次不再显示"
                               IsChecked="{Binding DontShowAgain}"
                               Margin="0,0,0,14"/>
-                    <Button Content="开始使用"
+                    <Button Content="我已知晓，开始使用 →"
                             Style="{StaticResource SplashPrimary}"
                             Command="{Binding ConfirmCommand}"/>
                 </StackPanel>
