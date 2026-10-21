@@ -77,7 +77,11 @@ function Invoke-Git {
         $ErrorActionPreference = $prevEap
     }
     if ($code -ne 0) {
-        throw "git $($GitArgs -join ' ') failed (exit $code)"
+        # The push command carries the token in its URL; never echo it in errors.
+        $safeArgs = $GitArgs | ForEach-Object {
+            $_ -replace 'https://[^@\s]+@github\.com', 'https://<redacted>@github.com'
+        }
+        throw "git $($safeArgs -join ' ') failed (exit $code)"
     }
     return @($out)
 }
